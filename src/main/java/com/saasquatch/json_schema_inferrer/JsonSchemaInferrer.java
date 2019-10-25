@@ -125,7 +125,12 @@ public class JsonSchemaInferrer {
     case BOOLEAN: return Types.BOOLEAN;
     case MISSING: return Types.NULL;
     case NULL: return Types.NULL;
-    case NUMBER: return Types.NUMBER;
+    case NUMBER: {
+      if (value.isIntegralNumber()) {
+        return Types.INTEGER;
+      }
+      return Types.NUMBER;
+    }
     case OBJECT: return Types.OBJECT;
     case POJO: throw new IllegalArgumentException("POJONode not supported");
     case STRING: return Types.STRING;
@@ -402,7 +407,7 @@ public class JsonSchemaInferrer {
 
   private static interface Types {
     String OBJECT = "object", ARRAY = "array", STRING = "string", BOOLEAN = "boolean",
-        NUMBER = "number", NULL = "null";
+        INTEGER = "integer", NUMBER = "number", NULL = "null";
   }
 
   private static ArrayNode arrayNodeOf(JsonNode... nodes) {

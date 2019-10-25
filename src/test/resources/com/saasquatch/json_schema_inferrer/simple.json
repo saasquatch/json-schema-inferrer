@@ -1,14 +1,26 @@
 {
-  "menu": {
-    "id": "file",
-    "value": "File",
-    "date": "1900-01-25T21:28:54.002Z",
-    "popup": {
-      "menuitem": [
-        { "value": "New", "onclick": "CreateNewDoc()" },
-        { "value": "Open", "onclick": "OpenDoc()" },
-        { "value": "Close", "onclick": "CloseDoc()" }
-      ]
+  "id": 42,
+  "slug": "name",
+  "admin": true,
+  "avatar": null,
+  "date": "1900-01-25T21:28:54.002Z",
+  "article": {
+    "title": "Name",
+    "description": "Something longer goes here",
+    "body": "There once was someone who viewed tests, and they were amazing."
+  },
+  "comments": [
+    {
+      "body": "Nothing is safe inside of an array",
+      "tags": ["hello"]
+    },
+    {
+      "body": "",
+      "tags": [null]
+    },
+    {
+      "body": null,
+      "tags": [null]
     }
-  }
+  ]
 }

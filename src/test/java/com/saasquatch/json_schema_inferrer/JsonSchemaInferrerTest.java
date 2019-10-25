@@ -1,5 +1,6 @@
 package com.saasquatch.json_schema_inferrer;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.IOException;
@@ -23,12 +24,18 @@ public class JsonSchemaInferrerTest {
   }
 
   @Test
-  public void testSimple() {
+  public void testSimple() throws Exception {
     final JsonNode simple = loadJson("simple.json");
     {
       final ObjectNode schema = JsonSchemaInferrer.newBuilder().build().infer(simple);
       assertTrue(schema.hasNonNull("$schema"));
-      assertTrue(schema.get("$schema").textValue().contains("-04"));
+      assertTrue(schema.path("$schema").textValue().contains("-04"));
+      assertTrue(schema.hasNonNull("type"));
+    }
+    {
+      final ObjectNode schema = JsonSchemaInferrer.newBuilder().draft06().build().infer(simple);
+      assertTrue(schema.hasNonNull("$schema"));
+      assertTrue(schema.path("$schema").textValue().contains("-06"));
       assertTrue(schema.hasNonNull("type"));
     }
     {
@@ -36,6 +43,32 @@ public class JsonSchemaInferrerTest {
           JsonSchemaInferrer.newBuilder().draft06().outputDollarSchema(false).build().infer(simple);
       assertFalse(schema.hasNonNull("$schema"));
       assertTrue(schema.hasNonNull("type"));
+    }
+    {
+      final ObjectNode schema = JsonSchemaInferrer.newBuilder().build().infer(simple);
+      System.out.println(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(schema));
+      assertTrue(schema.hasNonNull("properties"));
+      assertTrue(schema.path("properties").isObject());
+      assertEquals("integer", schema.path("properties").path("id").path("type").textValue());
+      assertEquals("string", schema.path("properties").path("slug").path("type").textValue());
+      assertEquals("boolean", schema.path("properties").path("admin").path("type").textValue());
+      assertEquals("null", schema.path("properties").path("avatar").path("type").textValue());
+      assertEquals("string", schema.path("properties").path("date").path("type").textValue());
+      assertEquals("date-time", schema.path("properties").path("date").path("format").textValue());
+      assertEquals("object", schema.path("properties").path("article").path("type").textValue());
+      assertTrue(schema.path("properties").path("article").isObject());
+      assertEquals("string", schema.path("properties").path("article").path("properties")
+          .path("title").path("type").textValue());
+      assertEquals("string", schema.path("properties").path("article").path("properties")
+          .path("description").path("type").textValue());
+      assertEquals("string", schema.path("properties").path("article").path("properties")
+          .path("body").path("type").textValue());
+      assertEquals("array", schema.path("properties").path("comments").path("type").textValue());
+      assertTrue(schema.path("properties").path("comments").path("items").isObject());
+      assertEquals("string", schema.path("properties").path("comments").path("items")
+          .path("properties").path("body").path("type").path(0).textValue());
+      assertEquals("null", schema.path("properties").path("comments").path("items")
+          .path("properties").path("body").path("type").path(1).textValue());
     }
   }
 
