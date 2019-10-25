@@ -84,7 +84,6 @@ public class JsonSchemaInferrerTest {
     final JsonNode advanced = loadJson("advanced.json");
     {
       final ObjectNode schema = JsonSchemaInferrer.newBuilder().build().infer(advanced);
-      System.out.println(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(schema));
       assertTrue(schema.path("items").isObject());
       assertTrue(schema.path("items").path("required").isArray());
       assertEquals(Arrays.asList("id", "name", "price", "dimensions", "warehouseLocation"),
