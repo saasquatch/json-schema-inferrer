@@ -307,7 +307,7 @@ public final class JsonSchemaInferrer {
 
     for (String key : iteratorToList(object.fieldNames())) {
       final JsonNode value = object.get(key);
-      String type = getPropertyType(value);
+      final String type = getPropertyType(value);
       final String format = getPropertyFormat(value);
 
       if (type.equals(Types.OBJECT)) {
