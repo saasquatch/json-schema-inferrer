@@ -9,6 +9,52 @@ Java library for inferring JSON schema from a sample JSON based on the algorithm
 
 # UNDER CONSTRUCTION
 
+## Sample usage
+
+```java
+final ObjectNode sample = JsonNodeFactory.instance.objectNode();
+sample.put("one", 1);
+sample.put("two", "1.1.1.1");
+sample.put("three", "fake@email.com");
+sample.set("four",
+    JsonNodeFactory.instance.arrayNode().add(1).add("two").add(JsonNodeFactory.instance
+        .arrayNode().add(JsonNodeFactory.instance.objectNode().put("true", true))));
+final ObjectNode inferredSchema = JsonSchemaInferrer.newBuilder().build().infer(sample);
+```
+
+`inferredSchema` will be:
+
+```json
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "type" : "object",
+  "properties" : {
+    "one" : {
+      "type" : "integer"
+    },
+    "two" : {
+      "type" : "string",
+      "format" : "ipv4"
+    },
+    "three" : {
+      "type" : "string",
+      "format" : "email"
+    },
+    "four" : {
+      "type" : "array",
+      "items" : {
+        "oneOf" : [ {
+          "type" : "integer"
+        }, {
+          "type" : "string"
+        }, { } ],
+        "required" : null
+      }
+    }
+  }
+}
+```
+
 ## Adding it to your project
 
 json-schema-inferrer is hosted on JitPack.

@@ -1,6 +1,5 @@
 package com.saasquatch.json_schema_inferrer;
 
-import java.net.URI;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -13,6 +12,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.apache.commons.validator.routines.InetAddressValidator;
+import org.apache.commons.validator.routines.UrlValidator;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -120,12 +120,8 @@ public final class JsonSchemaInferrer {
       if (InetAddressValidator.getInstance().isValidInet6Address(textValue)) {
         return "ipv6";
       }
-      try {
-        // Using Objects.requireNonNull to silence a warning
-        Objects.requireNonNull(new URI(textValue));
+      if (UrlValidator.getInstance().isValid(textValue)) {
         return "uri";
-      } catch (Exception e) {
-        // Ignore
       }
     }
     return null;
