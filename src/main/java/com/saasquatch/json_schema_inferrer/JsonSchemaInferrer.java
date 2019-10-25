@@ -2,6 +2,8 @@ package com.saasquatch.json_schema_inferrer;
 
 import java.net.URI;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -40,6 +42,20 @@ public class JsonSchemaInferrer {
         return "date-time";
       } catch (Exception e) {
         // Ignore
+      }
+      if (draft.sameOrNewerThan(Draft.V7)) {
+        try {
+          LocalTime.parse(textValue);
+          return "time";
+        } catch (Exception e) {
+          // Ignore
+        }
+        try {
+          LocalDate.parse(textValue);
+          return "date";
+        } catch (Exception e) {
+          // Ignore
+        }
       }
       if (EmailValidator.getInstance().isValid(textValue)) {
         return "email";
@@ -370,6 +386,10 @@ public class JsonSchemaInferrer {
 
     Draft(String url) {
       this.url = url;
+    }
+
+    public boolean sameOrNewerThan(Draft other) {
+      return this.compareTo(other) >= 0;
     }
 
   }
