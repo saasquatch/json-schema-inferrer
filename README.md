@@ -2,11 +2,39 @@
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Build Status](https://travis-ci.org/saasquatch/json-schema-inferrer.svg?branch=master)](https://travis-ci.org/saasquatch/json-schema-inferrer)
+[![](https://jitci.com/gh/saasquatch/json-schema-inferrer/svg)](https://jitci.com/gh/saasquatch/json-schema-inferrer)
 [![](https://jitpack.io/v/saasquatch/json-schema-inferrer.svg)](https://jitpack.io/#saasquatch/json-schema-inferrer)
 
 Java library for inferring JSON schema from a sample JSON
 
 # UNDER CONSTRUCTION
+
+## Adding it to your project
+
+json-schema-inferrer is hosted on JitPack.
+
+Add JitPack repository:
+
+```xml
+<repositories>
+  <repository>
+    <id>jitpack.io</id>
+    <url>https://jitpack.io</url>
+  </repository>
+</repositories>
+```
+
+Add the dependency:
+
+```xml
+<dependency>
+  <groupId>com.github.saasquatch</groupId>
+  <artifactId>json-schema-inferrer</artifactId>
+  <version>0.0.1</version>
+</dependency>
+```
+
+For more information and other built tools, [please refer to the JitPack page](https://jitpack.io/#saasquatch/json-schema-inferrer).
 
 ## LICENSE
 
