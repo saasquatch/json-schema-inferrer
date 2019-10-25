@@ -200,9 +200,9 @@ public final class JsonSchemaInferrer {
     boolean oneOf = false;
     String type = null;
     if (nested && nonNull(output)) {
-      final ObjectNode output2 = newObject();
-      output2.set(Fields.ITEMS, output);
-      output = output2;
+      final ObjectNode newOutput = newObject();
+      newOutput.set(Fields.ITEMS, output);
+      output = newOutput;
     } else {
       if (output == null || !output.isObject()) {
         output = newObject();
@@ -292,9 +292,9 @@ public final class JsonSchemaInferrer {
   private ObjectNode processObject(@Nonnull JsonNode object, @Nullable ObjectNode output,
       boolean nested) {
     if (nested && nonNull(output)) {
-      final ObjectNode output2 = newObject();
-      output2.set(Fields.PROPERTIES, output);
-      output = output2;
+      final ObjectNode newOutput = newObject();
+      newOutput.set(Fields.PROPERTIES, output);
+      output = newOutput;
     } else {
       if (output == null || !output.isObject()) {
         output = newObject();
