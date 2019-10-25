@@ -5,7 +5,7 @@
 [![](https://jitci.com/gh/saasquatch/json-schema-inferrer/svg)](https://jitci.com/gh/saasquatch/json-schema-inferrer)
 [![](https://jitpack.io/v/saasquatch/json-schema-inferrer.svg)](https://jitpack.io/#saasquatch/json-schema-inferrer)
 
-Java library for inferring JSON schema from a sample JSON
+Java library for inferring JSON schema from a sample JSON based on the algorithm of JavaScript library [Generate Schemas](https://github.com/nijikokun/generate-schema). The original license of Generate Schemas can be found [here](https://github.com/nijikokun/generate-schema/blob/8542b907e7c6662730e40efd48daef7f884311be/LICENSE).
 
 # UNDER CONSTRUCTION
 
