@@ -31,6 +31,7 @@ public class JsonSchemaInferrer {
     this.outputDollarSchema = outputDollarSchema;
   }
 
+  @Nullable
   private String getPropertyFormat(JsonNode value) {
     if (value.isTextual()) {
       final String textValue = value.textValue();
@@ -59,7 +60,8 @@ public class JsonSchemaInferrer {
     return null;
   }
 
-  private String getPropertyType(JsonNode value) {
+  @Nonnull
+  private static String getPropertyType(JsonNode value) {
     final JsonNodeType type = value.getNodeType();
     switch (type) {
     case ARRAY: return Types.ARRAY;
