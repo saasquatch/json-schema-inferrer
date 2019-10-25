@@ -37,7 +37,7 @@ public class JsonSchemaInferrer {
     return new Builder();
   }
 
-  public ObjectNode infer(JsonNode input) {
+  public ObjectNode infer(@Nonnull JsonNode input) {
     final ObjectNode processOutput;
     final ObjectNode output = newObject();
     if (draft != null && outputDollarSchema) {
@@ -74,7 +74,7 @@ public class JsonSchemaInferrer {
   }
 
   @Nullable
-  private String getPropertyFormat(JsonNode value) {
+  private String getPropertyFormat(@Nonnull JsonNode value) {
     if (value.isTextual()) {
       final String textValue = value.textValue();
       try {
@@ -117,7 +117,7 @@ public class JsonSchemaInferrer {
   }
 
   @Nonnull
-  private static String getPropertyType(JsonNode value) {
+  private static String getPropertyType(@Nonnull JsonNode value) {
     final JsonNodeType type = value.getNodeType();
     switch (type) {
     case ARRAY: return Types.ARRAY;
@@ -175,7 +175,8 @@ public class JsonSchemaInferrer {
     return resultArray;
   }
 
-  private ObjectNode processArray(JsonNode array, ObjectNode output, boolean nested) {
+  private ObjectNode processArray(@Nonnull JsonNode array, @Nullable ObjectNode output,
+      boolean nested) {
     String format = null;
     boolean oneOf = false;
     String type = null;
@@ -272,7 +273,8 @@ public class JsonSchemaInferrer {
     return nested ? (ObjectNode) output.get(Fields.ITEMS) : output;
   }
 
-  private ObjectNode processObject(JsonNode object, ObjectNode output, boolean nested) {
+  private ObjectNode processObject(@Nonnull JsonNode object, @Nullable ObjectNode output,
+      boolean nested) {
     if (nested && nonNull(output)) {
       final ObjectNode output2 = newObject();
       output2.set(Fields.PROPERTIES, output);
@@ -438,7 +440,8 @@ public class JsonSchemaInferrer {
     return list;
   }
 
-  private static List<String> toStringList(JsonNode arrayNode) {
+  // Visible for testing
+  static List<String> toStringList(@Nonnull JsonNode arrayNode) {
     final List<String> list = new ArrayList<>();
     for (JsonNode node : arrayNode) {
       list.add(node.textValue());
@@ -446,7 +449,7 @@ public class JsonSchemaInferrer {
     return list;
   }
 
-  private static boolean contains(JsonNode arrayNode, JsonNode target) {
+  private static boolean contains(@Nonnull JsonNode arrayNode, @Nullable JsonNode target) {
     for (JsonNode node : arrayNode) {
       if (node.equals(target)) {
         return true;

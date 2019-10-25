@@ -1,11 +1,13 @@
 package com.saasquatch.json_schema_inferrer;
 
+import static com.saasquatch.json_schema_inferrer.JsonSchemaInferrer.toStringList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
+import java.util.Arrays;
 import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -46,7 +48,6 @@ public class JsonSchemaInferrerTest {
     }
     {
       final ObjectNode schema = JsonSchemaInferrer.newBuilder().build().infer(simple);
-      System.out.println(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(schema));
       assertTrue(schema.hasNonNull("properties"));
       assertTrue(schema.path("properties").isObject());
       assertEquals("integer", schema.path("properties").path("id").path("type").textValue());
@@ -69,6 +70,26 @@ public class JsonSchemaInferrerTest {
           .path("properties").path("body").path("type").path(0).textValue());
       assertEquals("null", schema.path("properties").path("comments").path("items")
           .path("properties").path("body").path("type").path(1).textValue());
+    }
+  }
+
+  @Test
+  public void testAdvanced() throws Exception {
+    final JsonNode advanced = loadJson("advanced.json");
+    {
+      final ObjectNode schema = JsonSchemaInferrer.newBuilder().build().infer(advanced);
+      System.out.println(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(schema));
+      assertTrue(schema.path("items").isObject());
+      assertTrue(schema.path("items").path("required").isArray());
+      assertEquals(Arrays.asList("id", "name", "price", "dimensions", "warehouseLocation"),
+          toStringList(schema.path("items").path("required")));
+      assertTrue(schema.path("items").path("properties").path("tags").isObject());
+      assertEquals("integer",
+          schema.path("items").path("properties").path("id").path("type").textValue());
+      assertEquals("number",
+          schema.path("items").path("properties").path("price").path("type").textValue());
+      assertEquals(Arrays.asList("integer", "number"), toStringList(schema.path("items")
+          .path("properties").path("dimensions").path("properties").path("length").path("type")));
     }
   }
 
