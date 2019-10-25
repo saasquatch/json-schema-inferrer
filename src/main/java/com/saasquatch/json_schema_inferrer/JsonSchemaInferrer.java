@@ -33,6 +33,46 @@ public class JsonSchemaInferrer {
     this.outputDollarSchema = outputDollarSchema;
   }
 
+  public static Builder newBuilder() {
+    return new Builder();
+  }
+
+  public ObjectNode infer(JsonNode input) {
+    final ObjectNode processOutput;
+    final ObjectNode output = newObject();
+    if (draft != null && outputDollarSchema) {
+      output.put(Fields.SCHEMA, draft.url);
+    }
+    if (title != null) {
+      output.put(Fields.TITLE, title);
+    }
+
+    // Process object
+    if (input.isObject()) {
+      processOutput = processObject(input, null, false);
+      output.put(Fields.TYPE, processOutput.path(Fields.TYPE).textValue());
+      output.set(Fields.PROPERTIES, processOutput.get(Fields.PROPERTIES));
+    } else if (input.isArray()) {
+      processOutput = processArray(input, null, false);
+      output.put(Fields.TYPE, processOutput.path(Fields.TYPE).textValue());
+      output.set(Fields.ITEMS, processOutput.get(Fields.ITEMS));
+
+      if (nonNull(output.get(Fields.TITLE))) {
+        final String outputTitle = output.get(Fields.TITLE).textValue();
+        ((ObjectNode) output.get(Fields.ITEMS)).put(Fields.TITLE, outputTitle);
+        output.put(Fields.TITLE, outputTitle + " Set");
+      }
+    } else {
+      output.put(Fields.TYPE, getPropertyType(input));
+      final String format = getPropertyFormat(input);
+      if (format != null && !format.isEmpty()) {
+        output.put(Fields.FORMAT, format);
+      }
+    }
+
+    return output;
+  }
+
   @Nullable
   private String getPropertyFormat(JsonNode value) {
     if (value.isTextual()) {
@@ -294,46 +334,6 @@ public class JsonSchemaInferrer {
     return nested ? (ObjectNode) output.get(Fields.PROPERTIES) : output;
   }
 
-  public ObjectNode process(JsonNode input) {
-    final ObjectNode processOutput;
-    final ObjectNode output = newObject();
-    if (draft != null && outputDollarSchema) {
-      output.put(Fields.SCHEMA, draft.url);
-    }
-    if (title != null) {
-      output.put(Fields.TITLE, title);
-    }
-
-    // Process object
-    if (input.isObject()) {
-      processOutput = processObject(input, null, false);
-      output.put(Fields.TYPE, processOutput.path(Fields.TYPE).textValue());
-      output.set(Fields.PROPERTIES, processOutput.get(Fields.PROPERTIES));
-    } else if (input.isArray()) {
-      processOutput = processArray(input, null, false);
-      output.put(Fields.TYPE, processOutput.path(Fields.TYPE).textValue());
-      output.set(Fields.ITEMS, processOutput.get(Fields.ITEMS));
-
-      if (nonNull(output.get(Fields.TITLE))) {
-        final String outputTitle = output.get(Fields.TITLE).textValue();
-        ((ObjectNode) output.get(Fields.ITEMS)).put(Fields.TITLE, outputTitle);
-        output.put(Fields.TITLE, outputTitle + " Set");
-      }
-    } else {
-      output.put(Fields.TYPE, getPropertyType(input));
-      final String format = getPropertyFormat(input);
-      if (format != null && !format.isEmpty()) {
-        output.put(Fields.FORMAT, format);
-      }
-    }
-
-    return output;
-  }
-
-  public static Builder newBuilder() {
-    return new Builder();
-  }
-
   public static final class Builder {
 
     private String title;
@@ -364,8 +364,9 @@ public class JsonSchemaInferrer {
       return this;
     }
 
-    public void outputDollarSchema(boolean outputDollarSchema) {
+    public Builder outputDollarSchema(boolean outputDollarSchema) {
       this.outputDollarSchema = outputDollarSchema;
+      return this;
     }
 
     public JsonSchemaInferrer build() {
