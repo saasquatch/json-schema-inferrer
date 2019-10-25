@@ -18,6 +18,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.POJONode;
 
 public class JsonSchemaInferrer {
 
@@ -107,6 +108,7 @@ public class JsonSchemaInferrer {
         return "ipv6";
       }
       try {
+        // Using Objects.requireNonNull to silence a warning
         Objects.requireNonNull(new URI(textValue));
         return "uri";
       } catch (Exception e) {
@@ -120,24 +122,33 @@ public class JsonSchemaInferrer {
   private static String getPropertyType(@Nonnull JsonNode value) {
     final JsonNodeType type = value.getNodeType();
     switch (type) {
-    case ARRAY: return Types.ARRAY;
-    case BINARY: return Types.STRING;
-    case BOOLEAN: return Types.BOOLEAN;
-    case MISSING: return Types.NULL;
-    case NULL: return Types.NULL;
-    case NUMBER: {
-      if (value.isIntegralNumber()) {
-        return Types.INTEGER;
+      case ARRAY:
+        return Types.ARRAY;
+      case BINARY:
+        return Types.STRING;
+      case BOOLEAN:
+        return Types.BOOLEAN;
+      case MISSING:
+        return Types.NULL;
+      case NULL:
+        return Types.NULL;
+      case NUMBER: {
+        if (value.isIntegralNumber()) {
+          return Types.INTEGER;
+        }
+        return Types.NUMBER;
       }
-      return Types.NUMBER;
+      case OBJECT:
+        return Types.OBJECT;
+      case POJO:
+        throw new IllegalArgumentException(POJONode.class.getSimpleName() + " not supported");
+      case STRING:
+        return Types.STRING;
+      default:
+        break;
     }
-    case OBJECT: return Types.OBJECT;
-    case POJO: throw new IllegalArgumentException("POJONode not supported");
-    case STRING: return Types.STRING;
-    default: break;
-    }
-    throw new IllegalArgumentException(String.format(Locale.ROOT, "Unrecognized %s: %s",
-        type.getClass().getSimpleName(), type));
+    throw new IllegalArgumentException(
+        String.format(Locale.ROOT, "Unrecognized %s: %s", type.getClass().getSimpleName(), type));
   }
 
   private ArrayNode getUniqueKeys(JsonNode aInput, JsonNode bInput, JsonNode cInput) {
@@ -243,8 +254,7 @@ public class JsonSchemaInferrer {
               oneOf ? newObject() : (ObjectNode) output.path(Fields.ITEMS).get(Fields.PROPERTIES),
               true);
         } else {
-          arrayItem = newObject()
-              .put(Fields.TYPE, itemType);
+          arrayItem = newObject().put(Fields.TYPE, itemType);
           if (itemFormat != null && !itemFormat.isEmpty()) {
             arrayItem.put(Fields.FORMAT, itemFormat);
           }
@@ -252,8 +262,7 @@ public class JsonSchemaInferrer {
         if (oneOf) {
           final String childType = getPropertyType(value);
           final ObjectNode tempObj = newObject();
-          if (arrayItem.path(Fields.TYPE).textValue() == null
-              && Types.OBJECT.equals(childType)) {
+          if (arrayItem.path(Fields.TYPE).textValue() == null && Types.OBJECT.equals(childType)) {
             tempObj.set(Fields.PROPERTIES, arrayItem);
             tempObj.put(Fields.TYPE, Types.OBJECT);
             arrayItem = tempObj;
