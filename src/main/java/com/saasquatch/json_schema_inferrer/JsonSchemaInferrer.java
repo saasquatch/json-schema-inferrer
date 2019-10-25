@@ -326,18 +326,20 @@ public final class JsonSchemaInferrer {
         final ObjectNode entry = (ObjectNode) output.path(Fields.PROPERTIES).get(key);
         final boolean hasTypeArray = entry.path(Fields.TYPE).isArray();
 
-        // When an array already exists, we check the existing
-        // type array to see if it contains our current property
-        // type, if not, we add it to the array and continue
+        /*
+         * When an array already exists, we check the existing type array to see if it contains our
+         * current property type, if not, we add it to the array and continue
+         */
         if (hasTypeArray) {
           if (toStringList(entry.get(Fields.TYPE)).contains(type)) {
             ((ArrayNode) entry.get(Fields.TYPE)).add(type);
           }
         }
 
-        // When multiple fields of differing types occur,
-        // json schema states that the field must specify the
-        // primitive types the field allows in array format.
+        /*
+         * When multiple fields of differing types occur, json schema states that the field must
+         * specify the primitive types the field allows in array format.
+         */
         if (!hasTypeArray && !type.equals(entry.path(Fields.TYPE).textValue())) {
           final ArrayNode newEntryType = newArray();
           newEntryType.add(entry.get(Fields.TYPE));
