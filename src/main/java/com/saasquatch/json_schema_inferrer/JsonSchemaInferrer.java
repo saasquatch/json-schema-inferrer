@@ -467,7 +467,7 @@ public final class JsonSchemaInferrer {
     return list;
   }
 
-  private static boolean contains(@Nonnull JsonNode arrayNode, @Nullable JsonNode target) {
+  private static boolean contains(@Nonnull JsonNode arrayNode, @Nonnull JsonNode target) {
     for (JsonNode node : arrayNode) {
       if (node.equals(target)) {
         return true;
