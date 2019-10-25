@@ -1,6 +1,7 @@
 package com.saasquatch.json_schema_inferrer;
 
 import static com.saasquatch.json_schema_inferrer.JsonSchemaInferrer.toStringList;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -26,7 +27,12 @@ public class JsonSchemaInferrerTest {
   }
 
   @Test
-  public void testSimple() throws Exception {
+  public void testBasic() {
+    assertDoesNotThrow(() -> JsonSchemaInferrer.newBuilder().build().infer(null));
+  }
+
+  @Test
+  public void testSimpleExample() throws Exception {
     final JsonNode simple = loadJson("simple.json");
     {
       final ObjectNode schema = JsonSchemaInferrer.newBuilder().build().infer(simple);
@@ -74,7 +80,7 @@ public class JsonSchemaInferrerTest {
   }
 
   @Test
-  public void testAdvanced() throws Exception {
+  public void testAdvancedExample() throws Exception {
     final JsonNode advanced = loadJson("advanced.json");
     {
       final ObjectNode schema = JsonSchemaInferrer.newBuilder().build().infer(advanced);

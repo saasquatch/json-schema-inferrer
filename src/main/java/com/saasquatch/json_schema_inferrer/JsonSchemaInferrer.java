@@ -20,7 +20,14 @@ import com.fasterxml.jackson.databind.node.JsonNodeType;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.POJONode;
 
-public class JsonSchemaInferrer {
+/**
+ * Infer JSON schema based on a sample JSON
+ *
+ * @author sli
+ * @see #newBuilder()
+ * @see #infer(JsonNode)
+ */
+public final class JsonSchemaInferrer {
 
   @Nullable
   private final String title;
@@ -38,7 +45,11 @@ public class JsonSchemaInferrer {
     return new Builder();
   }
 
-  public ObjectNode infer(@Nonnull JsonNode input) {
+  /**
+   * @param input the sample JSON
+   * @return the inferred JSON schema
+   */
+  public ObjectNode infer(@Nullable JsonNode input) {
     final ObjectNode processOutput;
     final ObjectNode output = newObject();
     if (draft != null && outputDollarSchema) {
@@ -48,7 +59,9 @@ public class JsonSchemaInferrer {
       output.put(Fields.TITLE, title);
     }
 
-    // Process object
+    if (input == null) {
+      input = JsonNodeFactory.instance.nullNode();
+    }
     if (input.isObject()) {
       processOutput = processObject(input, null, false);
       output.put(Fields.TYPE, processOutput.path(Fields.TYPE).textValue());
@@ -161,14 +174,9 @@ public class JsonSchemaInferrer {
       c = toStringList(cInput);
     }
 
-    String value;
-    int aIndex, cIndex;
-
-    for (int keyIndex = 0, keyLength = b.size(); keyIndex < keyLength; keyIndex++) {
-      value = b.get(keyIndex);
-      aIndex = a.indexOf(value);
-      cIndex = c.indexOf(value);
-
+    for (String value : b) {
+      final int aIndex = a.indexOf(value);
+      final int cIndex = c.indexOf(value);
       if (aIndex == -1) {
         if (cIndex != -1) {
           // Value is optional, it doesn't exist in A but exists in B(n)
@@ -207,9 +215,9 @@ public class JsonSchemaInferrer {
     }
 
     // Determine whether each item is different
-    for (int arrIndex = 0, arrLength = array.size(); arrIndex < arrLength; arrIndex++) {
-      final String elementType = getPropertyType(array.get(arrIndex));
-      final String elementFormat = getPropertyFormat(array.get(arrIndex));
+    for (JsonNode value : array) {
+      final String elementType = getPropertyType(value);
+      final String elementFormat = getPropertyFormat(value);
       if (type != null && !type.isEmpty() && !elementType.equals(type)) {
         ((ObjectNode) output.get(Fields.ITEMS)).set(Fields.ONE_OF, newArray());
         oneOf = true;
@@ -235,8 +243,7 @@ public class JsonSchemaInferrer {
 
     // Process each item depending
     if (output.path(Fields.ITEMS).get(Fields.ONE_OF) != null || Types.OBJECT.equals(type)) {
-      for (int itemIndex = 0, itemLength = array.size(); itemIndex < itemLength; itemIndex++) {
-        final JsonNode value = array.get(itemIndex);
+      for (JsonNode value : array) {
         final String itemType = getPropertyType(value);
         final String itemFormat = getPropertyFormat(value);
         ObjectNode arrayItem;
