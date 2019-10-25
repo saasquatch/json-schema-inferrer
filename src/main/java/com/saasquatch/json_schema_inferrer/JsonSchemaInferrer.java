@@ -89,7 +89,7 @@ public final class JsonSchemaInferrer {
 
   @Nullable
   private String getPropertyFormat(@Nonnull JsonNode value) {
-    if (value.isTextual()) {
+    if (value.isTextual() && value.textValue() != null) {
       final String textValue = value.textValue();
       try {
         Instant.parse(textValue);
