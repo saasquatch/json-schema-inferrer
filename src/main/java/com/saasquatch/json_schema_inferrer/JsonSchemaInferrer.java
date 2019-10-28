@@ -11,7 +11,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.function.BooleanSupplier;
+import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.apache.commons.validator.routines.EmailValidator;
@@ -213,13 +213,11 @@ public final class JsonSchemaInferrer {
   }
 
   private void processOneOfs(Set<ObjectNode> oneOfs) {
-    final BooleanSupplier hasNumber = () -> oneOfs.stream()
+    final Set<String> types = oneOfs.stream()
         .map(j -> j.path(Fields.TYPE).textValue())
-        .anyMatch(Types.NUMBER::equals);
-    final BooleanSupplier hasInteger = () -> oneOfs.stream()
-        .map(j -> j.path(Fields.TYPE).textValue())
-        .anyMatch(Types.INTEGER::equals);
-    if (hasNumber.getAsBoolean() && hasInteger.getAsBoolean()) {
+        .filter(Objects::nonNull)
+        .collect(Collectors.toSet());
+    if (types.contains(Types.INTEGER) && types.contains(Types.NUMBER)) {
       oneOfs.removeIf(j -> Types.INTEGER.equals(j.path(Fields.TYPE).textValue()));
     }
   }
