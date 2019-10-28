@@ -11,6 +11,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.BooleanSupplier;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.apache.commons.validator.routines.EmailValidator;
@@ -181,33 +182,46 @@ public final class JsonSchemaInferrer {
 
   private ObjectNode processArray(ArrayNode arrayNode) {
     final ObjectNode items;
-    final Set<ObjectNode> oneOfRaw = new LinkedHashSet<>();
+    final Set<ObjectNode> oneOfs = new LinkedHashSet<>();
     for (JsonNode val : arrayNode) {
       if (val instanceof ObjectNode) {
-        oneOfRaw.add(processObject((ObjectNode) val));
+        oneOfs.add(processObject((ObjectNode) val));
       } else if (val instanceof ArrayNode) {
-        oneOfRaw.add(processArray((ArrayNode) val));
+        oneOfs.add(processArray((ArrayNode) val));
       } else {
-        oneOfRaw.add(processPrimitive((ValueNode) val));
+        oneOfs.add(processPrimitive((ValueNode) val));
       }
     }
-    final ArrayNode oneOf = newArray();
-    oneOfRaw.forEach(oneOf::add);
-    switch (oneOf.size()) {
+    processOneOfs(oneOfs);
+    switch (oneOfs.size()) {
       case 0:
         items = newObject();
         break;
       case 1:
-        items = (ObjectNode) oneOf.iterator().next();
+        items = oneOfs.iterator().next();
         break;
       default: {
         items = newObject();
-        items.set(Fields.ONE_OF, oneOf);
+        final ArrayNode oneOfArray = newArray();
+        oneOfs.forEach(oneOfArray::add);
+        items.set(Fields.ONE_OF, oneOfArray);
       }
     }
     final ObjectNode result = newObject().put(Fields.TYPE, Types.ARRAY);
     result.set(Fields.ITEMS, items);
     return result;
+  }
+
+  private void processOneOfs(Set<ObjectNode> oneOfs) {
+    final BooleanSupplier hasNumber = () -> oneOfs.stream()
+        .map(j -> j.path(Fields.TYPE).textValue())
+        .anyMatch(Types.NUMBER::equals);
+    final BooleanSupplier hasInteger = () -> oneOfs.stream()
+        .map(j -> j.path(Fields.TYPE).textValue())
+        .anyMatch(Types.INTEGER::equals);
+    if (hasNumber.getAsBoolean() && hasInteger.getAsBoolean()) {
+      oneOfs.removeIf(j -> Types.INTEGER.equals(j.path(Fields.TYPE).textValue()));
+    }
   }
 
   public static final class Builder {
@@ -281,9 +295,9 @@ public final class JsonSchemaInferrer {
         INTEGER = "integer", NUMBER = "number", NULL = "null";
   }
 
-  private static boolean nonNull(@Nullable JsonNode j) {
-    return j != null && !j.isNull() && !j.isMissingNode();
-  }
+//  private static boolean nonNull(@Nullable JsonNode j) {
+//    return j != null && !j.isNull() && !j.isMissingNode();
+//  }
 
   private static ObjectNode newObject() {
     return JsonNodeFactory.instance.objectNode();
