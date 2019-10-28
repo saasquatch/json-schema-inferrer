@@ -55,9 +55,6 @@ public final class JsonSchemaInferrer {
    * @return the inferred JSON schema
    */
   public ObjectNode infer(@Nullable JsonNode input) {
-    if (input == null) {
-      input = JsonNodeFactory.instance.nullNode();
-    }
     final ObjectNode result = newObject();
     if (includeDollarSchema) {
       result.put(Fields.DOLLAR_SCHEMA, draft.url);
@@ -70,13 +67,15 @@ public final class JsonSchemaInferrer {
     } else if (input instanceof ArrayNode) {
       result.setAll(processArray((ArrayNode) input));
     } else {
-      result.setAll(processPrimitive((ValueNode) input));
+      // input is null or a ValueNode
+      result.setAll(processPrimitive(
+          input == null ? JsonNodeFactory.instance.nullNode() : (ValueNode) input));
     }
     return result;
   }
 
   @Nullable
-  private String getPropertyFormat(@Nonnull JsonNode value) {
+  private String inferFormat(@Nonnull JsonNode value) {
     if (!inferFormat) {
       return null;
     }
@@ -119,7 +118,7 @@ public final class JsonSchemaInferrer {
   }
 
   @Nonnull
-  private static String getPropertyType(@Nonnull JsonNode value) {
+  private static String inferType(@Nonnull JsonNode value) {
     final JsonNodeType type = value.getNodeType();
     switch (type) {
       case ARRAY:
@@ -132,12 +131,8 @@ public final class JsonSchemaInferrer {
         return Types.NULL;
       case NULL:
         return Types.NULL;
-      case NUMBER: {
-        if (value.isIntegralNumber()) {
-          return Types.INTEGER;
-        }
-        return Types.NUMBER;
-      }
+      case NUMBER:
+        return value.isIntegralNumber() ? Types.INTEGER : Types.NUMBER;
       case OBJECT:
         return Types.OBJECT;
       case POJO:
@@ -151,17 +146,17 @@ public final class JsonSchemaInferrer {
         String.format(Locale.ROOT, "Unrecognized %s: %s", type.getClass().getSimpleName(), type));
   }
 
-  private ObjectNode processPrimitive(ValueNode valueNode) {
+  private ObjectNode processPrimitive(@Nonnull ValueNode valueNode) {
     final ObjectNode result = newObject();
-    result.put(Fields.TYPE, getPropertyType(valueNode));
-    final String format = getPropertyFormat(valueNode);
+    result.put(Fields.TYPE, inferType(valueNode));
+    final String format = inferFormat(valueNode);
     if (format != null) {
       result.put(Fields.FORMAT, format);
     }
     return result;
   }
 
-  private ObjectNode processObject(ObjectNode objectNode) {
+  private ObjectNode processObject(@Nonnull ObjectNode objectNode) {
     final ObjectNode properties = newObject();
     final Iterator<Map.Entry<String, JsonNode>> fields = objectNode.fields();
     while (fields.hasNext()) {
@@ -183,7 +178,7 @@ public final class JsonSchemaInferrer {
     return result;
   }
 
-  private ObjectNode processArray(ArrayNode arrayNode) {
+  private ObjectNode processArray(@Nonnull ArrayNode arrayNode) {
     final ObjectNode items;
     final Set<ObjectNode> oneOfs = new HashSet<>();
     for (JsonNode val : arrayNode) {
