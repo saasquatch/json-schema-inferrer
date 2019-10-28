@@ -7,8 +7,6 @@
 
 Java library for inferring JSON schema based on a sample JSON.
 
-# UNDER CONSTRUCTION
-
 ## Sample usage
 
 ```java
