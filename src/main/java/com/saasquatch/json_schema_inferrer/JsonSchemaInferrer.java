@@ -239,14 +239,23 @@ public final class JsonSchemaInferrer {
 
     private Builder() {}
 
+    /**
+     * Set the draft version to draft-04. The default is draft-04.
+     */
     public Builder draft04() {
       return withDraft(Draft.V4);
     }
 
+    /**
+     * Set the draft version to draft-06. The default is draft-04.
+     */
     public Builder draft06() {
       return withDraft(Draft.V6);
     }
 
+    /**
+     * Set the draft version to draft-07. The default is draft-04.
+     */
     public Builder draft07() {
       return withDraft(Draft.V7);
     }
@@ -257,7 +266,7 @@ public final class JsonSchemaInferrer {
     }
 
     /**
-     * Set whether {@code $schema} should be included in the output
+     * Set whether {@code $schema} should be included in the output. It is true by default.
      */
     public Builder includeDollarSchema(boolean includeDollarSchema) {
       this.includeDollarSchema = includeDollarSchema;
@@ -265,7 +274,8 @@ public final class JsonSchemaInferrer {
     }
 
     /**
-     * Set whether we should infer the {@code format} of the input, i.e. email, ipv4, ipv6, etc.
+     * Set whether we should infer the {@code format} of the input, i.e. email, ipv4, ipv6, etc. It
+     * is true by default.
      */
     public Builder inferFormat(boolean inferFormat) {
       this.inferFormat = inferFormat;
@@ -274,7 +284,7 @@ public final class JsonSchemaInferrer {
 
     /**
      * Set whether {@code default} should be included in the output. The values will be the same as
-     * the input.
+     * the input. It is false by default.
      */
     public Builder includeDefault(boolean includeDefault) {
       this.includeDefault = includeDefault;
@@ -284,7 +294,7 @@ public final class JsonSchemaInferrer {
 
     /**
      * Set whether {@code examples} should be included in the output. The values will be the same as
-     * the input.
+     * the input. It is false by default.
      */
     public Builder includeExamples(boolean includeExamples) {
       this.includeExamples = includeExamples;
