@@ -32,14 +32,11 @@ import com.fasterxml.jackson.databind.node.ValueNode;
  */
 public final class JsonSchemaInferrer {
 
-  private final String title;
   private final Draft draft;
   private final boolean includeDollarSchema;
   private final boolean inferFormat;
 
-  JsonSchemaInferrer(@Nullable String title, @Nonnull Draft draft, boolean includeDollarSchema,
-      boolean inferFormat) {
-    this.title = title;
+  JsonSchemaInferrer(@Nonnull Draft draft, boolean includeDollarSchema, boolean inferFormat) {
     this.draft = draft;
     this.includeDollarSchema = includeDollarSchema;
     this.inferFormat = inferFormat;
@@ -57,9 +54,6 @@ public final class JsonSchemaInferrer {
     final ObjectNode result = newObject();
     if (includeDollarSchema) {
       result.put(Fields.DOLLAR_SCHEMA, draft.url);
-    }
-    if (title != null) {
-      result.put(Fields.TITLE, title);
     }
     if (input instanceof ObjectNode) {
       result.setAll(processObject((ObjectNode) input));
@@ -223,17 +217,11 @@ public final class JsonSchemaInferrer {
 
   public static final class Builder {
 
-    private String title;
     private Draft draft = Draft.V4;
     private boolean includeDollarSchema = true;
     private boolean inferFormat = true;
 
     private Builder() {}
-
-    public Builder withTitle(@Nullable String title) {
-      this.title = title;
-      return this;
-    }
 
     public Builder draft04() {
       return withDraft(Draft.V4);
@@ -263,7 +251,7 @@ public final class JsonSchemaInferrer {
     }
 
     public JsonSchemaInferrer build() {
-      return new JsonSchemaInferrer(title, draft, includeDollarSchema, inferFormat);
+      return new JsonSchemaInferrer(draft, includeDollarSchema, inferFormat);
     }
 
   }
@@ -290,7 +278,8 @@ public final class JsonSchemaInferrer {
 
   private static interface Fields {
     String TYPE = "type", ITEMS = "items", ONE_OF = "oneOf", /* REQUIRED = "required", */
-        PROPERTIES = "properties", FORMAT = "format", DOLLAR_SCHEMA = "$schema", TITLE = "title";
+        PROPERTIES = "properties", FORMAT = "format",
+        DOLLAR_SCHEMA = "$schema"/* , TITLE = "title" */;
   }
 
   private static interface Types {

@@ -19,14 +19,14 @@ sample.put("three", "fake@email.com");
 sample.set("four",
     JsonNodeFactory.instance.arrayNode().add(1).add("two").add(JsonNodeFactory.instance
         .arrayNode().add(JsonNodeFactory.instance.objectNode().put("true", true))));
-final ObjectNode inferredSchema = JsonSchemaInferrer.newBuilder().build().infer(sample);
+final ObjectNode inferredSchema = JsonSchemaInferrer.newBuilder().draft06().build().infer(sample);
 ```
 
 `inferredSchema` will be:
 
 ```json
 {
-  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "$schema" : "http://json-schema.org/draft-06/schema#",
   "type" : "object",
   "properties" : {
     "one" : {
@@ -48,10 +48,13 @@ final ObjectNode inferredSchema = JsonSchemaInferrer.newBuilder().build().infer(
         }, {
           "type" : "string"
         }, {
-          "type" : "object",
-          "properties" : {
-            "true" : {
-              "type" : "boolean"
+          "type" : "array",
+          "items" : {
+            "type" : "object",
+            "properties" : {
+              "true" : {
+                "type" : "boolean"
+              }
             }
           }
         } ]
