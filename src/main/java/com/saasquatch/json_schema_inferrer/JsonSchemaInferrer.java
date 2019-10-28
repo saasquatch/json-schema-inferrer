@@ -4,8 +4,8 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -58,19 +58,19 @@ public final class JsonSchemaInferrer {
     if (input == null) {
       input = JsonNodeFactory.instance.nullNode();
     }
-    final ObjectNode result;
-    if (input instanceof ObjectNode) {
-      result = processObject((ObjectNode) input);
-    } else if (input instanceof ArrayNode) {
-      result = processArray((ArrayNode) input);
-    } else {
-      result = processPrimitive((ValueNode) input);
-    }
+    final ObjectNode result = newObject();
     if (draft != null && outputDollarSchema) {
       result.put(Fields.SCHEMA, draft.url);
     }
     if (title != null) {
       result.put(Fields.TITLE, title);
+    }
+    if (input instanceof ObjectNode) {
+      result.setAll(processObject((ObjectNode) input));
+    } else if (input instanceof ArrayNode) {
+      result.setAll(processArray((ArrayNode) input));
+    } else {
+      result.setAll(processPrimitive((ValueNode) input));
     }
     return result;
   }
@@ -182,7 +182,7 @@ public final class JsonSchemaInferrer {
 
   private ObjectNode processArray(ArrayNode arrayNode) {
     final ObjectNode items;
-    final Set<ObjectNode> oneOfs = new LinkedHashSet<>();
+    final Set<ObjectNode> oneOfs = new HashSet<>();
     for (JsonNode val : arrayNode) {
       if (val instanceof ObjectNode) {
         oneOfs.add(processObject((ObjectNode) val));
