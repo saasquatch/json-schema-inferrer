@@ -233,7 +233,10 @@ public final class JsonSchemaInferrer {
     } else if (oneOf && !Types.OBJECT.equals(type)) {
       final ObjectNode outputItems = newObject();
       outputItems.set(Fields.ONE_OF, arrayNodeOf(newObject().put(Fields.TYPE, type)));
-      outputItems.set(Fields.REQUIRED, output.path(Fields.ITEMS).get(Fields.REQUIRED));
+      final JsonNode originalRequired = output.path(Fields.ITEMS).get(Fields.REQUIRED);
+      if (nonNull(originalRequired)) {
+        outputItems.set(Fields.REQUIRED, originalRequired);
+      }
       (output).set(Fields.ITEMS, outputItems);
     }
 
