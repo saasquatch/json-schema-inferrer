@@ -256,7 +256,7 @@ public final class JsonSchemaInferrer {
               oneOf ? newObject() : (ObjectNode) output.path(Fields.ITEMS).get(Fields.PROPERTIES),
               true);
         } else if (Types.ARRAY.equals(itemType)) {
-          arrayItem = processObject(value,
+          arrayItem = processArray(value,
               oneOf ? newObject() : (ObjectNode) output.path(Fields.ITEMS).get(Fields.PROPERTIES),
               true);
         } else {
