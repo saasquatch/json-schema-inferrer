@@ -3,10 +3,8 @@ package com.saasquatch.json_schema_inferrer;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
@@ -38,12 +36,14 @@ public final class JsonSchemaInferrer {
   private final String title;
   @Nonnull
   private final Draft draft;
-  private final boolean outputDollarSchema;
+  private final boolean includeDollarSchema;
+  private final boolean inferFormat;
 
-  JsonSchemaInferrer(String title, Draft draft, boolean outputDollarSchema) {
+  JsonSchemaInferrer(String title, Draft draft, boolean includeDollarSchema, boolean inferFormat) {
     this.title = title;
     this.draft = draft;
-    this.outputDollarSchema = outputDollarSchema;
+    this.includeDollarSchema = includeDollarSchema;
+    this.inferFormat = inferFormat;
   }
 
   public static Builder newBuilder() {
@@ -59,8 +59,8 @@ public final class JsonSchemaInferrer {
       input = JsonNodeFactory.instance.nullNode();
     }
     final ObjectNode result = newObject();
-    if (draft != null && outputDollarSchema) {
-      result.put(Fields.SCHEMA, draft.url);
+    if (includeDollarSchema) {
+      result.put(Fields.DOLLAR_SCHEMA, draft.url);
     }
     if (title != null) {
       result.put(Fields.TITLE, title);
@@ -77,6 +77,9 @@ public final class JsonSchemaInferrer {
 
   @Nullable
   private String getPropertyFormat(@Nonnull JsonNode value) {
+    if (!inferFormat) {
+      return null;
+    }
     if (value.textValue() != null) {
       final String textValue = value.textValue();
       try {
@@ -226,7 +229,8 @@ public final class JsonSchemaInferrer {
 
     private String title;
     private Draft draft = Draft.V4;
-    private boolean outputDollarSchema = true;
+    private boolean includeDollarSchema = true;
+    private boolean inferFormat = true;
 
     private Builder() {}
 
@@ -252,13 +256,18 @@ public final class JsonSchemaInferrer {
       return this;
     }
 
-    public Builder outputDollarSchema(boolean outputDollarSchema) {
-      this.outputDollarSchema = outputDollarSchema;
+    public Builder includeDollarSchema(boolean includeDollarSchema) {
+      this.includeDollarSchema = includeDollarSchema;
+      return this;
+    }
+
+    public Builder inferFormat(boolean inferFormat) {
+      this.inferFormat = inferFormat;
       return this;
     }
 
     public JsonSchemaInferrer build() {
-      return new JsonSchemaInferrer(title, draft, outputDollarSchema);
+      return new JsonSchemaInferrer(title, draft, includeDollarSchema, inferFormat);
     }
 
   }
@@ -285,7 +294,7 @@ public final class JsonSchemaInferrer {
 
   private static interface Fields {
     String TYPE = "type", ITEMS = "items", ONE_OF = "oneOf", /* REQUIRED = "required", */
-        PROPERTIES = "properties", FORMAT = "format", SCHEMA = "$schema", TITLE = "title";
+        PROPERTIES = "properties", FORMAT = "format", DOLLAR_SCHEMA = "$schema", TITLE = "title";
   }
 
   private static interface Types {
@@ -303,15 +312,6 @@ public final class JsonSchemaInferrer {
 
   private static ArrayNode newArray() {
     return JsonNodeFactory.instance.arrayNode();
-  }
-
-  // Visible for testing
-  static List<String> toStringList(@Nonnull JsonNode arrayNode) {
-    final List<String> list = new ArrayList<>();
-    for (JsonNode node : arrayNode) {
-      list.add(node.textValue());
-    }
-    return list;
   }
 
 }

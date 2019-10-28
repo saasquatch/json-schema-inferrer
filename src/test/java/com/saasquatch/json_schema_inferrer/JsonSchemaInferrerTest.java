@@ -1,6 +1,5 @@
 package com.saasquatch.json_schema_inferrer;
 
-import static com.saasquatch.json_schema_inferrer.JsonSchemaInferrer.toStringList;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -9,6 +8,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -48,7 +51,7 @@ public class JsonSchemaInferrerTest {
     }
     {
       final ObjectNode schema =
-          JsonSchemaInferrer.newBuilder().draft06().outputDollarSchema(false).build().infer(simple);
+          JsonSchemaInferrer.newBuilder().draft06().includeDollarSchema(false).build().infer(simple);
       assertFalse(schema.hasNonNull("$schema"));
       assertTrue(schema.hasNonNull("type"));
     }
@@ -72,10 +75,18 @@ public class JsonSchemaInferrerTest {
           .path("body").path("type").textValue());
       assertEquals("array", schema.path("properties").path("comments").path("type").textValue());
       assertTrue(schema.path("properties").path("comments").path("items").isObject());
-      assertEquals("string", schema.path("properties").path("comments").path("items")
-          .path("properties").path("body").path("type").path(0).textValue());
-      assertEquals("null", schema.path("properties").path("comments").path("items")
-          .path("properties").path("body").path("type").path(1).textValue());
+      assertTrue(
+          StreamSupport
+              .stream(schema.path("properties").path("comments").path("items").path("oneOf")
+                  .spliterator(), false)
+              .anyMatch(
+                  j -> j.path("properties").path("body").path("type").asText("").equals("string")));
+      assertTrue(
+          StreamSupport
+              .stream(schema.path("properties").path("comments").path("items").path("oneOf")
+                  .spliterator(), false)
+              .anyMatch(
+                  j -> j.path("properties").path("body").path("type").asText("").equals("null")));
     }
   }
 
@@ -85,16 +96,19 @@ public class JsonSchemaInferrerTest {
     {
       final ObjectNode schema = JsonSchemaInferrer.newBuilder().build().infer(advanced);
       assertTrue(schema.path("items").isObject());
-      assertTrue(schema.path("items").path("required").isArray());
-      assertEquals(Arrays.asList("id", "name", "price", "dimensions", "warehouseLocation"),
-          toStringList(schema.path("items").path("required")));
-      assertTrue(schema.path("items").path("properties").path("tags").isObject());
-      assertEquals("integer",
-          schema.path("items").path("properties").path("id").path("type").textValue());
-      assertEquals("number",
-          schema.path("items").path("properties").path("price").path("type").textValue());
-      assertEquals(Arrays.asList("integer", "number"), toStringList(schema.path("items")
-          .path("properties").path("dimensions").path("properties").path("length").path("type")));
+      assertTrue(StreamSupport.stream(schema.path("items").path("oneOf").spliterator(), false)
+          .anyMatch(j -> j.path("properties").path("tags").isObject()));
+      assertTrue(
+          StreamSupport.stream(schema.path("items").path("oneOf").spliterator(), false).anyMatch(
+              j -> j.path("properties").path("id").path("type").asText("").equals("integer")));
+      assertTrue(
+          StreamSupport.stream(schema.path("items").path("oneOf").spliterator(), false).anyMatch(
+              j -> j.path("properties").path("price").path("type").asText("").equals("number")));
+      assertEquals(new HashSet<>(Arrays.asList("integer", "number")),
+          StreamSupport.stream(schema.path("items").path("oneOf").spliterator(), false)
+              .map(j -> j.path("properties").path("dimensions").path("properties").path("length")
+                  .path("type"))
+              .map(j -> j.textValue()).filter(Objects::nonNull).collect(Collectors.toSet()));
     }
   }
 
