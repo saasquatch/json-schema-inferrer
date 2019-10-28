@@ -25,7 +25,7 @@ final ObjectNode inferredSchema =
 
 `inferredSchema` will be:
 
-```json
+```js
 {
   "$schema" : "http://json-schema.org/draft-06/schema#",
   "type" : "object",
