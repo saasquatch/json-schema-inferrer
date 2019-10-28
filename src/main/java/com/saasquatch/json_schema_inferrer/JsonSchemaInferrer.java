@@ -32,14 +32,13 @@ import com.fasterxml.jackson.databind.node.ValueNode;
  */
 public final class JsonSchemaInferrer {
 
-  @Nullable
   private final String title;
-  @Nonnull
   private final Draft draft;
   private final boolean includeDollarSchema;
   private final boolean inferFormat;
 
-  JsonSchemaInferrer(String title, Draft draft, boolean includeDollarSchema, boolean inferFormat) {
+  JsonSchemaInferrer(@Nullable String title, @Nonnull Draft draft, boolean includeDollarSchema,
+      boolean inferFormat) {
     this.title = title;
     this.draft = draft;
     this.includeDollarSchema = includeDollarSchema;
@@ -68,8 +67,7 @@ public final class JsonSchemaInferrer {
       result.setAll(processArray((ArrayNode) input));
     } else {
       // input is null or a ValueNode
-      result.setAll(processPrimitive(
-          input == null ? JsonNodeFactory.instance.nullNode() : (ValueNode) input));
+      result.setAll(processPrimitive((ValueNode) input));
     }
     return result;
   }
@@ -299,10 +297,6 @@ public final class JsonSchemaInferrer {
     String OBJECT = "object", ARRAY = "array", STRING = "string", BOOLEAN = "boolean",
         INTEGER = "integer", NUMBER = "number", NULL = "null";
   }
-
-//  private static boolean nonNull(@Nullable JsonNode j) {
-//    return j != null && !j.isNull() && !j.isMissingNode();
-//  }
 
   private static ObjectNode newObject() {
     return JsonNodeFactory.instance.objectNode();
