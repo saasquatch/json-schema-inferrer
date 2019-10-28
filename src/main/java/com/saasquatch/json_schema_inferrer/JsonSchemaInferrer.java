@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -19,6 +20,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.POJONode;
+import com.fasterxml.jackson.databind.node.ValueNode;
 
 /**
  * Infer JSON schema based on a sample JSON
@@ -356,6 +358,58 @@ public final class JsonSchemaInferrer {
       }
     }
     return nested ? (ObjectNode) output.get(Fields.PROPERTIES) : output;
+  }
+
+  private ObjectNode processPrimitive(ValueNode valueNode) {
+    final ObjectNode result = newObject();
+    result.put(Fields.TYPE, getPropertyType(valueNode));
+    final String format = getPropertyFormat(valueNode);
+    if (format != null) {
+      result.put(Fields.FORMAT, format);
+    }
+    return result;
+  }
+
+  private ObjectNode processObject(ObjectNode objectNode) {
+    final ObjectNode result = newObject();
+    final ObjectNode properties = newObject();
+    final Iterator<Map.Entry<String, JsonNode>> fields = objectNode.fields();
+    while (fields.hasNext()) {
+      final Map.Entry<String, JsonNode> field = fields.next();
+      final String key = field.getKey();
+      final JsonNode val = field.getValue();
+      if (val instanceof ObjectNode) {
+        properties.set(key, processObject((ObjectNode) val));
+      } else if (val instanceof ArrayNode) {
+        properties.set(key, processArray((ArrayNode) val));
+      } else {
+        properties.set(key, processPrimitive((ValueNode) val));
+      }
+    }
+    if (properties.size() > 0) {
+      result.set(Fields.PROPERTIES, properties);
+    }
+    return result;
+  }
+
+  private ObjectNode processArray(ArrayNode arrayNode) {
+    final ObjectNode items;
+    final ArrayNode oneOf = newArray();
+    switch (oneOf.size()) {
+      case 0:
+        items = newObject();
+        break;
+      case 1:
+        items = (ObjectNode) oneOf.iterator().next();
+        break;
+      default: {
+        items = newObject();
+        items.set(Fields.ONE_OF, oneOf);
+      }
+    }
+    final ObjectNode result = newObject();
+    result.set(Fields.ITEMS, items);
+    return result;
   }
 
   public static final class Builder {
