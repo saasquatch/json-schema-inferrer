@@ -75,8 +75,8 @@ public final class JsonSchemaInferrer {
   }
 
   @Nullable
-  private String inferFormat(@Nonnull JsonNode value) {
-    if (!inferFormat) {
+  private String inferFormat(@Nullable JsonNode value) {
+    if (!inferFormat || value == null) {
       return null;
     }
     if (value.textValue() != null) {
@@ -118,7 +118,10 @@ public final class JsonSchemaInferrer {
   }
 
   @Nonnull
-  private static String inferType(@Nonnull JsonNode value) {
+  private static String inferType(@Nullable JsonNode value) {
+    if (value == null) {
+      return Types.NULL;
+    }
     final JsonNodeType type = value.getNodeType();
     switch (type) {
       case ARRAY:
@@ -146,7 +149,7 @@ public final class JsonSchemaInferrer {
         String.format(Locale.ROOT, "Unrecognized %s: %s", type.getClass().getSimpleName(), type));
   }
 
-  private ObjectNode processPrimitive(@Nonnull ValueNode valueNode) {
+  private ObjectNode processPrimitive(@Nullable ValueNode valueNode) {
     final ObjectNode result = newObject();
     result.put(Fields.TYPE, inferType(valueNode));
     final String format = inferFormat(valueNode);
