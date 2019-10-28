@@ -35,11 +35,16 @@ public final class JsonSchemaInferrer {
   private final Draft draft;
   private final boolean includeDollarSchema;
   private final boolean inferFormat;
+  private final boolean includeDefault;
+  private final boolean includeExamples;
 
-  JsonSchemaInferrer(@Nonnull Draft draft, boolean includeDollarSchema, boolean inferFormat) {
+  JsonSchemaInferrer(@Nonnull Draft draft, boolean includeDollarSchema, boolean inferFormat,
+      boolean includeDefault, boolean includeExamples) {
     this.draft = draft;
     this.includeDollarSchema = includeDollarSchema;
     this.inferFormat = inferFormat;
+    this.includeDefault = includeDefault;
+    this.includeExamples = includeExamples;
   }
 
   public static Builder newBuilder() {
@@ -148,6 +153,13 @@ public final class JsonSchemaInferrer {
     if (format != null) {
       result.put(Fields.FORMAT, format);
     }
+    if (includeDefault) {
+      result.set(Fields.DEFAULT, valueNode);
+    }
+    if (includeExamples) {
+      final ArrayNode examples = newArray().add(valueNode);
+      result.set(Fields.EXAMPLES, examples);
+    }
     return result;
   }
 
@@ -220,6 +232,8 @@ public final class JsonSchemaInferrer {
     private Draft draft = Draft.V4;
     private boolean includeDollarSchema = true;
     private boolean inferFormat = true;
+    private boolean includeDefault;
+    private boolean includeExamples;
 
     private Builder() {}
 
@@ -250,8 +264,23 @@ public final class JsonSchemaInferrer {
       return this;
     }
 
+    public Builder includeDefault(boolean includeDefault) {
+      this.includeDefault = includeDefault;
+      return this;
+    }
+
+    public Builder includeExamples(boolean includeExamples) {
+      this.includeExamples = includeExamples;
+      return this;
+    }
+
     public JsonSchemaInferrer build() {
-      return new JsonSchemaInferrer(draft, includeDollarSchema, inferFormat);
+      if (!draft.sameOrNewerThan(Draft.V6) && includeExamples) {
+        throw new IllegalArgumentException(
+            String.format(Locale.ROOT, "Draft version[%s] does not support examples", draft.url));
+      }
+      return new JsonSchemaInferrer(draft, includeDollarSchema, inferFormat, includeDefault,
+          includeExamples);
     }
 
   }
@@ -278,7 +307,7 @@ public final class JsonSchemaInferrer {
 
   private static interface Fields {
     String TYPE = "type", ITEMS = "items", ONE_OF = "oneOf", /* REQUIRED = "required", */
-        PROPERTIES = "properties", FORMAT = "format",
+        PROPERTIES = "properties", FORMAT = "format", DEFAULT = "default", EXAMPLES = "examples",
         DOLLAR_SCHEMA = "$schema"/* , TITLE = "title" */;
   }
 
