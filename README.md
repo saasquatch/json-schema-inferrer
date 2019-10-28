@@ -47,8 +47,14 @@ final ObjectNode inferredSchema = JsonSchemaInferrer.newBuilder().build().infer(
           "type" : "integer"
         }, {
           "type" : "string"
-        }, { } ],
-        "required" : null
+        }, {
+          "type" : "object",
+          "properties" : {
+            "true" : {
+              "type" : "boolean"
+            }
+          }
+        } ]
       }
     }
   }
