@@ -21,7 +21,20 @@ final ObjectNode inferredSchema =
     JsonSchemaInferrer.newBuilder().draft06().includeExamples(true).build().infer(sample);
 ```
 
-`inferredSchema` will be:
+In the code above, the `sample` JSON is:
+
+```json
+{
+  "one" : 1,
+  "two" : "1234:abcd::1234",
+  "three" : "hello@saasquat.ch",
+  "four" : [ 1, "two", [ {
+    "true" : true
+  }, "http://saasquatch.com" ] ]
+}
+```
+
+And the result `inferredSchema` is:
 
 ```json
 {
