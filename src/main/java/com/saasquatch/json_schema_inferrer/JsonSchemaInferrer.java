@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.apache.commons.validator.routines.InetAddressValidator;
 import org.apache.commons.validator.routines.UrlValidator;
@@ -30,6 +31,7 @@ import com.fasterxml.jackson.databind.node.ValueNode;
  * @see #newBuilder()
  * @see #infer(JsonNode)
  */
+@Immutable
 public final class JsonSchemaInferrer {
 
   private final Draft draft;
@@ -254,21 +256,36 @@ public final class JsonSchemaInferrer {
       return this;
     }
 
+    /**
+     * Set whether {@code $schema} should be included in the output
+     */
     public Builder includeDollarSchema(boolean includeDollarSchema) {
       this.includeDollarSchema = includeDollarSchema;
       return this;
     }
 
+    /**
+     * Set whether we should infer the {@code format} of the input, i.e. email, ipv4, ipv6, etc.
+     */
     public Builder inferFormat(boolean inferFormat) {
       this.inferFormat = inferFormat;
       return this;
     }
 
+    /**
+     * Set whether {@code default} should be included in the output. The values will be the same as
+     * the input.
+     */
     public Builder includeDefault(boolean includeDefault) {
       this.includeDefault = includeDefault;
       return this;
     }
 
+
+    /**
+     * Set whether {@code examples} should be included in the output. The values will be the same as
+     * the input.
+     */
     public Builder includeExamples(boolean includeExamples) {
       this.includeExamples = includeExamples;
       return this;
