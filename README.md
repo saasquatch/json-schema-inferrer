@@ -5,22 +5,20 @@
 [![](https://jitci.com/gh/saasquatch/json-schema-inferrer/svg)](https://jitci.com/gh/saasquatch/json-schema-inferrer)
 [![](https://jitpack.io/v/saasquatch/json-schema-inferrer.svg)](https://jitpack.io/#saasquatch/json-schema-inferrer)
 
-Java library for inferring JSON schema from a sample JSON based on the algorithm of JavaScript library [Generate Schemas](https://github.com/nijikokun/generate-schema). The original license of Generate Schemas can be found [here](https://github.com/nijikokun/generate-schema/blob/8542b907e7c6662730e40efd48daef7f884311be/LICENSE).
+Java library for inferring JSON schema based on a sample JSON.
 
 # UNDER CONSTRUCTION
 
 ## Sample usage
 
 ```java
-final ObjectNode sample = JsonNodeFactory.instance.objectNode();
-sample.put("one", 1);
-sample.put("two", "1.1.1.1");
-sample.put("three", "fake@fake.com");
+final ObjectNode sample = JsonNodeFactory.instance.objectNode()
+    .put("one", 1).put("two", "1234:abcd::1234").put("three", "hello@saasquat.ch");
 sample.set("four",
     JsonNodeFactory.instance.arrayNode().add(1).add("two")
         .add(JsonNodeFactory.instance.arrayNode()
             .add(JsonNodeFactory.instance.objectNode().put("true", true))
-            .add("http://example.com")));
+            .add("http://saasquatch.com")));
 final ObjectNode inferredSchema =
     JsonSchemaInferrer.newBuilder().draft06().includeExamples(true).build().infer(sample);
 ```
@@ -38,13 +36,13 @@ final ObjectNode inferredSchema =
     },
     "two" : {
       "type" : "string",
-      "format" : "ipv4",
-      "examples" : [ "1.1.1.1" ]
+      "format" : "ipv6",
+      "examples" : [ "1234:abcd::1234" ]
     },
     "three" : {
       "type" : "string",
       "format" : "email",
-      "examples" : [ "fake@fake.com" ]
+      "examples" : [ "hello@saasquat.ch" ]
     },
     "four" : {
       "type" : "array",
@@ -63,7 +61,7 @@ final ObjectNode inferredSchema =
             }, {
               "type" : "string",
               "format" : "uri",
-              "examples" : [ "http://example.com" ]
+              "examples" : [ "http://saasquatch.com" ]
             } ]
           }
         }, {
