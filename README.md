@@ -15,11 +15,14 @@ Java library for inferring JSON schema from a sample JSON based on the algorithm
 final ObjectNode sample = JsonNodeFactory.instance.objectNode();
 sample.put("one", 1);
 sample.put("two", "1.1.1.1");
-sample.put("three", "fake@email.com");
+sample.put("three", "fake@fake.com");
 sample.set("four",
-    JsonNodeFactory.instance.arrayNode().add(1).add("two").add(JsonNodeFactory.instance
-        .arrayNode().add(JsonNodeFactory.instance.objectNode().put("true", true))));
-final ObjectNode inferredSchema = JsonSchemaInferrer.newBuilder().draft06().build().infer(sample);
+    JsonNodeFactory.instance.arrayNode().add(1).add("two")
+        .add(JsonNodeFactory.instance.arrayNode()
+            .add(JsonNodeFactory.instance.objectNode().put("true", true))
+            .add("http://example.com")));
+final ObjectNode inferredSchema =
+    JsonSchemaInferrer.newBuilder().draft06().includeExamples(true).build().infer(sample);
 ```
 
 `inferredSchema` will be:
@@ -30,33 +33,45 @@ final ObjectNode inferredSchema = JsonSchemaInferrer.newBuilder().draft06().buil
   "type" : "object",
   "properties" : {
     "one" : {
-      "type" : "integer"
+      "type" : "integer",
+      "examples" : [ 1 ]
     },
     "two" : {
       "type" : "string",
-      "format" : "ipv4"
+      "format" : "ipv4",
+      "examples" : [ "1.1.1.1" ]
     },
     "three" : {
       "type" : "string",
-      "format" : "email"
+      "format" : "email",
+      "examples" : [ "fake@fake.com" ]
     },
     "four" : {
       "type" : "array",
       "items" : {
         "oneOf" : [ {
-          "type" : "integer"
-        }, {
-          "type" : "string"
-        }, {
           "type" : "array",
           "items" : {
-            "type" : "object",
-            "properties" : {
-              "true" : {
-                "type" : "boolean"
+            "oneOf" : [ {
+              "type" : "object",
+              "properties" : {
+                "true" : {
+                  "type" : "boolean",
+                  "examples" : [ true ]
+                }
               }
-            }
+            }, {
+              "type" : "string",
+              "format" : "uri",
+              "examples" : [ "http://example.com" ]
+            } ]
           }
+        }, {
+          "type" : "integer",
+          "examples" : [ 1 ]
+        }, {
+          "type" : "string",
+          "examples" : [ "two" ]
         } ]
       }
     }
