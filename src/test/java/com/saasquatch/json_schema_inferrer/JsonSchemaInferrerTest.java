@@ -3,6 +3,7 @@ package com.saasquatch.json_schema_inferrer;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,6 +33,8 @@ public class JsonSchemaInferrerTest {
   @Test
   public void testBasic() {
     assertDoesNotThrow(() -> JsonSchemaInferrer.newBuilder().build().infer(null));
+    assertThrows(IllegalArgumentException.class,
+        () -> JsonSchemaInferrer.newBuilder().draft04().includeExamples(true).build());
   }
 
   @Test
