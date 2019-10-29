@@ -3,7 +3,6 @@ package com.saasquatch.json_schema_inferrer;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Locale;
@@ -26,6 +25,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.POJONode;
 import com.fasterxml.jackson.databind.node.ValueNode;
 import com.github.fge.jsonpatch.diff.JsonDiff;
+import com.google.common.collect.ImmutableSet;
 
 /**
  * Infer JSON schema based on a sample JSON
@@ -226,7 +226,10 @@ public final class JsonSchemaInferrer {
   }
 
   private void addOneOf(Set<ObjectNode> oneOfs, ObjectNode newOneOf) {
-    final Set<ObjectNode> oneOfsToAdd = new HashSet<>();
+    if (oneOfs.isEmpty()) {
+      oneOfs.add(newOneOf);
+      return;
+    }
     final Iterator<ObjectNode> oneOfIter = oneOfs.iterator();
     while (oneOfIter.hasNext()) {
       final ObjectNode oneOf = oneOfIter.next();
@@ -235,18 +238,16 @@ public final class JsonSchemaInferrer {
           .map(j -> j.path("op").textValue())
           .filter(Objects::nonNull)
           .collect(Collectors.toSet());
-      if (Arrays.asList("add", "replace").containsAll(ops)) {
-        // the new oneOf is a superset of one of the existing oneOfs
-        oneOfsToAdd.add(newOneOf);
+      if (ops.equals(ImmutableSet.of("add"))) {
         oneOfIter.remove();
-      } else if (Arrays.asList("remove", "replace").containsAll(ops)) {
+        break;
+      } else if (ops.equals(ImmutableSet.of("remove"))) {
         // The new oneOf is a subset of one of the existing oneOfs
         // Do nothing
-      } else {
-        oneOfsToAdd.add(newOneOf);
+        return;
       }
     }
-    oneOfs.addAll(oneOfsToAdd);
+    oneOfs.add(newOneOf);
   }
 
   public static void main(String[] args) {
