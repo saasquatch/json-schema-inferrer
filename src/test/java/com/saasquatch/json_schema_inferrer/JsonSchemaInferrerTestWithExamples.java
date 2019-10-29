@@ -55,9 +55,8 @@ public class JsonSchemaInferrerTestWithExamples {
         return;
       }
     } catch (IOException e) {
-      System.out.printf(Locale.ROOT,
-          "Exception encountered loading JSON from URL[%s]. Skipping tests.\n", jsonUrl);
-      e.printStackTrace(System.out);
+      System.out.printf(Locale.ROOT, "Exception encountered loading JSON from URL[%s]. "
+          + "Error message: [%s]. Skipping tests.\n", jsonUrl, e.getMessage());
       return;
     }
     System.out.printf(Locale.ROOT, "Got valid JSON from url[%s]\n", jsonUrl);
