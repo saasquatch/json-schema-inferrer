@@ -3,10 +3,12 @@ package com.saasquatch.json_schema_inferrer;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Objects;
@@ -15,6 +17,7 @@ import java.util.stream.StreamSupport;
 import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 public class JsonSchemaInferrerTest {
@@ -32,6 +35,34 @@ public class JsonSchemaInferrerTest {
   @Test
   public void testBasic() {
     assertDoesNotThrow(() -> JsonSchemaInferrer.newBuilder().build().infer(null));
+  }
+
+  @Test
+  public void testFormatInference() {
+    assertEquals("email", JsonSchemaInferrer.newBuilder().build()
+        .infer(JsonNodeFactory.instance.textNode("foo@bar.com")).path("format").textValue());
+    assertNull(JsonSchemaInferrer.newBuilder().inferFormat(false).build()
+        .infer(JsonNodeFactory.instance.textNode("foo@bar.com")).path("format").textValue());
+    assertEquals("ipv4", JsonSchemaInferrer.newBuilder().build()
+        .infer(JsonNodeFactory.instance.textNode("1.2.3.4")).path("format").textValue());
+    assertEquals("ipv6", JsonSchemaInferrer.newBuilder().build()
+        .infer(JsonNodeFactory.instance.textNode("1::1")).path("format").textValue());
+    assertEquals("uri",
+        JsonSchemaInferrer.newBuilder().build()
+            .infer(JsonNodeFactory.instance.textNode("https://saasquat.ch")).path("format")
+            .textValue());
+    assertEquals("date-time",
+        JsonSchemaInferrer.newBuilder().build()
+            .infer(JsonNodeFactory.instance.textNode(Instant.now().toString())).path("format")
+            .textValue());
+    assertNull(JsonSchemaInferrer.newBuilder().draft06().build()
+        .infer(JsonNodeFactory.instance.textNode("1900-01-01")).path("format").textValue());
+    assertEquals("date", JsonSchemaInferrer.newBuilder().draft07().build()
+        .infer(JsonNodeFactory.instance.textNode("1900-01-01")).path("format").textValue());
+    assertNull(JsonSchemaInferrer.newBuilder().draft06().build()
+        .infer(JsonNodeFactory.instance.textNode("20:20:39")).path("format").textValue());
+    assertEquals("time", JsonSchemaInferrer.newBuilder().draft07().build()
+        .infer(JsonNodeFactory.instance.textNode("20:20:39")).path("format").textValue());
   }
 
   @Test
