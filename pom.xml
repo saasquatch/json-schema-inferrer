@@ -59,14 +59,15 @@
       <version>2.10.0</version>
     </dependency>
     <dependency>
-      <groupId>com.github.java-json-tools</groupId>
-      <artifactId>json-patch</artifactId>
-      <version>1.10</version>
+      <groupId>com.flipkart.zjsonpatch</groupId>
+      <artifactId>zjsonpatch</artifactId>
+      <version>0.4.9</version>
     </dependency>
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
       <version>28.1-jre</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>com.github.everit-org.json-schema</groupId>

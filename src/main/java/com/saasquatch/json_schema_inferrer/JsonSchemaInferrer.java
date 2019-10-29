@@ -25,7 +25,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeType;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.POJONode;
 import com.fasterxml.jackson.databind.node.ValueNode;
-import com.github.fge.jsonpatch.diff.JsonDiff;
+import com.flipkart.zjsonpatch.JsonDiff;
 
 /**
  * Infer JSON schema based on a sample JSON
