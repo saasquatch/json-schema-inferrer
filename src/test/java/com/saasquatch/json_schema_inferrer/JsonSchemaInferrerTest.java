@@ -43,6 +43,8 @@ public class JsonSchemaInferrerTest {
         .infer(JsonNodeFactory.instance.textNode("foo@bar.com")).path("format").textValue());
     assertNull(JsonSchemaInferrer.newBuilder().inferFormat(false).build()
         .infer(JsonNodeFactory.instance.textNode("foo@bar.com")).path("format").textValue());
+    assertNull(JsonSchemaInferrer.newBuilder().draft07().build()
+        .infer(JsonNodeFactory.instance.textNode("aaaaaaaaa")).path("format").textValue());
     assertEquals("ipv4", JsonSchemaInferrer.newBuilder().build()
         .infer(JsonNodeFactory.instance.textNode("1.2.3.4")).path("format").textValue());
     assertEquals("ipv6", JsonSchemaInferrer.newBuilder().build()
