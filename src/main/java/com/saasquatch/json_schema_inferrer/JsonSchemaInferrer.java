@@ -192,32 +192,29 @@ public final class JsonSchemaInferrer {
 
   private ObjectNode processArray(@Nonnull ArrayNode arrayNode) {
     final ObjectNode items;
-    final Set<ObjectNode> oneOfs = new HashSet<>();
+    final Set<ObjectNode> anyOfs = new HashSet<>();
     for (JsonNode val : arrayNode) {
       if (val instanceof ObjectNode) {
-//        oneOfs.add(processObject((ObjectNode) val));
-        addOneOf(oneOfs, processObject((ObjectNode) val));
+        addAnyOf(anyOfs, processObject((ObjectNode) val));
       } else if (val instanceof ArrayNode) {
-//        oneOfs.add(processArray((ArrayNode) val));
-        addOneOf(oneOfs, processArray((ArrayNode) val));
+        addAnyOf(anyOfs, processArray((ArrayNode) val));
       } else {
-//        oneOfs.add(processPrimitive((ValueNode) val));
-        addOneOf(oneOfs, processPrimitive((ValueNode) val));
+        addAnyOf(anyOfs, processPrimitive((ValueNode) val));
       }
     }
-    processOneOfs(oneOfs);
-    switch (oneOfs.size()) {
+    processAnyOfs(anyOfs);
+    switch (anyOfs.size()) {
       case 0:
         items = newObject();
         break;
       case 1:
-        items = oneOfs.iterator().next();
+        items = anyOfs.iterator().next();
         break;
       default: {
         items = newObject();
-        final ArrayNode oneOfArray = newArray();
-        oneOfs.forEach(oneOfArray::add);
-        items.set(Fields.ONE_OF, oneOfArray);
+        final ArrayNode anyOfArray = newArray();
+        anyOfs.forEach(anyOfArray::add);
+        items.set(Fields.ANY_OF, anyOfArray);
       }
     }
     final ObjectNode result = newObject().put(Fields.TYPE, Types.ARRAY);
@@ -225,44 +222,38 @@ public final class JsonSchemaInferrer {
     return result;
   }
 
-  private void addOneOf(Set<ObjectNode> oneOfs, ObjectNode newOneOf) {
-    if (oneOfs.isEmpty()) {
-      oneOfs.add(newOneOf);
+  private void addAnyOf(Set<ObjectNode> anyOfs, ObjectNode newAnyOf) {
+    if (anyOfs.isEmpty()) {
+      anyOfs.add(newAnyOf);
       return;
     }
-    final Iterator<ObjectNode> oneOfIter = oneOfs.iterator();
-    while (oneOfIter.hasNext()) {
-      final ObjectNode oneOf = oneOfIter.next();
-      final JsonNode diff = JsonDiff.asJson(oneOf, newOneOf);
+    final Iterator<ObjectNode> anyOfIter = anyOfs.iterator();
+    while (anyOfIter.hasNext()) {
+      final ObjectNode anyOf = anyOfIter.next();
+      final JsonNode diff = JsonDiff.asJson(anyOf, newAnyOf);
       final Set<String> ops = StreamSupport.stream(diff.spliterator(), false)
           .map(j -> j.path("op").textValue())
           .filter(Objects::nonNull)
           .collect(Collectors.toSet());
       if (ops.equals(ImmutableSet.of("add"))) {
-        oneOfIter.remove();
+        anyOfIter.remove();
         break;
       } else if (ops.equals(ImmutableSet.of("remove"))) {
-        // The new oneOf is a subset of one of the existing oneOfs
+        // The new anyOf is a subset of one of the existing anyOfs
         // Do nothing
         return;
       }
     }
-    oneOfs.add(newOneOf);
+    anyOfs.add(newAnyOf);
   }
 
-  public static void main(String[] args) {
-    ObjectNode j1 = newObject().put("a", 1);
-    ObjectNode j2 = newObject().put("b", 2).put("a", "b");
-    System.out.println(JsonDiff.asJson(j2, j1));
-  }
-
-  private void processOneOfs(Set<ObjectNode> oneOfs) {
-    final Set<String> types = oneOfs.stream()
+  private void processAnyOfs(Set<ObjectNode> anyOfs) {
+    final Set<String> types = anyOfs.stream()
         .map(j -> j.path(Fields.TYPE).textValue())
         .filter(Objects::nonNull)
         .collect(Collectors.toSet());
     if (types.contains(Types.INTEGER) && types.contains(Types.NUMBER)) {
-      oneOfs.removeIf(j -> Types.INTEGER.equals(j.path(Fields.TYPE).textValue()));
+      anyOfs.removeIf(j -> Types.INTEGER.equals(j.path(Fields.TYPE).textValue()));
     }
   }
 
@@ -374,9 +365,8 @@ public final class JsonSchemaInferrer {
   }
 
   private static interface Fields {
-    String TYPE = "type", ITEMS = "items", ONE_OF = "oneOf", /* REQUIRED = "required", */
-        PROPERTIES = "properties", FORMAT = "format", DEFAULT = "default", EXAMPLES = "examples",
-        DOLLAR_SCHEMA = "$schema"/* , TITLE = "title" */;
+    String TYPE = "type", ITEMS = "items", ANY_OF = "anyOf", PROPERTIES = "properties",
+        FORMAT = "format", DEFAULT = "default", EXAMPLES = "examples", DOLLAR_SCHEMA = "$schema";
   }
 
   private static interface Types {

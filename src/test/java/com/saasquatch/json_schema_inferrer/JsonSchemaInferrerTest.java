@@ -60,7 +60,6 @@ public class JsonSchemaInferrerTest {
     }
     {
       final ObjectNode schema = JsonSchemaInferrer.newBuilder().build().infer(simple);
-      System.out.println(schema.toPrettyString());
       assertTrue(schema.hasNonNull("properties"));
       assertTrue(schema.path("properties").isObject());
       assertEquals("integer", schema.path("properties").path("id").path("type").textValue());
@@ -81,13 +80,13 @@ public class JsonSchemaInferrerTest {
       assertTrue(schema.path("properties").path("comments").path("items").isObject());
       assertTrue(
           StreamSupport
-              .stream(schema.path("properties").path("comments").path("items").path("oneOf")
+              .stream(schema.path("properties").path("comments").path("items").path("anyOf")
                   .spliterator(), false)
               .anyMatch(
                   j -> j.path("properties").path("body").path("type").asText("").equals("string")));
       assertTrue(
           StreamSupport
-              .stream(schema.path("properties").path("comments").path("items").path("oneOf")
+              .stream(schema.path("properties").path("comments").path("items").path("anyOf")
                   .spliterator(), false)
               .anyMatch(
                   j -> j.path("properties").path("body").path("type").asText("").equals("null")));
@@ -99,18 +98,17 @@ public class JsonSchemaInferrerTest {
     final JsonNode advanced = loadJson("advanced.json");
     {
       final ObjectNode schema = JsonSchemaInferrer.newBuilder().build().infer(advanced);
-      System.out.println(schema.toPrettyString());
       assertTrue(schema.path("items").isObject());
-      assertTrue(StreamSupport.stream(schema.path("items").path("oneOf").spliterator(), false)
+      assertTrue(StreamSupport.stream(schema.path("items").path("anyOf").spliterator(), false)
           .anyMatch(j -> j.path("properties").path("tags").isObject()));
       assertTrue(
-          StreamSupport.stream(schema.path("items").path("oneOf").spliterator(), false).anyMatch(
+          StreamSupport.stream(schema.path("items").path("anyOf").spliterator(), false).anyMatch(
               j -> j.path("properties").path("id").path("type").asText("").equals("integer")));
       assertTrue(
-          StreamSupport.stream(schema.path("items").path("oneOf").spliterator(), false).anyMatch(
+          StreamSupport.stream(schema.path("items").path("anyOf").spliterator(), false).anyMatch(
               j -> j.path("properties").path("price").path("type").asText("").equals("number")));
       assertEquals(new HashSet<>(Arrays.asList("integer", "number")),
-          StreamSupport.stream(schema.path("items").path("oneOf").spliterator(), false)
+          StreamSupport.stream(schema.path("items").path("anyOf").spliterator(), false)
               .map(j -> j.path("properties").path("dimensions").path("properties").path("length")
                   .path("type"))
               .map(j -> j.textValue()).filter(Objects::nonNull).collect(Collectors.toSet()));
