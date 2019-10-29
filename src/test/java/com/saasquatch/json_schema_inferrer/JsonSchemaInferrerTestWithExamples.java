@@ -30,10 +30,12 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.collect.ImmutableList;
 import com.google.common.io.ByteStreams;
 
 public class JsonSchemaInferrerTestWithExamples {
 
+  private static final List<Boolean> bools = ImmutableList.of(true, false);
   private final ObjectMapper mapper = new ObjectMapper();
   private final List<JsonSchemaInferrer> testInferrers = getTestInferrers();
   private final List<String> jsonUrls = loadJsonUrls();
@@ -88,8 +90,8 @@ public class JsonSchemaInferrerTestWithExamples {
 
   private static List<String> loadJsonUrls() {
     try {
-      final URL url = new URL("https://raw.githubusercontent.com/quicktype/quicktype/"
-          + "b37bd7ee621c7c78807e388507e631771da1f6e1/test/awesome-json-datasets");
+      final URL url = new URL(
+          "https://raw.githubusercontent.com/quicktype/quicktype/b37bd7ee621c7c78807e388507e631771da1f6e1/test/awesome-json-datasets");
       try (InputStream in = url.openStream();
           BufferedReader br = new BufferedReader(new InputStreamReader(in, UTF_8))) {
         final List<String> result = br.lines().filter(jsonUrl -> !jsonUrl.contains(".gov/"))
@@ -106,24 +108,30 @@ public class JsonSchemaInferrerTestWithExamples {
   private static List<JsonSchemaInferrer> getTestInferrers() {
     final List<JsonSchemaInferrer> inferrers = new ArrayList<>();
     for (String draft : Arrays.asList("04", "06", "07")) {
-      final JsonSchemaInferrer.Builder builder = JsonSchemaInferrer.newBuilder().inferFormat(false);
-      switch (draft) {
-        case "04":
-          builder.draft04();
-          break;
-        case "06":
-          builder.draft06();
-          break;
-        case "07":
-          builder.draft07();
-          break;
-        default:
-          throw new AssertionError("Unknown draft: " + draft);
-      }
-      try {
-        inferrers.add(builder.build());
-      } catch (IllegalArgumentException e) {
-        // Ignore
+      for (boolean includeDefault : bools) {
+        for (boolean includeExamples : bools) {
+          final JsonSchemaInferrer.Builder builder = JsonSchemaInferrer.newBuilder().inferFormat(false);
+          switch (draft) {
+            case "04":
+              builder.draft04();
+              break;
+            case "06":
+              builder.draft06();
+              break;
+            case "07":
+              builder.draft07();
+              break;
+            default:
+              throw new AssertionError("Unknown draft: " + draft);
+          }
+          builder.includeDefault(includeDefault);
+          builder.includeExamples(includeExamples);
+          try {
+            inferrers.add(builder.build());
+          } catch (IllegalArgumentException e) {
+            // Ignore
+          }
+        }
       }
     }
     return Collections.unmodifiableList(inferrers);

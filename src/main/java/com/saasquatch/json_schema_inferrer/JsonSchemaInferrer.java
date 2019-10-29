@@ -3,6 +3,7 @@ package com.saasquatch.json_schema_inferrer;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -227,20 +228,34 @@ public final class JsonSchemaInferrer {
       anyOfs.add(newAnyOf);
       return;
     }
+    final ObjectNode newAnyOfToCompare =
+        newAnyOf.deepCopy().remove(Arrays.asList(Fields.DEFAULT, Fields.EXAMPLES));
     final Iterator<ObjectNode> anyOfIter = anyOfs.iterator();
     while (anyOfIter.hasNext()) {
       final ObjectNode anyOf = anyOfIter.next();
-      final JsonNode diff = JsonDiff.asJson(anyOf, newAnyOf);
+      final ObjectNode anyOfToCompare =
+          anyOf.deepCopy().remove(Arrays.asList(Fields.DEFAULT, Fields.EXAMPLES));
+      final JsonNode diff = JsonDiff.asJson(anyOfToCompare, newAnyOfToCompare);
       final Set<String> ops = StreamSupport.stream(diff.spliterator(), false)
           .map(j -> j.path("op").textValue())
           .filter(Objects::nonNull)
           .collect(Collectors.toSet());
       if (ops.equals(Collections.singleton("add"))) {
+        /*
+         * The new anyOf is a superset of one of the existing anyOfs. Discard the existing one and
+         * add the new one.
+         */
         anyOfIter.remove();
         break;
-      } else if (ops.equals(Collections.singleton("remove"))) {
-        // The new anyOf is a subset of one of the existing anyOfs
-        // Do nothing
+      } else if (ops.isEmpty() || ops.equals(Collections.singleton("remove"))) {
+        // The new anyOf is the same or a subset of one of the existing anyOfs.
+        if (anyOf.hasNonNull(Fields.EXAMPLES) && newAnyOf.hasNonNull(Fields.EXAMPLES)) {
+          final Set<JsonNode> mergedExamples = new HashSet<>();
+          anyOf.get(Fields.EXAMPLES).forEach(mergedExamples::add);
+          newAnyOf.get(Fields.EXAMPLES).forEach(mergedExamples::add);
+          final ArrayNode mergedExamplesArray = newArray().addAll(mergedExamples);
+          anyOf.set(Fields.EXAMPLES, mergedExamplesArray);
+        }
         return;
       }
     }
