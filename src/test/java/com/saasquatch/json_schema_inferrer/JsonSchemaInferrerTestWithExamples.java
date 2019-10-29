@@ -30,12 +30,10 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.common.collect.ImmutableList;
 import com.google.common.io.ByteStreams;
 
 public class JsonSchemaInferrerTestWithExamples {
 
-  private static final List<Boolean> bools = ImmutableList.of(true, false);
   private final ObjectMapper mapper = new ObjectMapper();
   private final List<JsonSchemaInferrer> testInferrers = getTestInferrers();
   private final List<String> jsonUrls = loadJsonUrls();
@@ -107,8 +105,8 @@ public class JsonSchemaInferrerTestWithExamples {
   private static List<JsonSchemaInferrer> getTestInferrers() {
     final List<JsonSchemaInferrer> inferrers = new ArrayList<>();
     for (String draft : Arrays.asList("04", "06", "07")) {
-      for (boolean includeDefault : bools) {
-        for (boolean includeExamples : bools) {
+      for (boolean includeDefault : Arrays.asList(true, false)) {
+        for (boolean includeExamples : Arrays.asList(true, false)) {
           final JsonSchemaInferrer.Builder builder = JsonSchemaInferrer.newBuilder().inferFormat(false);
           switch (draft) {
             case "04":
