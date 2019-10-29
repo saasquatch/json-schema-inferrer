@@ -44,7 +44,7 @@ public final class JsonSchemaInferrer {
   private final boolean includeDefault;
   private final boolean includeExamples;
 
-  JsonSchemaInferrer(@Nonnull Draft draft, boolean includeDollarSchema, boolean inferFormat,
+  private JsonSchemaInferrer(@Nonnull Draft draft, boolean includeDollarSchema, boolean inferFormat,
       boolean includeDefault, boolean includeExamples) {
     this.draft = draft;
     this.includeDollarSchema = includeDollarSchema;
