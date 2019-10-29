@@ -301,6 +301,10 @@ public final class JsonSchemaInferrer {
       return this;
     }
 
+    /**
+     * @return the {@link JsonSchemaInferrer} built
+     * @throws IllegalArgumentException if the draft version and features don't match up
+     */
     public JsonSchemaInferrer build() {
       if (!draft.sameOrNewerThan(Draft.V6) && includeExamples) {
         throw new IllegalArgumentException(
