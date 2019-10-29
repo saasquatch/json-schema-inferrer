@@ -23,6 +23,13 @@
     <junit.version>5.5.2</junit.version>
   </properties>
 
+  <repositories>
+    <repository>
+      <id>jitpack.io</id>
+      <url>https://jitpack.io</url>
+    </repository>
+  </repositories>
+
   <dependencies>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
@@ -50,6 +57,12 @@
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
       <version>2.10.0</version>
+    </dependency>
+    <dependency>
+      <groupId>com.github.everit-org.json-schema</groupId>
+      <artifactId>org.everit.json.schema</artifactId>
+      <version>1.12.0</version>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 
