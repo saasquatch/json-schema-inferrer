@@ -12,10 +12,12 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 import javax.annotation.Nullable;
@@ -35,8 +37,8 @@ import com.google.common.io.ByteStreams;
 public class JsonSchemaInferrerExamplesTest {
 
   private final ObjectMapper mapper = new ObjectMapper();
-  private final List<JsonSchemaInferrer> testInferrers = getTestInferrers();
-  private final List<String> jsonUrls = loadJsonUrls();
+  private final Collection<JsonSchemaInferrer> testInferrers = getTestInferrers();
+  private final Collection<String> jsonUrls = loadJsonUrls();
 
   @Test
   public void test() {
@@ -85,15 +87,15 @@ public class JsonSchemaInferrerExamplesTest {
     }
   }
 
-  private static List<String> loadJsonUrls() {
+  private static Collection<String> loadJsonUrls() {
     try {
       final URL url = new URL(
           "https://raw.githubusercontent.com/quicktype/quicktype/b37bd7ee621c7c78807e388507e631771da1f6e1/test/awesome-json-datasets");
       try (InputStream in = url.openStream();
           BufferedReader br = new BufferedReader(new InputStreamReader(in, UTF_8))) {
-        final List<String> result = br.lines().filter(jsonUrl -> !jsonUrl.contains(".gov/"))
+        final Set<String> result = br.lines().filter(jsonUrl -> !jsonUrl.contains(".gov/"))
             .filter(jsonUrl -> !jsonUrl.contains("vizgr.org"))
-            .filter(UrlValidator.getInstance()::isValid).collect(Collectors.toList());
+            .filter(UrlValidator.getInstance()::isValid).collect(Collectors.toSet());
         System.out.printf(Locale.ROOT, "%d urls loaded\n", result.size());
         return result;
       }
@@ -138,8 +140,7 @@ public class JsonSchemaInferrerExamplesTest {
 
   @Nullable
   private JsonNode loadJsonFromUrl(String jsonUrl) throws IOException {
-    final URL url = new URL(jsonUrl);
-    final HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+    final HttpURLConnection conn = (HttpURLConnection) new URL(jsonUrl).openConnection();
     conn.setInstanceFollowRedirects(true);
     conn.setConnectTimeout(1000);
     conn.setReadTimeout(2500);
