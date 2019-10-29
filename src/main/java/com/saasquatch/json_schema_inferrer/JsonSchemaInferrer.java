@@ -3,6 +3,7 @@ package com.saasquatch.json_schema_inferrer;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Locale;
@@ -25,7 +26,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.POJONode;
 import com.fasterxml.jackson.databind.node.ValueNode;
 import com.github.fge.jsonpatch.diff.JsonDiff;
-import com.google.common.collect.ImmutableSet;
 
 /**
  * Infer JSON schema based on a sample JSON
@@ -235,10 +235,10 @@ public final class JsonSchemaInferrer {
           .map(j -> j.path("op").textValue())
           .filter(Objects::nonNull)
           .collect(Collectors.toSet());
-      if (ops.equals(ImmutableSet.of("add"))) {
+      if (ops.equals(Collections.singleton("add"))) {
         anyOfIter.remove();
         break;
-      } else if (ops.equals(ImmutableSet.of("remove"))) {
+      } else if (ops.equals(Collections.singleton("remove"))) {
         // The new anyOf is a subset of one of the existing anyOfs
         // Do nothing
         return;
