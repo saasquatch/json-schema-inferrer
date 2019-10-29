@@ -1,8 +1,8 @@
 package com.saasquatch.json_schema_inferrer;
 
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -85,7 +85,7 @@ public final class JsonSchemaInferrer {
     if (value.textValue() != null) {
       final String textValue = value.textValue();
       try {
-        Instant.parse(textValue);
+        ZonedDateTime.parse(textValue);
         return "date-time";
       } catch (Exception e) {
         // Ignore
