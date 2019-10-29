@@ -32,7 +32,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.io.ByteStreams;
 
-public class JsonSchemaInferrerTestWithExamples {
+public class JsonSchemaInferrerExamplesTest {
 
   private final ObjectMapper mapper = new ObjectMapper();
   private final List<JsonSchemaInferrer> testInferrers = getTestInferrers();
