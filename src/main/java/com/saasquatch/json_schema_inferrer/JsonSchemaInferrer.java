@@ -3,7 +3,6 @@ package com.saasquatch.json_schema_inferrer;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -41,16 +40,12 @@ public final class JsonSchemaInferrer {
   private final Draft draft;
   private final boolean includeDollarSchema;
   private final boolean inferFormat;
-  private final boolean includeDefault;
-  private final boolean includeExamples;
 
-  private JsonSchemaInferrer(@Nonnull Draft draft, boolean includeDollarSchema, boolean inferFormat,
-      boolean includeDefault, boolean includeExamples) {
+  private JsonSchemaInferrer(@Nonnull Draft draft, boolean includeDollarSchema,
+      boolean inferFormat) {
     this.draft = draft;
     this.includeDollarSchema = includeDollarSchema;
     this.inferFormat = inferFormat;
-    this.includeDefault = includeDefault;
-    this.includeExamples = includeExamples;
   }
 
   public static Builder newBuilder() {
@@ -159,13 +154,6 @@ public final class JsonSchemaInferrer {
     if (format != null) {
       result.put(Fields.FORMAT, format);
     }
-    if (includeDefault) {
-      result.set(Fields.DEFAULT, valueNode);
-    }
-    if (includeExamples) {
-      final ArrayNode examples = newArray().add(valueNode);
-      result.set(Fields.EXAMPLES, examples);
-    }
     return result;
   }
 
@@ -226,14 +214,10 @@ public final class JsonSchemaInferrer {
       anyOfs.add(newAnyOf);
       return;
     }
-    final ObjectNode newAnyOfToCompare =
-        newAnyOf.deepCopy().remove(Arrays.asList(Fields.DEFAULT, Fields.EXAMPLES));
     final Iterator<ObjectNode> anyOfIter = anyOfs.iterator();
     while (anyOfIter.hasNext()) {
       final ObjectNode anyOf = anyOfIter.next();
-      final ObjectNode anyOfToCompare =
-          anyOf.deepCopy().remove(Arrays.asList(Fields.DEFAULT, Fields.EXAMPLES));
-      final JsonNode diff = JsonDiff.asJson(anyOfToCompare, newAnyOfToCompare);
+      final JsonNode diff = JsonDiff.asJson(anyOf, newAnyOf);
       final Set<String> ops = StreamSupport.stream(diff.spliterator(), false)
           .map(j -> j.path("op").textValue())
           .filter(Objects::nonNull)
@@ -246,13 +230,7 @@ public final class JsonSchemaInferrer {
         anyOfIter.remove();
         break;
       } else if (ops.isEmpty() || ops.equals(Collections.singleton("remove"))) {
-        // The new anyOf is the same or a subset of one of the existing anyOfs.
-        if (anyOf.hasNonNull(Fields.EXAMPLES) && newAnyOf.hasNonNull(Fields.EXAMPLES)) {
-          final Set<JsonNode> mergedExamples = new HashSet<>();
-          anyOf.get(Fields.EXAMPLES).forEach(mergedExamples::add);
-          newAnyOf.get(Fields.EXAMPLES).forEach(mergedExamples::add);
-          anyOf.set(Fields.EXAMPLES, newArray().addAll(mergedExamples));
-        }
+        // The new anyOf is the same or a subset of one of the existing anyOfs. Do nothing.
         return;
       }
     }
@@ -274,8 +252,6 @@ public final class JsonSchemaInferrer {
     private Draft draft = Draft.V4;
     private boolean includeDollarSchema = true;
     private boolean inferFormat = true;
-    private boolean includeDefault;
-    private boolean includeExamples;
 
     private Builder() {}
 
@@ -323,35 +299,11 @@ public final class JsonSchemaInferrer {
     }
 
     /**
-     * Set whether {@code default} should be included in the output. The values will be the same as
-     * the input. It is false by default.
-     */
-    public Builder includeDefault(boolean includeDefault) {
-      this.includeDefault = includeDefault;
-      return this;
-    }
-
-
-    /**
-     * Set whether {@code examples} should be included in the output. The values will be the same as
-     * the input. It is false by default.
-     */
-    public Builder includeExamples(boolean includeExamples) {
-      this.includeExamples = includeExamples;
-      return this;
-    }
-
-    /**
      * @return the {@link JsonSchemaInferrer} built
      * @throws IllegalArgumentException if the draft version and features don't match up
      */
     public JsonSchemaInferrer build() {
-      if (!draft.sameOrNewerThan(Draft.V6) && includeExamples) {
-        throw new IllegalArgumentException(
-            String.format(Locale.ROOT, "Draft version[%s] does not support examples", draft.url));
-      }
-      return new JsonSchemaInferrer(draft, includeDollarSchema, inferFormat, includeDefault,
-          includeExamples);
+      return new JsonSchemaInferrer(draft, includeDollarSchema, inferFormat);
     }
 
   }
@@ -378,7 +330,7 @@ public final class JsonSchemaInferrer {
 
   private static interface Fields {
     String TYPE = "type", ITEMS = "items", ANY_OF = "anyOf", PROPERTIES = "properties",
-        FORMAT = "format", DEFAULT = "default", EXAMPLES = "examples", DOLLAR_SCHEMA = "$schema";
+        FORMAT = "format", DOLLAR_SCHEMA = "$schema";
   }
 
   private static interface Types {

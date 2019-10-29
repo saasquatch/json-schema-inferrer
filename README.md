@@ -18,7 +18,7 @@ sample.set("four",
             .add(JsonNodeFactory.instance.objectNode().put("true", true))
             .add("http://saasquatch.com")));
 final ObjectNode inferredSchema =
-    JsonSchemaInferrer.newBuilder().draft06().includeExamples(true).build().infer(sample);
+    JsonSchemaInferrer.newBuilder().draft06().build().infer(sample);
 ```
 
 In the code above, the `sample` JSON is:
@@ -42,45 +42,38 @@ And the result `inferredSchema` is:
   "type" : "object",
   "properties" : {
     "one" : {
-      "type" : "integer",
-      "examples" : [ 1 ]
+      "type" : "integer"
     },
     "two" : {
       "type" : "string",
-      "format" : "ipv6",
-      "examples" : [ "1234:abcd::1234" ]
+      "format" : "ipv6"
     },
     "three" : {
       "type" : "string",
-      "format" : "email",
-      "examples" : [ "hello@saasquat.ch" ]
+      "format" : "email"
     },
     "four" : {
       "type" : "array",
       "items" : {
         "anyOf" : [ {
+          "type" : "integer"
+        }, {
+          "type" : "string"
+        }, {
           "type" : "array",
           "items" : {
             "anyOf" : [ {
+              "type" : "string",
+              "format" : "uri"
+            }, {
               "type" : "object",
               "properties" : {
                 "true" : {
-                  "type" : "boolean",
-                  "examples" : [ true ]
+                  "type" : "boolean"
                 }
               }
-            }, {
-              "type" : "string",
-              "format" : "uri",
-              "examples" : [ "http://saasquatch.com" ]
             } ]
           }
-        }, {
-          "type" : "integer",
-          "examples" : [ 1 ]
-        }, {
-          "type" : "string",
-          "examples" : [ "two" ]
         } ]
       }
     }

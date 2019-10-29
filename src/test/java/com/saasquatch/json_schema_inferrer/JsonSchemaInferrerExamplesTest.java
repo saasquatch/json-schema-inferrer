@@ -105,30 +105,24 @@ public class JsonSchemaInferrerExamplesTest {
   private static List<JsonSchemaInferrer> getTestInferrers() {
     final List<JsonSchemaInferrer> inferrers = new ArrayList<>();
     for (String draft : Arrays.asList("04", "06", "07")) {
-      for (boolean includeDefault : Arrays.asList(true, false)) {
-        for (boolean includeExamples : Arrays.asList(true, false)) {
-          final JsonSchemaInferrer.Builder builder = JsonSchemaInferrer.newBuilder().inferFormat(false);
-          switch (draft) {
-            case "04":
-              builder.draft04();
-              break;
-            case "06":
-              builder.draft06();
-              break;
-            case "07":
-              builder.draft07();
-              break;
-            default:
-              throw new AssertionError("Unknown draft: " + draft);
-          }
-          builder.includeDefault(includeDefault);
-          builder.includeExamples(includeExamples);
-          try {
-            inferrers.add(builder.build());
-          } catch (IllegalArgumentException e) {
-            // Ignore
-          }
-        }
+      final JsonSchemaInferrer.Builder builder = JsonSchemaInferrer.newBuilder().inferFormat(false);
+      switch (draft) {
+        case "04":
+          builder.draft04();
+          break;
+        case "06":
+          builder.draft06();
+          break;
+        case "07":
+          builder.draft07();
+          break;
+        default:
+          throw new AssertionError("Unknown draft: " + draft);
+      }
+      try {
+        inferrers.add(builder.build());
+      } catch (IllegalArgumentException e) {
+        // Ignore
       }
     }
     return Collections.unmodifiableList(inferrers);
