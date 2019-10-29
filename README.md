@@ -58,10 +58,10 @@ And the result `inferredSchema` is:
     "four" : {
       "type" : "array",
       "items" : {
-        "oneOf" : [ {
+        "anyOf" : [ {
           "type" : "array",
           "items" : {
-            "oneOf" : [ {
+            "anyOf" : [ {
               "type" : "object",
               "properties" : {
                 "true" : {
