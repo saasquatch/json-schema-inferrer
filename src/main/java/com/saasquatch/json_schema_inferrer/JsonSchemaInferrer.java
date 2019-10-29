@@ -213,9 +213,7 @@ public final class JsonSchemaInferrer {
         break;
       default: {
         items = newObject();
-        final ArrayNode anyOfArray = newArray();
-        anyOfs.forEach(anyOfArray::add);
-        items.set(Fields.ANY_OF, anyOfArray);
+        items.set(Fields.ANY_OF, newArray().addAll(anyOfs));
       }
     }
     final ObjectNode result = newObject().put(Fields.TYPE, Types.ARRAY);
@@ -253,8 +251,7 @@ public final class JsonSchemaInferrer {
           final Set<JsonNode> mergedExamples = new HashSet<>();
           anyOf.get(Fields.EXAMPLES).forEach(mergedExamples::add);
           newAnyOf.get(Fields.EXAMPLES).forEach(mergedExamples::add);
-          final ArrayNode mergedExamplesArray = newArray().addAll(mergedExamples);
-          anyOf.set(Fields.EXAMPLES, mergedExamplesArray);
+          anyOf.set(Fields.EXAMPLES, newArray().addAll(mergedExamples));
         }
         return;
       }
