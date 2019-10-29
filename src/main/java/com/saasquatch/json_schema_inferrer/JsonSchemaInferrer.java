@@ -3,6 +3,7 @@ package com.saasquatch.json_schema_inferrer;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Locale;
@@ -10,6 +11,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
@@ -23,6 +25,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeType;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.POJONode;
 import com.fasterxml.jackson.databind.node.ValueNode;
+import com.github.fge.jsonpatch.diff.JsonDiff;
 
 /**
  * Infer JSON schema based on a sample JSON
@@ -192,11 +195,14 @@ public final class JsonSchemaInferrer {
     final Set<ObjectNode> oneOfs = new HashSet<>();
     for (JsonNode val : arrayNode) {
       if (val instanceof ObjectNode) {
-        oneOfs.add(processObject((ObjectNode) val));
+//        oneOfs.add(processObject((ObjectNode) val));
+        addOneOf(oneOfs, processObject((ObjectNode) val));
       } else if (val instanceof ArrayNode) {
-        oneOfs.add(processArray((ArrayNode) val));
+//        oneOfs.add(processArray((ArrayNode) val));
+        addOneOf(oneOfs, processArray((ArrayNode) val));
       } else {
-        oneOfs.add(processPrimitive((ValueNode) val));
+//        oneOfs.add(processPrimitive((ValueNode) val));
+        addOneOf(oneOfs, processPrimitive((ValueNode) val));
       }
     }
     processOneOfs(oneOfs);
@@ -217,6 +223,36 @@ public final class JsonSchemaInferrer {
     final ObjectNode result = newObject().put(Fields.TYPE, Types.ARRAY);
     result.set(Fields.ITEMS, items);
     return result;
+  }
+
+  private void addOneOf(Set<ObjectNode> oneOfs, ObjectNode newOneOf) {
+    final Set<ObjectNode> oneOfsToAdd = new HashSet<>();
+    final Iterator<ObjectNode> oneOfIter = oneOfs.iterator();
+    while (oneOfIter.hasNext()) {
+      final ObjectNode oneOf = oneOfIter.next();
+      final JsonNode diff = JsonDiff.asJson(oneOf, newOneOf);
+      final Set<String> ops = StreamSupport.stream(diff.spliterator(), false)
+          .map(j -> j.path("op").textValue())
+          .filter(Objects::nonNull)
+          .collect(Collectors.toSet());
+      if (Arrays.asList("add", "replace").containsAll(ops)) {
+        // the new oneOf is a superset of one of the existing oneOfs
+        oneOfsToAdd.add(newOneOf);
+        oneOfIter.remove();
+      } else if (Arrays.asList("remove", "replace").containsAll(ops)) {
+        // The new oneOf is a subset of one of the existing oneOfs
+        // Do nothing
+      } else {
+        oneOfsToAdd.add(newOneOf);
+      }
+    }
+    oneOfs.addAll(oneOfsToAdd);
+  }
+
+  public static void main(String[] args) {
+    ObjectNode j1 = newObject().put("a", 1);
+    ObjectNode j2 = newObject().put("b", 2).put("a", "b");
+    System.out.println(JsonDiff.asJson(j2, j1));
   }
 
   private void processOneOfs(Set<ObjectNode> oneOfs) {

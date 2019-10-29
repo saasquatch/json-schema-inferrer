@@ -2,7 +2,6 @@ package com.saasquatch.json_schema_inferrer;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.IOException;
@@ -40,26 +39,27 @@ public class JsonSchemaInferrerTest {
   @Test
   public void testSimpleExample() throws Exception {
     final JsonNode simple = loadJson("simple.json");
+//    {
+//      final ObjectNode schema = JsonSchemaInferrer.newBuilder().build().infer(simple);
+//      assertTrue(schema.hasNonNull("$schema"));
+//      assertTrue(schema.path("$schema").textValue().contains("-04"));
+//      assertTrue(schema.hasNonNull("type"));
+//    }
+//    {
+//      final ObjectNode schema = JsonSchemaInferrer.newBuilder().draft06().build().infer(simple);
+//      assertTrue(schema.hasNonNull("$schema"));
+//      assertTrue(schema.path("$schema").textValue().contains("-06"));
+//      assertTrue(schema.hasNonNull("type"));
+//    }
+//    {
+//      final ObjectNode schema =
+//          JsonSchemaInferrer.newBuilder().draft06().includeDollarSchema(false).build().infer(simple);
+//      assertFalse(schema.hasNonNull("$schema"));
+//      assertTrue(schema.hasNonNull("type"));
+//    }
     {
       final ObjectNode schema = JsonSchemaInferrer.newBuilder().build().infer(simple);
-      assertTrue(schema.hasNonNull("$schema"));
-      assertTrue(schema.path("$schema").textValue().contains("-04"));
-      assertTrue(schema.hasNonNull("type"));
-    }
-    {
-      final ObjectNode schema = JsonSchemaInferrer.newBuilder().draft06().build().infer(simple);
-      assertTrue(schema.hasNonNull("$schema"));
-      assertTrue(schema.path("$schema").textValue().contains("-06"));
-      assertTrue(schema.hasNonNull("type"));
-    }
-    {
-      final ObjectNode schema =
-          JsonSchemaInferrer.newBuilder().draft06().includeDollarSchema(false).build().infer(simple);
-      assertFalse(schema.hasNonNull("$schema"));
-      assertTrue(schema.hasNonNull("type"));
-    }
-    {
-      final ObjectNode schema = JsonSchemaInferrer.newBuilder().build().infer(simple);
+      System.out.println(schema.toPrettyString());
       assertTrue(schema.hasNonNull("properties"));
       assertTrue(schema.path("properties").isObject());
       assertEquals("integer", schema.path("properties").path("id").path("type").textValue());
@@ -98,6 +98,7 @@ public class JsonSchemaInferrerTest {
     final JsonNode advanced = loadJson("advanced.json");
     {
       final ObjectNode schema = JsonSchemaInferrer.newBuilder().build().infer(advanced);
+      System.out.println(schema.toPrettyString());
       assertTrue(schema.path("items").isObject());
       assertTrue(StreamSupport.stream(schema.path("items").path("oneOf").spliterator(), false)
           .anyMatch(j -> j.path("properties").path("tags").isObject()));
