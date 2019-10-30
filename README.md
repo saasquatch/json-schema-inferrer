@@ -18,7 +18,7 @@ sample.set("four",
             .add(JsonNodeFactory.instance.objectNode().put("true", true))
             .add("http://saasquatch.com")));
 final ObjectNode inferredSchema =
-    JsonSchemaInferrer.newBuilder().draft06().build().infer(sample);
+    JsonSchemaInferrer.newBuilder().withSpecVersion(SpecVersion.DRAFT_06).build().infer(sample);
 ```
 
 In the code above, the `sample` JSON is:

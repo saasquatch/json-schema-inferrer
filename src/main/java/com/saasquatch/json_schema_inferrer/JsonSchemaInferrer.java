@@ -256,7 +256,7 @@ public final class JsonSchemaInferrer {
     private Builder() {}
 
     /**
-     * Set the spec version. The default is draft-04.
+     * Set the specification version. The default is draft-04.
      */
     public Builder withSpecVersion(@Nonnull SpecVersion specVersion) {
       this.specVersion = Objects.requireNonNull(specVersion);
