@@ -4,7 +4,7 @@
 
   <groupId>com.saasquatch</groupId>
   <artifactId>json-schema-inferrer</artifactId>
-  <version>0.0.3-SNAPSHOT</version>
+  <version>0.0.4-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>json-schema-inferrer</name>
