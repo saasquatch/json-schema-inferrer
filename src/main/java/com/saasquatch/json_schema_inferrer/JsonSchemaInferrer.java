@@ -51,6 +51,7 @@ public final class JsonSchemaInferrer {
    * @return the inferred JSON schema
    */
   public ObjectNode infer(@Nullable JsonNode input) {
+    validateJsonNode(input);
     final ObjectNode result = newObject();
     if (includeMetaSchemaUrl) {
       result.put(Fields.DOLLAR_SCHEMA, specVersion.metaSchemaUrl);
@@ -101,15 +102,13 @@ public final class JsonSchemaInferrer {
         return value.isIntegralNumber() ? Types.INTEGER : Types.NUMBER;
       case OBJECT:
         return Types.OBJECT;
-      case POJO:
-        throw new IllegalArgumentException(POJONode.class.getSimpleName() + " not supported");
       case STRING:
         return Types.STRING;
       default:
         break;
     }
     throw new IllegalArgumentException(
-        String.format(Locale.ROOT, "Unrecognized %s: %s", type.getClass().getSimpleName(), type));
+        String.format(Locale.ROOT, "Unhandled %s: %s", type.getClass().getSimpleName(), type));
   }
 
   private ObjectNode processPrimitive(@Nullable ValueNode valueNode) {
@@ -129,6 +128,7 @@ public final class JsonSchemaInferrer {
       final Map.Entry<String, JsonNode> field = fields.next();
       final String key = field.getKey();
       final JsonNode val = field.getValue();
+      validateJsonNode(val);
       if (val instanceof ObjectNode) {
         properties.set(key, processObject((ObjectNode) val));
       } else if (val instanceof ArrayNode) {
@@ -148,6 +148,7 @@ public final class JsonSchemaInferrer {
     final ObjectNode items;
     final Set<ObjectNode> anyOfs = new HashSet<>();
     for (JsonNode val : arrayNode) {
+      validateJsonNode(val);
       if (val instanceof ObjectNode) {
         addAnyOf(anyOfs, processObject((ObjectNode) val));
       } else if (val instanceof ArrayNode) {
@@ -222,6 +223,20 @@ public final class JsonSchemaInferrer {
     }
   }
 
+  private void validateJsonNode(@Nullable JsonNode value) {
+    if (value instanceof POJONode) {
+      throw new IllegalArgumentException(POJONode.class.getSimpleName() + " not supported");
+    }
+  }
+
+  private static ObjectNode newObject() {
+    return JsonNodeFactory.instance.objectNode();
+  }
+
+  private static ArrayNode newArray() {
+    return JsonNodeFactory.instance.arrayNode();
+  }
+
   public static final class Builder {
 
     private SpecVersion specVersion = SpecVersion.DRAFT_04;
@@ -278,14 +293,6 @@ public final class JsonSchemaInferrer {
   private static interface Types {
     String OBJECT = "object", ARRAY = "array", STRING = "string", BOOLEAN = "boolean",
         INTEGER = "integer", NUMBER = "number", NULL = "null";
-  }
-
-  private static ObjectNode newObject() {
-    return JsonNodeFactory.instance.objectNode();
-  }
-
-  private static ArrayNode newArray() {
-    return JsonNodeFactory.instance.arrayNode();
   }
 
 }
