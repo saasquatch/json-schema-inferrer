@@ -11,7 +11,6 @@ import java.io.UncheckedIOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -106,21 +105,9 @@ public class JsonSchemaInferrerExamplesTest {
 
   private static List<JsonSchemaInferrer> getTestInferrers() {
     final List<JsonSchemaInferrer> inferrers = new ArrayList<>();
-    for (String draft : Arrays.asList("04", "06", "07")) {
-      final JsonSchemaInferrer.Builder builder = JsonSchemaInferrer.newBuilder().inferFormat(false);
-      switch (draft) {
-        case "04":
-          builder.draft04();
-          break;
-        case "06":
-          builder.draft06();
-          break;
-        case "07":
-          builder.draft07();
-          break;
-        default:
-          throw new AssertionError("Unknown draft: " + draft);
-      }
+    for (SpecVersion specVersion : SpecVersion.values()) {
+      final JsonSchemaInferrer.Builder builder =
+          JsonSchemaInferrer.newBuilder().inferFormat(false).withSpecVersion(specVersion);
       try {
         inferrers.add(builder.build());
       } catch (IllegalArgumentException e) {

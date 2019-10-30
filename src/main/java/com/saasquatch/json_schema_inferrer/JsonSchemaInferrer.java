@@ -37,14 +37,14 @@ import com.flipkart.zjsonpatch.JsonDiff;
 @Immutable
 public final class JsonSchemaInferrer {
 
-  private final Draft draft;
-  private final boolean includeDollarSchema;
+  private final SpecVersion specVersion;
+  private final boolean includeMetaSchemaUrl;
   private final boolean inferFormat;
 
-  private JsonSchemaInferrer(@Nonnull Draft draft, boolean includeDollarSchema,
+  private JsonSchemaInferrer(@Nonnull SpecVersion specVersion, boolean includeMetaSchemaUrl,
       boolean inferFormat) {
-    this.draft = draft;
-    this.includeDollarSchema = includeDollarSchema;
+    this.specVersion = specVersion;
+    this.includeMetaSchemaUrl = includeMetaSchemaUrl;
     this.inferFormat = inferFormat;
   }
 
@@ -58,8 +58,8 @@ public final class JsonSchemaInferrer {
    */
   public ObjectNode infer(@Nullable JsonNode input) {
     final ObjectNode result = newObject();
-    if (includeDollarSchema) {
-      result.put(Fields.DOLLAR_SCHEMA, draft.url);
+    if (includeMetaSchemaUrl) {
+      result.put(Fields.DOLLAR_SCHEMA, specVersion.metaSchemaUrl);
     }
     if (input instanceof ObjectNode) {
       result.setAll(processObject((ObjectNode) input));
@@ -85,7 +85,7 @@ public final class JsonSchemaInferrer {
       } catch (Exception e) {
         // Ignore
       }
-      if (draft.sameOrNewerThan(Draft.V7)) {
+      if (specVersion.sameOrNewerThan(SpecVersion.DRAFT_07)) {
         try {
           LocalTime.parse(textValue);
           return "time";
@@ -249,43 +249,25 @@ public final class JsonSchemaInferrer {
 
   public static final class Builder {
 
-    private Draft draft = Draft.V4;
-    private boolean includeDollarSchema = true;
+    private SpecVersion specVersion = SpecVersion.DRAFT_04;
+    private boolean includeMetaSchemaUrl = true;
     private boolean inferFormat = true;
 
     private Builder() {}
 
     /**
-     * Set the draft version to draft-04. The default is draft-04.
+     * Set the spec version. The default is draft-04.
      */
-    public Builder draft04() {
-      return withDraft(Draft.V4);
-    }
-
-    /**
-     * Set the draft version to draft-06. The default is draft-04.
-     */
-    public Builder draft06() {
-      return withDraft(Draft.V6);
-    }
-
-    /**
-     * Set the draft version to draft-07. The default is draft-04.
-     */
-    public Builder draft07() {
-      return withDraft(Draft.V7);
-    }
-
-    private Builder withDraft(@Nonnull Draft draft) {
-      this.draft = Objects.requireNonNull(draft);
+    public Builder withSpecVersion(@Nonnull SpecVersion specVersion) {
+      this.specVersion = Objects.requireNonNull(specVersion);
       return this;
     }
 
     /**
      * Set whether {@code $schema} should be included in the output. It is true by default.
      */
-    public Builder includeDollarSchema(boolean includeDollarSchema) {
-      this.includeDollarSchema = includeDollarSchema;
+    public Builder includeMetaSchemaUrl(boolean includeMetaSchemaUrl) {
+      this.includeMetaSchemaUrl = includeMetaSchemaUrl;
       return this;
     }
 
@@ -300,30 +282,10 @@ public final class JsonSchemaInferrer {
 
     /**
      * @return the {@link JsonSchemaInferrer} built
-     * @throws IllegalArgumentException if the draft version and features don't match up
+     * @throws IllegalArgumentException if the spec version and features don't match up
      */
     public JsonSchemaInferrer build() {
-      return new JsonSchemaInferrer(draft, includeDollarSchema, inferFormat);
-    }
-
-  }
-
-  private static enum Draft {
-
-    V4("http://json-schema.org/draft-04/schema#"),
-    V6("http://json-schema.org/draft-06/schema#"),
-    V7("http://json-schema.org/draft-07/schema#"),
-    ;
-
-    @Nonnull
-    private final String url;
-
-    Draft(String url) {
-      this.url = url;
-    }
-
-    public boolean sameOrNewerThan(Draft other) {
-      return this.compareTo(other) >= 0;
+      return new JsonSchemaInferrer(specVersion, includeMetaSchemaUrl, inferFormat);
     }
 
   }

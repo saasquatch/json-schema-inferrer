@@ -43,7 +43,7 @@ public class JsonSchemaInferrerTest {
         .infer(JsonNodeFactory.instance.textNode("foo@bar.com")).path("format").textValue());
     assertNull(JsonSchemaInferrer.newBuilder().inferFormat(false).build()
         .infer(JsonNodeFactory.instance.textNode("foo@bar.com")).path("format").textValue());
-    assertNull(JsonSchemaInferrer.newBuilder().draft07().build()
+    assertNull(JsonSchemaInferrer.newBuilder().withSpecVersion(SpecVersion.DRAFT_07).build()
         .infer(JsonNodeFactory.instance.textNode("aaaaaaaaa")).path("format").textValue());
     assertEquals("ipv4", JsonSchemaInferrer.newBuilder().build()
         .infer(JsonNodeFactory.instance.textNode("1.2.3.4")).path("format").textValue());
@@ -57,14 +57,14 @@ public class JsonSchemaInferrerTest {
         JsonSchemaInferrer.newBuilder().build()
             .infer(JsonNodeFactory.instance.textNode(Instant.now().toString())).path("format")
             .textValue());
-    assertNull(JsonSchemaInferrer.newBuilder().draft06().build()
+    assertNull(JsonSchemaInferrer.newBuilder().withSpecVersion(SpecVersion.DRAFT_06).build()
         .infer(JsonNodeFactory.instance.textNode("1900-01-01")).path("format").textValue());
-    assertEquals("date", JsonSchemaInferrer.newBuilder().draft07().build()
-        .infer(JsonNodeFactory.instance.textNode("1900-01-01")).path("format").textValue());
-    assertNull(JsonSchemaInferrer.newBuilder().draft06().build()
+    assertEquals("date", JsonSchemaInferrer.newBuilder().withSpecVersion(SpecVersion.DRAFT_07)
+        .build().infer(JsonNodeFactory.instance.textNode("1900-01-01")).path("format").textValue());
+    assertNull(JsonSchemaInferrer.newBuilder().withSpecVersion(SpecVersion.DRAFT_06).build()
         .infer(JsonNodeFactory.instance.textNode("20:20:39")).path("format").textValue());
-    assertEquals("time", JsonSchemaInferrer.newBuilder().draft07().build()
-        .infer(JsonNodeFactory.instance.textNode("20:20:39")).path("format").textValue());
+    assertEquals("time", JsonSchemaInferrer.newBuilder().withSpecVersion(SpecVersion.DRAFT_07)
+        .build().infer(JsonNodeFactory.instance.textNode("20:20:39")).path("format").textValue());
   }
 
   @Test
@@ -77,14 +77,15 @@ public class JsonSchemaInferrerTest {
       assertTrue(schema.hasNonNull("type"));
     }
     {
-      final ObjectNode schema = JsonSchemaInferrer.newBuilder().draft06().build().infer(simple);
+      final ObjectNode schema = JsonSchemaInferrer.newBuilder()
+          .withSpecVersion(SpecVersion.DRAFT_06).build().infer(simple);
       assertTrue(schema.hasNonNull("$schema"));
       assertTrue(schema.path("$schema").textValue().contains("-06"));
       assertTrue(schema.hasNonNull("type"));
     }
     {
-      final ObjectNode schema =
-          JsonSchemaInferrer.newBuilder().draft06().includeDollarSchema(false).build().infer(simple);
+      final ObjectNode schema = JsonSchemaInferrer.newBuilder()
+          .withSpecVersion(SpecVersion.DRAFT_06).includeMetaSchemaUrl(false).build().infer(simple);
       assertFalse(schema.hasNonNull("$schema"));
       assertTrue(schema.hasNonNull("type"));
     }
