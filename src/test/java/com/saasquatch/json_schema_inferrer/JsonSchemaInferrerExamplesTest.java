@@ -136,7 +136,7 @@ public class JsonSchemaInferrerExamplesTest {
         .filter(j -> j.path("name").textValue().endsWith(".json"))
         .map(j -> j.path("download_url").textValue())
         .filter(Objects::nonNull)
-        .map(downloadUrl -> processGitHubDownloadUrl(downloadUrl, quicktypeCommitHash));
+        .map(downloadUrl -> processGitHubDownloadUrl(downloadUrl, commitHash));
   }
 
   private String processGitHubDownloadUrl(String url, String commitHash) {
