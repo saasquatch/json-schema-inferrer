@@ -63,6 +63,7 @@ public class JsonSchemaInferrerExamplesTest {
 
   private void doTestForJsonUrl(String jsonUrl) {
     final JsonNode sampleJson;
+    // Not being able to load the sample JSON should not be considered a failure
     try {
       sampleJson = loadJsonFromUrl(jsonUrl);
       if (sampleJson == null) {
@@ -102,7 +103,8 @@ public class JsonSchemaInferrerExamplesTest {
   }
 
   private static Collection<String> loadJsonUrls() {
-    final String url = "https://raw.githubusercontent.com/quicktype/quicktype/b37bd7ee621c7c78807e388507e631771da1f6e1/test/awesome-json-datasets";
+    final String url = "https://cdn.jsdelivr.net/gh/quicktype/quicktype@"
+        + "b37bd7ee621c7c78807e388507e631771da1f6e1/test/awesome-json-datasets";
     try (CloseableHttpResponse response = httpClient.execute(new HttpGet(url))) {
       final int status = response.getCode();
       if (status >= 300) {
@@ -119,6 +121,7 @@ public class JsonSchemaInferrerExamplesTest {
         return result;
       }
     } catch (IOException e) {
+      // We can't proceed if we can't load the sample urls
       throw new UncheckedIOException(e);
     }
   }
