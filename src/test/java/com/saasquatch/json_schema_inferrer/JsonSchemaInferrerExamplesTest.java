@@ -40,7 +40,6 @@ public class JsonSchemaInferrerExamplesTest {
   private static CloseableHttpClient httpClient;
   private final ObjectMapper mapper = new ObjectMapper();
   private final Collection<JsonSchemaInferrer> testInferrers = getTestInferrers();
-  private final Collection<String> sampleJsonUrls = getSampleJsonUrls();
 
   @BeforeAll
   public static void beforeAll() {
@@ -54,7 +53,7 @@ public class JsonSchemaInferrerExamplesTest {
 
   @Test
   public void test() {
-    for (String jsonUrl : sampleJsonUrls) {
+    for (String jsonUrl : getSampleJsonUrls()) {
       doTestForJsonUrl(jsonUrl);
     }
   }
@@ -101,8 +100,7 @@ public class JsonSchemaInferrerExamplesTest {
   }
 
   private static Collection<String> getSampleJsonUrls() {
-    return Stream.of(getQuicktypeSampleJsons())
-        .flatMap(Function.identity()).collect(Collectors.toSet());
+    return getQuicktypeSampleJsons().collect(Collectors.toSet());
   }
 
   private static Stream<String> getQuicktypeSampleJsons() {
@@ -135,7 +133,7 @@ public class JsonSchemaInferrerExamplesTest {
             "e53b5.json", "e64a0.json", "e8a0b.json", "e8b04.json", "ed095.json", "f22f5.json",
             "f3139.json", "f3edf.json", "f466a.json", "f6a65.json", "f74d5.json", "f82d9.json",
             "f974d.json", "faff5.json", "fcca3.json", "fd329.json")
-        .map(fileName -> format("/test/inputs/json/misc/%s", fileName));
+        .map("/test/inputs/json/misc/"::concat);
     final Stream<String> priority = Stream
         .of("blns-object.json", "bug427.json", "bug790.json", "bug855-short.json", "bug863.json",
             "coin-pairs.json", "combinations1.json", "combinations2.json", "combinations3.json",
@@ -144,12 +142,12 @@ public class JsonSchemaInferrerExamplesTest {
             "no-classes.json", "nst-test-suite.json", "number-map.json", "optional-union.json",
             "recursive.json", "simple-identifiers.json", "union-constructor-clash.json",
             "unions.json", "url.json")
-        .map(fileName -> format("/test/inputs/json/priority/%s", fileName));
+        .map("/test/inputs/json/priority/"::concat);
     final Stream<String> samples = Stream
         .of("bitcoin-block.json", "getting-started.json", "github-events.json", "kitchen-sink.json",
             "pokedex.json", "reddit.json", "simple-object.json", "spotify-album.json",
             "us-avg-temperatures.json", "us-senators.json")
-        .map(fileName -> format("/test/inputs/json/samples/%s", fileName));
+        .map("/test/inputs/json/samples/"::concat);
     return Stream.of(misc, priority, samples).flatMap(Function.identity())
         .map(QUICKTYPE_REPO_BASE_URL::concat);
   }
