@@ -102,8 +102,12 @@ public class JsonSchemaInferrerExamplesTest {
   }
 
   private static Collection<String> loadJsonUrls() {
-    try (CloseableHttpResponse response = httpClient.execute(new HttpGet(
-        "https://raw.githubusercontent.com/quicktype/quicktype/b37bd7ee621c7c78807e388507e631771da1f6e1/test/awesome-json-datasets"))) {
+    final String url = "https://raw.githubusercontent.com/quicktype/quicktype/b37bd7ee621c7c78807e388507e631771da1f6e1/test/awesome-json-datasets";
+    try (CloseableHttpResponse response = httpClient.execute(new HttpGet(url))) {
+      final int status = response.getCode();
+      if (status >= 300) {
+        throw new IllegalStateException(format("status[%d] received for url[%s]\n", status, url));
+      }
       try (BufferedReader br =
           new BufferedReader(new InputStreamReader(response.getEntity().getContent(), UTF_8))) {
         final Set<String> result = br.lines()
