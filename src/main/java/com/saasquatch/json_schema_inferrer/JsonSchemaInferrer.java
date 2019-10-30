@@ -14,6 +14,7 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.BinaryNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -72,9 +73,18 @@ public final class JsonSchemaInferrer {
     if (value == null) {
       return null;
     }
-    final String textValue = value.textValue();
-    if (textValue != null && stringFormatInferrer != null) {
-      return stringFormatInferrer.infer(specVersion, textValue);
+    if (stringFormatInferrer != null) {
+      final String textValue;
+      if (value.isTextual()) {
+        textValue = value.textValue();
+      } else if (value instanceof BinaryNode) {
+        textValue = ((BinaryNode) value).asText();
+      } else {
+        textValue = null;
+      }
+      if (textValue != null) {
+        return stringFormatInferrer.infer(specVersion, textValue);
+      }
     }
     return null;
   }
