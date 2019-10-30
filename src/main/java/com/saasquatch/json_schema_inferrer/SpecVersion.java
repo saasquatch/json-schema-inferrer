@@ -21,8 +21,4 @@ public enum SpecVersion {
     this.metaSchemaUrl = metaSchemaUrl;
   }
 
-  boolean sameOrNewerThan(SpecVersion other) {
-    return this.compareTo(other) >= 0;
-  }
-
 }

@@ -1,8 +1,5 @@
 package com.saasquatch.json_schema_inferrer;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -15,9 +12,6 @@ import java.util.stream.StreamSupport;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
-import org.apache.commons.validator.routines.EmailValidator;
-import org.apache.commons.validator.routines.InetAddressValidator;
-import org.apache.commons.validator.routines.UrlValidator;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -39,13 +33,13 @@ public final class JsonSchemaInferrer {
 
   private final SpecVersion specVersion;
   private final boolean includeMetaSchemaUrl;
-  private final boolean inferFormat;
+  private final StringFormatInferrer stringFormatInferrer;
 
   private JsonSchemaInferrer(@Nonnull SpecVersion specVersion, boolean includeMetaSchemaUrl,
-      boolean inferFormat) {
+      @Nullable StringFormatInferrer stringFormatInferrer) {
     this.specVersion = specVersion;
     this.includeMetaSchemaUrl = includeMetaSchemaUrl;
-    this.inferFormat = inferFormat;
+    this.stringFormatInferrer = stringFormatInferrer;
   }
 
   public static Builder newBuilder() {
@@ -74,42 +68,13 @@ public final class JsonSchemaInferrer {
 
   @Nullable
   private String inferFormat(@Nullable JsonNode value) {
-    if (!inferFormat || value == null) {
+    if (value == null) {
       return null;
     }
-    if (value.textValue() != null) {
+    if (stringFormatInferrer != null) {
       final String textValue = value.textValue();
-      try {
-        ZonedDateTime.parse(textValue);
-        return "date-time";
-      } catch (Exception e) {
-        // Ignore
-      }
-      if (specVersion.sameOrNewerThan(SpecVersion.DRAFT_07)) {
-        try {
-          LocalTime.parse(textValue);
-          return "time";
-        } catch (Exception e) {
-          // Ignore
-        }
-        try {
-          LocalDate.parse(textValue);
-          return "date";
-        } catch (Exception e) {
-          // Ignore
-        }
-      }
-      if (EmailValidator.getInstance().isValid(textValue)) {
-        return "email";
-      }
-      if (InetAddressValidator.getInstance().isValidInet4Address(textValue)) {
-        return "ipv4";
-      }
-      if (InetAddressValidator.getInstance().isValidInet6Address(textValue)) {
-        return "ipv6";
-      }
-      if (UrlValidator.getInstance().isValid(textValue)) {
-        return "uri";
+      if (textValue != null) {
+        return stringFormatInferrer.infer(specVersion, textValue);
       }
     }
     return null;
@@ -215,10 +180,20 @@ public final class JsonSchemaInferrer {
       return;
     }
     final Iterator<ObjectNode> anyOfIter = anyOfs.iterator();
-    while (anyOfIter.hasNext()) {
+    anyOfsLoop: while (anyOfIter.hasNext()) {
       final ObjectNode anyOf = anyOfIter.next();
-      final JsonNode diff = JsonDiff.asJson(anyOf, newAnyOf);
-      final Set<String> ops = StreamSupport.stream(diff.spliterator(), false)
+      final JsonNode diffs = JsonDiff.asJson(anyOf, newAnyOf);
+      for (JsonNode diff : diffs) {
+        final String path = diff.path("path").textValue();
+        if (path != null && path.endsWith('/' + Fields.FORMAT)) {
+          if (Types.STRING.equals(newAnyOf.at(path.substring(0, path.lastIndexOf('/')))
+              .path(Fields.TYPE).textValue())) {
+            // If any of the diffs is caused by a format change, we'll want to add it
+            break anyOfsLoop;
+          }
+        }
+      }
+      final Set<String> ops = StreamSupport.stream(diffs.spliterator(), false)
           .map(j -> j.path("op").textValue())
           .filter(Objects::nonNull)
           .collect(Collectors.toSet());
@@ -251,7 +226,7 @@ public final class JsonSchemaInferrer {
 
     private SpecVersion specVersion = SpecVersion.DRAFT_04;
     private boolean includeMetaSchemaUrl = true;
-    private boolean inferFormat = true;
+    private StringFormatInferrer stringFormatInferrer = DefaultStringFormatInferrer.INSTANCE;
 
     private Builder() {}
 
@@ -272,11 +247,16 @@ public final class JsonSchemaInferrer {
     }
 
     /**
-     * Set whether we should infer the {@code format} of the input, i.e. email, ipv4, ipv6, etc. It
-     * is true by default.
+     * Set the {@link StringFormatInferrer} for inferring the <a href=
+     * "https://json-schema.org/understanding-json-schema/reference/string.html#format">format</a>
+     * of strings. By default it uses {@link DefaultStringFormatInferrer}, which implements a subset
+     * of standard formats. To use custom formats, provide your own implementation. To disable
+     * string format inference, use {@code null}.<br>
+     * Note that if your JSON samples have large nested arrays, it's recommended to set this to
+     * false to prevent confusing outputs.
      */
-    public Builder inferFormat(boolean inferFormat) {
-      this.inferFormat = inferFormat;
+    public Builder withStringFormatInferrer(@Nullable StringFormatInferrer stringFormatInferrer) {
+      this.stringFormatInferrer = stringFormatInferrer;
       return this;
     }
 
@@ -285,7 +265,7 @@ public final class JsonSchemaInferrer {
      * @throws IllegalArgumentException if the spec version and features don't match up
      */
     public JsonSchemaInferrer build() {
-      return new JsonSchemaInferrer(specVersion, includeMetaSchemaUrl, inferFormat);
+      return new JsonSchemaInferrer(specVersion, includeMetaSchemaUrl, stringFormatInferrer);
     }
 
   }
