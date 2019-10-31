@@ -8,7 +8,7 @@ import org.apache.commons.validator.routines.InetAddressValidator;
 import org.apache.commons.validator.routines.UrlValidator;
 
 /**
- * The default implementation fo {@link StringFormatInferrer}
+ * The default implementation of {@link StringFormatInferrer}
  *
  * @author sli
  */
