@@ -2,8 +2,6 @@
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Build Status](https://travis-ci.org/saasquatch/json-schema-inferrer.svg?branch=master)](https://travis-ci.org/saasquatch/json-schema-inferrer)
-[![](https://jitci.com/gh/saasquatch/json-schema-inferrer/svg)](https://jitci.com/gh/saasquatch/json-schema-inferrer)
-[![](https://jitpack.io/v/saasquatch/json-schema-inferrer.svg)](https://jitpack.io/#saasquatch/json-schema-inferrer)
 
 Java library for inferring JSON schema based on a sample JSON.
 
@@ -83,30 +81,61 @@ And the result `inferredSchema` is:
 
 ## Adding it to your project
 
-json-schema-inferrer is hosted on JitPack.
+### Add the repository:
 
-Add JitPack repository:
+Maven:
 
 ```xml
 <repositories>
   <repository>
-    <id>jitpack.io</id>
-    <url>https://jitpack.io</url>
+    <snapshots>
+      <enabled>false</enabled>
+    </snapshots>
+    <id>bintray-saasquatch-java-libs</id>
+    <name>bintray</name>
+    <url>https://dl.bintray.com/saasquatch/java-libs</url>
   </repository>
 </repositories>
+<pluginRepositories>
+  <pluginRepository>
+    <snapshots>
+      <enabled>false</enabled>
+    </snapshots>
+    <id>bintray-saasquatch-java-libs</id>
+    <name>bintray-plugins</name>
+    <url>https://dl.bintray.com/saasquatch/java-libs</url>
+  </pluginRepository>
+</pluginRepositories>
 ```
 
-Add the dependency:
+Gradle:
+
+```gradle
+repositories {
+  maven {
+    url  "https://dl.bintray.com/saasquatch/java-libs"
+  }
+}
+```
+
+### Add the dependency:
+
+Maven:
 
 ```xml
 <dependency>
-  <groupId>com.github.saasquatch</groupId>
+  <groupId>com.saasquatch</groupId>
   <artifactId>json-schema-inferrer</artifactId>
-  <version>0.0.5</version>
+  <version>0.0.1-alpha-1</version>
+  <type>pom</type>
 </dependency>
 ```
 
-For more information and other built tools, [please refer to the JitPack page](https://jitpack.io/#saasquatch/json-schema-inferrer).
+Gradle:
+
+```gradle
+compile 'com.saasquatch:json-schema-inferrer:0.0.1-alpha-1'
+```
 
 ## LICENSE
 
