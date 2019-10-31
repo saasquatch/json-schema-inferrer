@@ -82,7 +82,19 @@ public final class JsonSchemaInferrer {
         textValue = null;
       }
       if (textValue != null) {
-        return stringFormatInferrer.infer(specVersion, textValue);
+        return stringFormatInferrer.infer(new StringFormatInferrerInput() {
+
+          @Override
+          public String getTextValue() {
+            return textValue;
+          }
+
+          @Override
+          public SpecVersion getSpecVersion() {
+            return specVersion;
+          }
+
+        });
       }
     }
     return null;

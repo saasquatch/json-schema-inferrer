@@ -17,7 +17,8 @@ public enum DefaultStringFormatInferrer implements StringFormatInferrer {
   INSTANCE,;
 
   @Override
-  public String infer(SpecVersion specVersion, String textValue) {
+  public String infer(StringFormatInferrerInput input) {
+    final String textValue = input.getTextValue();
     if (EmailValidator.getInstance().isValid(textValue)) {
       return "email";
     }
@@ -36,7 +37,7 @@ public enum DefaultStringFormatInferrer implements StringFormatInferrer {
     } catch (Exception e) {
       // Ignore
     }
-    if (specVersion == SpecVersion.DRAFT_07) {
+    if (input.getSpecVersion() == SpecVersion.DRAFT_07) {
       try {
         LocalTime.parse(textValue);
         return "time";

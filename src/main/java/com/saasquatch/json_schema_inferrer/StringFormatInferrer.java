@@ -14,6 +14,6 @@ import javax.annotation.Nullable;
 public interface StringFormatInferrer {
 
   @Nullable
-  String infer(@Nonnull SpecVersion specVersion, @Nonnull String textValue);
+  String infer(@Nonnull StringFormatInferrerInput input);
 
 }
