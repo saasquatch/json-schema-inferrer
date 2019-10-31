@@ -182,7 +182,7 @@ public class JsonSchemaInferrerExamplesTest {
     request.setConfig(RequestConfig.custom()
         .setConnectTimeout(1, TimeUnit.SECONDS)
         .setConnectionRequestTimeout(1, TimeUnit.SECONDS)
-        .setResponseTimeout(2500, TimeUnit.MILLISECONDS)
+        .setResponseTimeout(3, TimeUnit.SECONDS)
         .build());
     return httpClient.execute(request, new AbstractHttpClientResponseHandler<JsonNode>() {
       @Override
