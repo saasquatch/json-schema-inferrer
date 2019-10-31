@@ -9,6 +9,9 @@ import javax.annotation.Nonnull;
  */
 public interface StringFormatInferrerInput {
 
+  /**
+   * @return The input text value for inference
+   */
   @Nonnull
   String getTextValue();
 
