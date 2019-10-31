@@ -81,9 +81,9 @@ And the result `inferredSchema` is:
 
 ## Adding it to your project
 
-### Add the repository:
+### Add the repository
 
-Maven:
+Maven
 
 ```xml
 <repositories>
@@ -108,7 +108,7 @@ Maven:
 </pluginRepositories>
 ```
 
-Gradle:
+Gradle
 
 ```gradle
 repositories {
@@ -118,9 +118,9 @@ repositories {
 }
 ```
 
-### Add the dependency:
+### Add the dependency
 
-Maven:
+Maven
 
 ```xml
 <dependency>
@@ -131,7 +131,7 @@ Maven:
 </dependency>
 ```
 
-Gradle:
+Gradle
 
 ```gradle
 compile 'com.saasquatch:json-schema-inferrer:0.1.1-alpha-1'
