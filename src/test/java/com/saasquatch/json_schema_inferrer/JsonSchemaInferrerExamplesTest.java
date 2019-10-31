@@ -141,9 +141,10 @@ public class JsonSchemaInferrerExamplesTest {
 
   private static String processGitHubDownloadUrl(String url, String commitHash) {
     try {
+      // Use jsdelivr to speed up the downloads
       final String host = new URL(url).getHost();
       url = url.replaceFirst(host, "cdn.jsdelivr.net/gh");
-      url = url.replace('/' + commitHash, '@' + commitHash);
+      url = url.replaceFirst('/' + commitHash, '@' + commitHash);
       return url;
     } catch (IOException e) {
       throw new UncheckedIOException(e);
