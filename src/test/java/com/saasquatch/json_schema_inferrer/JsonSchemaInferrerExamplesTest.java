@@ -7,6 +7,7 @@ import java.io.UncheckedIOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -153,11 +154,11 @@ public class JsonSchemaInferrerExamplesTest {
   private static Collection<JsonSchemaInferrer> getTestInferrers() {
     final List<JsonSchemaInferrer> inferrers = new ArrayList<>();
     for (SpecVersion specVersion : SpecVersion.values()) {
-      for (boolean inferStringFormat : new boolean[] {true, false}) {
+      for (boolean inferStringFormat : Arrays.asList(true, false)) {
         if (specVersion == SpecVersion.DRAFT_07 && inferStringFormat) {
           /*
-           * Skip test for infer format with draft-07 due to a disagreement between Java time and
-           * the schema library on what a valid time string is.
+           * Skip tests for inferring format with draft-07 due to a disagreement between Java time
+           * and the schema library on what a valid time string is.
            */
           continue;
         }
