@@ -22,7 +22,6 @@ import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.impl.classic.AbstractHttpClientResponseHandler;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
@@ -44,8 +43,7 @@ public class JsonSchemaInferrerExamplesTest {
 
   private static final String quicktypeCommitHash = "f75f66bff3d1f812b61c481637c12173778a29b8";
   private static CloseableHttpClient httpClient;
-  private final ObjectMapper mapper = new ObjectMapper();
-  private final Collection<JsonSchemaInferrer> testInferrers = getTestInferrers();
+  private static final ObjectMapper mapper = new ObjectMapper();
 
   @BeforeAll
   public static void beforeAll() {
@@ -64,7 +62,7 @@ public class JsonSchemaInferrerExamplesTest {
     }
   }
 
-  private void doTestForJsonUrl(String jsonUrl) {
+  private static void doTestForJsonUrl(String jsonUrl) {
     final JsonNode sampleJson;
     // Not being able to load the sample JSON should not be considered a failure
     try {
@@ -78,7 +76,7 @@ public class JsonSchemaInferrerExamplesTest {
       return;
     }
     System.out.printf(Locale.ROOT, "Got valid JSON from url[%s]\n", jsonUrl);
-    for (JsonSchemaInferrer inferrer : testInferrers) {
+    for (JsonSchemaInferrer inferrer : getTestInferrers()) {
       final ObjectNode schemaJson = inferrer.infer(sampleJson);
       assertNotNull(schemaJson, format("Inferred schema for url[%s] is null", jsonUrl));
       final Schema schema;
@@ -97,6 +95,7 @@ public class JsonSchemaInferrerExamplesTest {
           schema.validate(mapper.convertValue(sampleJson, Object.class));
         }
       } catch (ValidationException e) {
+        System.out.println(e.getClass().getSimpleName() + " encountered");
         System.out.println(schemaJson.toPrettyString());
         System.out.println("Error messages:");
         e.getAllMessages().forEach(System.out::println);
@@ -105,18 +104,18 @@ public class JsonSchemaInferrerExamplesTest {
     }
   }
 
-  private Iterable<String> getSampleJsonUrls() {
+  private static Iterable<String> getSampleJsonUrls() {
     return () -> getQuicktypeSampleJsonUrls().iterator();
   }
 
-  private Stream<String> getQuicktypeSampleJsonUrls() {
+  private static Stream<String> getQuicktypeSampleJsonUrls() {
     return Stream
         .of("/test/inputs/json/misc", "/test/inputs/json/priority", "/test/inputs/json/samples")
         .map("https://api.github.com/repos/quicktype/quicktype/contents"::concat)
         .flatMap(dirBaseUrl -> getJsonDownloadUrls(dirBaseUrl, quicktypeCommitHash));
   }
 
-  private Stream<String> getJsonDownloadUrls(String dirBaseUrl, String commitHash) {
+  private static Stream<String> getJsonDownloadUrls(String dirBaseUrl, String commitHash) {
     final JsonNode respJson;
     try {
       final HttpGet request = new HttpGet(
@@ -140,7 +139,7 @@ public class JsonSchemaInferrerExamplesTest {
         .map(downloadUrl -> processGitHubDownloadUrl(downloadUrl, commitHash));
   }
 
-  private String processGitHubDownloadUrl(String url, String commitHash) {
+  private static String processGitHubDownloadUrl(String url, String commitHash) {
     try {
       final String host = new URL(url).getHost();
       url = url.replaceFirst(host, "cdn.jsdelivr.net/gh");
@@ -177,36 +176,34 @@ public class JsonSchemaInferrerExamplesTest {
     return Collections.unmodifiableList(inferrers);
   }
 
-  private static String format(String format, Object... args) {
-    return String.format(Locale.ROOT, format, args);
-  }
-
-  private Map<String, Object> toMap(Object o) {
-    return mapper.convertValue(o, new TypeReference<Map<String, Object>>() {});
-  }
-
   @Nullable
-  private JsonNode loadJsonFromUrl(String jsonUrl) throws IOException {
+  private static JsonNode loadJsonFromUrl(String jsonUrl) throws IOException {
     final HttpGet request = new HttpGet(jsonUrl);
     request.setConfig(RequestConfig.custom()
         .setConnectTimeout(1, TimeUnit.SECONDS)
         .setConnectionRequestTimeout(1, TimeUnit.SECONDS)
         .setResponseTimeout(2500, TimeUnit.MILLISECONDS)
         .build());
-    try (CloseableHttpResponse response = httpClient.execute(request)) {
-      final int status = response.getCode();
-      if (status >= 300) {
-        System.out.printf(Locale.ROOT, "status[%d] received for url[%s]\n", status, jsonUrl);
-        return null;
+    return httpClient.execute(request, new AbstractHttpClientResponseHandler<JsonNode>() {
+      @Override
+      public JsonNode handleEntity(HttpEntity entity) throws IOException {
+        final byte[] byteArray = EntityUtils.toByteArray(entity);
+        if (byteArray.length > 1 << 20) {
+          System.out.printf(Locale.ROOT, "JSON at url[%s] is too large [%d].\n", jsonUrl,
+              byteArray.length);
+          return null;
+        }
+        return mapper.readTree(byteArray);
       }
-      final byte[] byteArray = EntityUtils.toByteArray(response.getEntity());
-      if (byteArray.length > 1 << 20) {
-        System.out.printf(Locale.ROOT, "JSON at url[%s] is too large [%d].\n", jsonUrl,
-            byteArray.length);
-        return null;
-      }
-      return mapper.readTree(byteArray);
-    }
+    });
+  }
+
+  private static String format(String format, Object... args) {
+    return String.format(Locale.ROOT, format, args);
+  }
+
+  private static Map<String, Object> toMap(Object o) {
+    return mapper.convertValue(o, new TypeReference<Map<String, Object>>() {});
   }
 
 }
