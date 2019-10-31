@@ -3,7 +3,8 @@ package com.saasquatch.json_schema_inferrer;
 import javax.annotation.Nonnull;
 
 /**
- * Supported JSON Schema specification versions
+ * Supported JSON Schema specification versions ordered from old to new, which means
+ * {@link #compareTo(SpecVersion)} can be used.
  *
  * @author sli
  */

@@ -16,7 +16,7 @@ sample.set("four",
     JsonNodeFactory.instance.arrayNode().add(1).add("two")
         .add(JsonNodeFactory.instance.arrayNode()
             .add(JsonNodeFactory.instance.objectNode().put("true", true))
-            .add("http://saasquatch.com")));
+            .add("https://saasquatch.com")));
 final ObjectNode inferredSchema =
     JsonSchemaInferrer.newBuilder().withSpecVersion(SpecVersion.DRAFT_06).build().infer(sample);
 ```
@@ -30,7 +30,7 @@ In the code above, the `sample` JSON is:
   "three" : "hello@saasquat.ch",
   "four" : [ 1, "two", [ {
     "true" : true
-  }, "http://saasquatch.com" ] ]
+  }, "https://saasquatch.com" ] ]
 }
 ```
 
