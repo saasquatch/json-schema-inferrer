@@ -271,12 +271,14 @@ public final class JsonSchemaInferrer {
      * "https://json-schema.org/understanding-json-schema/reference/string.html#format">format</a>
      * of strings. By default it uses {@link DefaultStringFormatInferrer}, which implements a subset
      * of standard formats. To use custom formats, provide your own implementation. To disable
-     * string format inference, use {@code null}.<br>
+     * string format inference, use {@link StringFormatInferrer#noOp()}.<br>
      * Note that if your JSON samples have large nested arrays, it's recommended to set this to
      * false to prevent confusing outputs.
+     *
+     * @see StringFormatInferrer
      */
-    public Builder withStringFormatInferrer(@Nullable StringFormatInferrer stringFormatInferrer) {
-      this.stringFormatInferrer = stringFormatInferrer;
+    public Builder withStringFormatInferrer(@Nonnull StringFormatInferrer stringFormatInferrer) {
+      this.stringFormatInferrer = Objects.requireNonNull(stringFormatInferrer);
       return this;
     }
 

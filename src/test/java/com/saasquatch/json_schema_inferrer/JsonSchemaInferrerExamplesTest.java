@@ -165,7 +165,7 @@ public class JsonSchemaInferrerExamplesTest {
         final JsonSchemaInferrer.Builder builder =
             JsonSchemaInferrer.newBuilder().withSpecVersion(specVersion);
         if (!inferStringFormat) {
-          builder.withStringFormatInferrer(null);
+          builder.withStringFormatInferrer(StringFormatInferrer.noOp());
         }
         try {
           inferrers.add(builder.build());
