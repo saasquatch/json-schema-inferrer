@@ -127,7 +127,7 @@ Maven
 <dependency>
   <groupId>com.saasquatch</groupId>
   <artifactId>json-schema-inferrer</artifactId>
-  <version>0.1.1-alpha-1</version>
+  <version>0.1.1-alpha-2</version>
   <type>pom</type>
 </dependency>
 ```
@@ -135,7 +135,7 @@ Maven
 Gradle
 
 ```gradle
-compile 'com.saasquatch:json-schema-inferrer:0.1.1-alpha-1'
+compile 'com.saasquatch:json-schema-inferrer:0.1.1-alpha-2'
 ```
 
 ## LICENSE
