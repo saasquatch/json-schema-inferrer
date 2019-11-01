@@ -128,7 +128,6 @@ Maven
   <groupId>com.saasquatch</groupId>
   <artifactId>json-schema-inferrer</artifactId>
   <version>0.1.1-alpha-3</version>
-  <type>pom</type>
 </dependency>
 ```
 
