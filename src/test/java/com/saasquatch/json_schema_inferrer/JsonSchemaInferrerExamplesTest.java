@@ -135,14 +135,13 @@ public class JsonSchemaInferrerExamplesTest {
             "f3139.json", "f3edf.json", "f466a.json", "f6a65.json", "f74d5.json", "f82d9.json",
             "f974d.json", "faff5.json", "fcca3.json", "fd329.json")
         .map("/test/inputs/json/misc/"::concat);
-    final Stream<String> priority = Stream
-        .of("blns-object.json", "bug427.json", "bug790.json", "bug855-short.json", "bug863.json",
-            "coin-pairs.json", "combinations1.json", "combinations2.json", "combinations3.json",
-            "combinations4.json", "combined-enum.json", "direct-recursive.json", "empty-enum.json",
-            "identifiers.json", "keywords.json", "list.json", "name-style.json", "nbl-stats.json",
-            "no-classes.json", "nst-test-suite.json", "number-map.json", "optional-union.json",
-            "recursive.json", "simple-identifiers.json", "union-constructor-clash.json",
-            "unions.json", "url.json")
+    final Stream<String> priority = Stream.of("blns-object.json", "bug427.json", "bug790.json",
+        "bug855-short.json", "bug863.json", "coin-pairs.json", "combinations1.json",
+        "combinations2.json", "combinations3.json", "combinations4.json", "combined-enum.json",
+        "direct-recursive.json", "empty-enum.json", "identifiers.json", "keywords.json",
+        "list.json", "name-style.json", "nbl-stats.json", "no-classes.json", "nst-test-suite.json",
+        "number-map.json", "optional-union.json", "recursive.json", "simple-identifiers.json",
+        "union-constructor-clash.json", "unions.json", "url.json")
         .map("/test/inputs/json/priority/"::concat);
     final Stream<String> samples = Stream
         .of("bitcoin-block.json", "getting-started.json", "github-events.json", "kitchen-sink.json",
