@@ -14,9 +14,9 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.BinaryNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
+import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.POJONode;
 import com.fasterxml.jackson.databind.node.ValueNode;
@@ -34,13 +34,13 @@ public final class JsonSchemaInferrer {
 
   private final SpecVersion specVersion;
   private final boolean includeMetaSchemaUrl;
-  private final StringFormatInferrer stringFormatInferrer;
+  private final FormatInferrer formatInferrer;
 
   private JsonSchemaInferrer(@Nonnull SpecVersion specVersion, boolean includeMetaSchemaUrl,
-      @Nullable StringFormatInferrer stringFormatInferrer) {
+      @Nonnull FormatInferrer formatInferrer) {
     this.specVersion = specVersion;
     this.includeMetaSchemaUrl = includeMetaSchemaUrl;
-    this.stringFormatInferrer = stringFormatInferrer;
+    this.formatInferrer = formatInferrer;
   }
 
   public static Builder newBuilder() {
@@ -68,36 +68,18 @@ public final class JsonSchemaInferrer {
   }
 
   @Nullable
-  private String inferFormat(@Nullable JsonNode value) {
-    if (value == null) {
-      return null;
-    }
-    if (stringFormatInferrer != null) {
-      final String textValue;
-      if (value.isTextual()) {
-        textValue = value.textValue();
-      } else if (value instanceof BinaryNode) {
-        textValue = ((BinaryNode) value).asText();
-      } else {
-        textValue = null;
+  private String inferFormat(@Nullable ValueNode value) {
+    return formatInferrer.infer(new FormatInferrerInput() {
+      @Override
+      public ValueNode getValueNode() {
+        return value == null ? NullNode.getInstance() : value;
       }
-      if (textValue != null) {
-        return stringFormatInferrer.infer(new StringFormatInferrerInput() {
 
-          @Override
-          public String getTextValue() {
-            return textValue;
-          }
-
-          @Override
-          public SpecVersion getSpecVersion() {
-            return specVersion;
-          }
-
-        });
+      @Override
+      public SpecVersion getSpecVersion() {
+        return specVersion;
       }
-    }
-    return null;
+    });
   }
 
   @Nonnull
@@ -246,7 +228,7 @@ public final class JsonSchemaInferrer {
 
     private SpecVersion specVersion = SpecVersion.DRAFT_04;
     private boolean includeMetaSchemaUrl = true;
-    private StringFormatInferrer stringFormatInferrer = DefaultStringFormatInferrer.INSTANCE;
+    private FormatInferrer formatInferrer = DefaultFormatInferrer.INSTANCE;
 
     private Builder() {}
 
@@ -267,18 +249,18 @@ public final class JsonSchemaInferrer {
     }
 
     /**
-     * Set the {@link StringFormatInferrer} for inferring the <a href=
+     * Set the {@link FormatInferrer} for inferring the <a href=
      * "https://json-schema.org/understanding-json-schema/reference/string.html#format">format</a>
-     * of strings. By default it uses {@link DefaultStringFormatInferrer}, which implements a subset
-     * of standard formats. To use custom formats, provide your own implementation. To disable
-     * string format inference, use {@link StringFormatInferrer#noOp()}.<br>
+     * of strings. By default it uses {@link DefaultFormatInferrer}, which implements a subset of
+     * standard formats. To use custom formats, provide your own implementation. To disable string
+     * format inference, use {@link FormatInferrer#noOp()}.<br>
      * Note that if your JSON samples have large nested arrays, it's recommended to set this to
      * false to prevent confusing outputs.
      *
-     * @see StringFormatInferrer
+     * @see FormatInferrer
      */
-    public Builder withStringFormatInferrer(@Nonnull StringFormatInferrer stringFormatInferrer) {
-      this.stringFormatInferrer = Objects.requireNonNull(stringFormatInferrer);
+    public Builder withFormatInferrer(@Nonnull FormatInferrer formatInferrer) {
+      this.formatInferrer = Objects.requireNonNull(formatInferrer);
       return this;
     }
 
@@ -287,7 +269,7 @@ public final class JsonSchemaInferrer {
      * @throws IllegalArgumentException if the spec version and features don't match up
      */
     public JsonSchemaInferrer build() {
-      return new JsonSchemaInferrer(specVersion, includeMetaSchemaUrl, stringFormatInferrer);
+      return new JsonSchemaInferrer(specVersion, includeMetaSchemaUrl, formatInferrer);
     }
 
   }

@@ -41,7 +41,7 @@ public class JsonSchemaInferrerTest {
   public void testFormatInference() {
     assertEquals("email", JsonSchemaInferrer.newBuilder().build()
         .infer(JsonNodeFactory.instance.textNode("foo@bar.com")).path("format").textValue());
-    assertNull(JsonSchemaInferrer.newBuilder().withStringFormatInferrer(StringFormatInferrer.noOp())
+    assertNull(JsonSchemaInferrer.newBuilder().withFormatInferrer(FormatInferrer.noOp())
         .build().infer(JsonNodeFactory.instance.textNode("foo@bar.com")).path("format")
         .textValue());
     assertNull(JsonSchemaInferrer.newBuilder().withSpecVersion(SpecVersion.DRAFT_07).build()

@@ -1,11 +1,11 @@
 package com.saasquatch.json_schema_inferrer;
 
-enum NoOpStringFormatInferrer implements StringFormatInferrer {
+enum NoOpStringFormatInferrer implements FormatInferrer {
 
   INSTANCE;
 
   @Override
-  public String infer(StringFormatInferrerInput input) {
+  public String infer(FormatInferrerInput input) {
     return null;
   }
 
