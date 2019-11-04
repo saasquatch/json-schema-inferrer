@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 public class JsonSchemaInferrerTest {
 
+  private static final JsonNodeFactory jnf = JsonNodeFactory.instance;
   private final ObjectMapper mapper = new ObjectMapper();
 
   private JsonNode loadJson(String fileName) {
@@ -37,33 +38,28 @@ public class JsonSchemaInferrerTest {
 
   @Test
   public void testFormatInference() {
-    assertEquals("email", JsonSchemaInferrer.newBuilder().build()
-        .infer(JsonNodeFactory.instance.textNode("foo@bar.com")).path("format").textValue());
-    assertNull(JsonSchemaInferrer.newBuilder().withFormatInferrer(FormatInferrer.noOp())
-        .build().infer(JsonNodeFactory.instance.textNode("foo@bar.com")).path("format")
-        .textValue());
+    assertEquals("email", JsonSchemaInferrer.newBuilder().build().infer(jnf.textNode("foo@bar.com"))
+        .path("format").textValue());
+    assertNull(JsonSchemaInferrer.newBuilder().withFormatInferrer(FormatInferrer.noOp()).build()
+        .infer(jnf.textNode("foo@bar.com")).path("format").textValue());
     assertNull(JsonSchemaInferrer.newBuilder().withSpecVersion(SpecVersion.DRAFT_07).build()
-        .infer(JsonNodeFactory.instance.textNode("aaaaaaaaa")).path("format").textValue());
-    assertEquals("ipv4", JsonSchemaInferrer.newBuilder().build()
-        .infer(JsonNodeFactory.instance.textNode("1.2.3.4")).path("format").textValue());
-    assertEquals("ipv6", JsonSchemaInferrer.newBuilder().build()
-        .infer(JsonNodeFactory.instance.textNode("1::1")).path("format").textValue());
-    assertEquals("uri",
-        JsonSchemaInferrer.newBuilder().build()
-            .infer(JsonNodeFactory.instance.textNode("https://saasquat.ch")).path("format")
-            .textValue());
-    assertEquals("date-time",
-        JsonSchemaInferrer.newBuilder().build()
-            .infer(JsonNodeFactory.instance.textNode(Instant.now().toString())).path("format")
-            .textValue());
+        .infer(jnf.textNode("aaaaaaaaa")).path("format").textValue());
+    assertEquals("ipv4", JsonSchemaInferrer.newBuilder().build().infer(jnf.textNode("1.2.3.4"))
+        .path("format").textValue());
+    assertEquals("ipv6", JsonSchemaInferrer.newBuilder().build().infer(jnf.textNode("1::1"))
+        .path("format").textValue());
+    assertEquals("uri", JsonSchemaInferrer.newBuilder().build()
+        .infer(jnf.textNode("https://saasquat.ch")).path("format").textValue());
+    assertEquals("date-time", JsonSchemaInferrer.newBuilder().build()
+        .infer(jnf.textNode(Instant.now().toString())).path("format").textValue());
     assertNull(JsonSchemaInferrer.newBuilder().withSpecVersion(SpecVersion.DRAFT_06).build()
-        .infer(JsonNodeFactory.instance.textNode("1900-01-01")).path("format").textValue());
+        .infer(jnf.textNode("1900-01-01")).path("format").textValue());
     assertEquals("date", JsonSchemaInferrer.newBuilder().withSpecVersion(SpecVersion.DRAFT_07)
-        .build().infer(JsonNodeFactory.instance.textNode("1900-01-01")).path("format").textValue());
+        .build().infer(jnf.textNode("1900-01-01")).path("format").textValue());
     assertNull(JsonSchemaInferrer.newBuilder().withSpecVersion(SpecVersion.DRAFT_06).build()
-        .infer(JsonNodeFactory.instance.textNode("20:20:39")).path("format").textValue());
+        .infer(jnf.textNode("20:20:39")).path("format").textValue());
     assertEquals("time", JsonSchemaInferrer.newBuilder().withSpecVersion(SpecVersion.DRAFT_07)
-        .build().infer(JsonNodeFactory.instance.textNode("20:20:39")).path("format").textValue());
+        .build().infer(jnf.textNode("20:20:39")).path("format").textValue());
   }
 
   @Test

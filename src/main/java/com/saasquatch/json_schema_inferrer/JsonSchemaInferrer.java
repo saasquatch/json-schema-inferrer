@@ -1,18 +1,18 @@
 package com.saasquatch.json_schema_inferrer;
 
+import static com.saasquatch.json_schema_inferrer.JunkDrawer.combineArrays;
+import static com.saasquatch.json_schema_inferrer.JunkDrawer.format;
+import static com.saasquatch.json_schema_inferrer.JunkDrawer.stream;
+import static com.saasquatch.json_schema_inferrer.JunkDrawer.toArrayNode;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
-import java.util.Spliterators;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
@@ -25,6 +25,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.POJONode;
 import com.fasterxml.jackson.databind.node.ValueNode;
 import com.flipkart.zjsonpatch.JsonDiff;
+import com.saasquatch.json_schema_inferrer.JunkDrawer.Consts;
 
 /**
  * Infer JSON schema based on a sample JSON
@@ -91,13 +92,11 @@ public final class JsonSchemaInferrer {
       addAnyOf(anyOfs, processObjects(objectNodes));
     }
     if (!arrayNodes.isEmpty()) {
-      final ArrayNode arrayToProcess = newArray();
-      arrayNodes.forEach(arrayToProcess::addAll);
-      addAnyOf(anyOfs, processArray(arrayToProcess));
+      addAnyOf(anyOfs, processArray(combineArrays(arrayNodes)));
     }
     final ObjectNode result = newObject();
     if (includeMetaSchemaUrl) {
-      result.put(Fields.DOLLAR_SCHEMA, specVersion.getMetaSchemaUrl());
+      result.put(Consts.Fields.DOLLAR_SCHEMA, specVersion.getMetaSchemaUrl());
     }
     processAnyOfs(anyOfs);
     switch (anyOfs.size()) {
@@ -108,7 +107,7 @@ public final class JsonSchemaInferrer {
         break;
       }
       default: {
-        result.set(Fields.ANY_OF, newArray().addAll(anyOfs));
+        result.set(Consts.Fields.ANY_OF, newArray().addAll(anyOfs));
         break;
       }
     }
@@ -118,33 +117,33 @@ public final class JsonSchemaInferrer {
   @Nonnull
   private static String inferType(@Nullable JsonNode value) {
     if (value == null) {
-      return Types.NULL;
+      return Consts.Types.NULL;
     }
     final JsonNodeType type = value.getNodeType();
     switch (type) {
       case ARRAY:
-        return Types.ARRAY;
+        return Consts.Types.ARRAY;
       case BINARY:
-        return Types.STRING;
+        return Consts.Types.STRING;
       case BOOLEAN:
-        return Types.BOOLEAN;
+        return Consts.Types.BOOLEAN;
       case MISSING:
-        return Types.NULL;
+        return Consts.Types.NULL;
       case NULL:
-        return Types.NULL;
+        return Consts.Types.NULL;
       case NUMBER:
-        return value.isIntegralNumber() ? Types.INTEGER : Types.NUMBER;
+        return value.isIntegralNumber() ? Consts.Types.INTEGER : Consts.Types.NUMBER;
       case OBJECT:
-        return Types.OBJECT;
+        return Consts.Types.OBJECT;
       case POJO:
         throw new IllegalArgumentException(POJONode.class.getSimpleName() + " not supported");
       case STRING:
-        return Types.STRING;
+        return Consts.Types.STRING;
       default:
         break;
     }
     throw new IllegalArgumentException(
-        String.format(Locale.ROOT, "Unrecognized %s: %s", type.getClass().getSimpleName(), type));
+        format("Unrecognized %s: %s", type.getClass().getSimpleName(), type));
   }
 
   @Nullable
@@ -166,10 +165,10 @@ public final class JsonSchemaInferrer {
   @Nonnull
   private ObjectNode processPrimitive(@Nullable ValueNode valueNode) {
     final ObjectNode result = newObject();
-    result.put(Fields.TYPE, inferType(valueNode));
+    result.put(Consts.Fields.TYPE, inferType(valueNode));
     final String format = inferFormat(valueNode);
     if (format != null) {
-      result.put(Fields.FORMAT, format);
+      result.put(Consts.Fields.FORMAT, format);
     }
     return result;
   }
@@ -204,9 +203,7 @@ public final class JsonSchemaInferrer {
         addAnyOf(anyOfs, processObjects(objectNodes));
       }
       if (!arrayNodes.isEmpty()) {
-        final ArrayNode arrayToProcess = newArray();
-        arrayNodes.forEach(arrayToProcess::addAll);
-        addAnyOf(anyOfs, processArray(arrayToProcess));
+        addAnyOf(anyOfs, processArray(combineArrays(arrayNodes)));
       }
       processAnyOfs(anyOfs);
       switch (anyOfs.size()) {
@@ -219,15 +216,15 @@ public final class JsonSchemaInferrer {
         }
         default: {
           final ObjectNode newProp = newObject();
-          newProp.set(Fields.ANY_OF, newArray().addAll(anyOfs));
+          newProp.set(Consts.Fields.ANY_OF, newArray().addAll(anyOfs));
           properties.set(key, newProp);
           break;
         }
       }
     }
-    final ObjectNode result = newObject().put(Fields.TYPE, Types.OBJECT);
+    final ObjectNode result = newObject().put(Consts.Fields.TYPE, Consts.Types.OBJECT);
     if (properties.size() > 0) {
-      result.set(Fields.PROPERTIES, properties);
+      result.set(Consts.Fields.PROPERTIES, properties);
     }
     return result;
   }
@@ -265,12 +262,12 @@ public final class JsonSchemaInferrer {
         break;
       default: {
         items = newObject();
-        items.set(Fields.ANY_OF, newArray().addAll(anyOfs));
+        items.set(Consts.Fields.ANY_OF, newArray().addAll(anyOfs));
         break;
       }
     }
-    final ObjectNode result = newObject().put(Fields.TYPE, Types.ARRAY);
-    result.set(Fields.ITEMS, items);
+    final ObjectNode result = newObject().put(Consts.Fields.TYPE, Consts.Types.ARRAY);
+    result.set(Consts.Fields.ITEMS, items);
     return result;
   }
 
@@ -284,26 +281,27 @@ public final class JsonSchemaInferrer {
       final ObjectNode anyOf = anyOfIter.next();
       final JsonNode diffs = JsonDiff.asJson(anyOf, newAnyOf);
       for (JsonNode diff : diffs) {
-        final String path = diff.path(DiffConsts.PATH).textValue();
-        if (path != null && path.endsWith('/' + Fields.FORMAT)) {
-          if (newAnyOf.at(path.substring(0, path.lastIndexOf('/'))).path(Fields.TYPE).isTextual()) {
+        final String path = diff.path(Consts.Diff.PATH).textValue();
+        if (path != null && path.endsWith('/' + Consts.Fields.FORMAT)) {
+          if (newAnyOf.at(path.substring(0, path.lastIndexOf('/'))).path(Consts.Fields.TYPE)
+              .isTextual()) {
             // If any of the diffs is caused by a format change, we'll want to add it
             break anyOfsLoop;
           }
         }
       }
-      final Set<String> ops = StreamSupport.stream(diffs.spliterator(), false)
-          .map(j -> j.path(DiffConsts.OP).textValue())
+      final Set<String> ops = stream(diffs)
+          .map(j -> j.path(Consts.Diff.OP).textValue())
           .filter(Objects::nonNull)
           .collect(Collectors.toSet());
-      if (ops.equals(DiffConsts.SINGLETON_ADD)) {
+      if (ops.equals(Consts.Diff.SINGLETON_ADD)) {
         /*
          * The new anyOf is a superset of one of the existing anyOfs. Discard the existing one and
          * add the new one.
          */
         anyOfIter.remove();
         break;
-      } else if (ops.isEmpty() || ops.equals(DiffConsts.SINGLETON_REMOVE)) {
+      } else if (ops.isEmpty() || ops.equals(Consts.Diff.SINGLETON_REMOVE)) {
         // The new anyOf is the same or a subset of one of the existing anyOfs. Do nothing.
         return;
       }
@@ -317,9 +315,9 @@ public final class JsonSchemaInferrer {
     final Collection<ObjectNode> simpleAnyOfs = new ArrayList<>();
     for (ObjectNode anyOf : anyOfs) {
       final Set<String> fieldNames = stream(anyOf.fieldNames()).collect(Collectors.toSet());
-      if (fieldNames.equals(Collections.singleton(Fields.TYPE))) {
+      if (fieldNames.equals(Collections.singleton(Consts.Fields.TYPE))) {
         simpleAnyOfs.add(anyOf);
-        simpleTypes.add(anyOf.path(Fields.TYPE).textValue());
+        simpleTypes.add(anyOf.path(Consts.Fields.TYPE).textValue());
       }
     }
     if (simpleAnyOfs.size() <= 1) {
@@ -327,10 +325,8 @@ public final class JsonSchemaInferrer {
     }
     // Combine all the simple types into an array
     anyOfs.removeAll(simpleAnyOfs);
-    final ArrayNode simpleTypesArray = newArray();
-    simpleTypes.forEach(simpleTypesArray::add);
     final ObjectNode combinedSimpleAnyOf = newObject();
-    combinedSimpleAnyOf.set(Fields.TYPE, simpleTypesArray);
+    combinedSimpleAnyOf.set(Consts.Fields.TYPE, toArrayNode(simpleTypes));
     anyOfs.add(combinedSimpleAnyOf);
   }
 
@@ -384,32 +380,12 @@ public final class JsonSchemaInferrer {
 
   }
 
-  private static interface Fields {
-    String TYPE = "type", ITEMS = "items", ANY_OF = "anyOf", PROPERTIES = "properties",
-        FORMAT = "format", DOLLAR_SCHEMA = "$schema";
-  }
-
-  private static interface Types {
-    String OBJECT = "object", ARRAY = "array", STRING = "string", BOOLEAN = "boolean",
-        INTEGER = "integer", NUMBER = "number", NULL = "null";
-  }
-
-  private static interface DiffConsts {
-    String PATH = "path", OP = "op", ADD = "add", REMOVE = "remove";
-    Set<String> SINGLETON_ADD = Collections.singleton(ADD),
-        SINGLETON_REMOVE = Collections.singleton(REMOVE);
-  }
-
   private static ObjectNode newObject() {
     return JsonNodeFactory.instance.objectNode();
   }
 
   private static ArrayNode newArray() {
     return JsonNodeFactory.instance.arrayNode();
-  }
-
-  private static <E> Stream<E> stream(@Nonnull Iterator<E> iter) {
-    return StreamSupport.stream(Spliterators.spliteratorUnknownSize(iter, 0), false);
   }
 
 }

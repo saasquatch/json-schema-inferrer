@@ -1,5 +1,6 @@
 package com.saasquatch.json_schema_inferrer;
 
+import static com.saasquatch.json_schema_inferrer.JunkDrawer.format;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
 import java.io.IOException;
@@ -199,10 +200,6 @@ public class JsonSchemaInferrerExamplesTest {
         return mapper.readTree(byteArray);
       }
     });
-  }
-
-  private static String format(String format, Object... args) {
-    return String.format(Locale.ROOT, format, args);
   }
 
   private static Map<String, Object> toMap(Object o) {
