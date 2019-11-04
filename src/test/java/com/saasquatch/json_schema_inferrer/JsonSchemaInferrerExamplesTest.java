@@ -155,8 +155,8 @@ public class JsonSchemaInferrerExamplesTest {
   private static Collection<JsonSchemaInferrer> getTestInferrers() {
     final List<JsonSchemaInferrer> inferrers = new ArrayList<>();
     for (SpecVersion specVersion : SpecVersion.values()) {
-      for (boolean inferStringFormat : Arrays.asList(true, false)) {
-        if (specVersion == SpecVersion.DRAFT_07 && inferStringFormat) {
+      for (boolean inferFormat : Arrays.asList(true, false)) {
+        if (specVersion == SpecVersion.DRAFT_07 && inferFormat) {
           /*
            * Skip tests for inferring format with draft-07 due to a disagreement between Java time
            * and the schema library on what a valid time string is.
@@ -165,7 +165,7 @@ public class JsonSchemaInferrerExamplesTest {
         }
         final JsonSchemaInferrer.Builder builder =
             JsonSchemaInferrer.newBuilder().withSpecVersion(specVersion);
-        if (!inferStringFormat) {
+        if (!inferFormat) {
           builder.withFormatInferrer(FormatInferrer.noOp());
         }
         try {
