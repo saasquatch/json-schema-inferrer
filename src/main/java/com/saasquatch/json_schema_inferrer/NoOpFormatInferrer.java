@@ -1,6 +1,6 @@
 package com.saasquatch.json_schema_inferrer;
 
-enum NoOpStringFormatInferrer implements FormatInferrer {
+enum NoOpFormatInferrer implements FormatInferrer {
 
   INSTANCE;
 

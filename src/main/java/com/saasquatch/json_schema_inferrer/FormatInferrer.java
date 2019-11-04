@@ -21,7 +21,7 @@ public interface FormatInferrer {
    * @return A singleton no-op {@link FormatInferrer} that always returns null
    */
   public static FormatInferrer noOp() {
-    return NoOpStringFormatInferrer.INSTANCE;
+    return NoOpFormatInferrer.INSTANCE;
   }
 
 }
