@@ -186,27 +186,26 @@ public final class JsonSchemaInferrer {
       final ObjectNode anyOf = anyOfIter.next();
       final JsonNode diffs = JsonDiff.asJson(anyOf, newAnyOf);
       for (JsonNode diff : diffs) {
-        final String path = diff.path("path").textValue();
+        final String path = diff.path(DiffConsts.PATH).textValue();
         if (path != null && path.endsWith('/' + Fields.FORMAT)) {
-          if (Types.STRING.equals(newAnyOf.at(path.substring(0, path.lastIndexOf('/')))
-              .path(Fields.TYPE).textValue())) {
+          if (newAnyOf.at(path.substring(0, path.lastIndexOf('/'))).path(Fields.TYPE).isTextual()) {
             // If any of the diffs is caused by a format change, we'll want to add it
             break anyOfsLoop;
           }
         }
       }
       final Set<String> ops = StreamSupport.stream(diffs.spliterator(), false)
-          .map(j -> j.path("op").textValue())
+          .map(j -> j.path(DiffConsts.OP).textValue())
           .filter(Objects::nonNull)
           .collect(Collectors.toSet());
-      if (ops.equals(Collections.singleton("add"))) {
+      if (ops.equals(DiffConsts.SINGLETON_ADD)) {
         /*
          * The new anyOf is a superset of one of the existing anyOfs. Discard the existing one and
          * add the new one.
          */
         anyOfIter.remove();
         break;
-      } else if (ops.isEmpty() || ops.equals(Collections.singleton("remove"))) {
+      } else if (ops.isEmpty() || ops.equals(DiffConsts.SINGLETON_REMOVE)) {
         // The new anyOf is the same or a subset of one of the existing anyOfs. Do nothing.
         return;
       }
@@ -282,6 +281,12 @@ public final class JsonSchemaInferrer {
   private static interface Types {
     String OBJECT = "object", ARRAY = "array", STRING = "string", BOOLEAN = "boolean",
         INTEGER = "integer", NUMBER = "number", NULL = "null";
+  }
+
+  private static interface DiffConsts {
+    String PATH = "path", OP = "op", ADD = "add", REMOVE = "remove";
+    Set<String> SINGLETON_ADD = Collections.singleton(ADD),
+        SINGLETON_REMOVE = Collections.singleton(REMOVE);
   }
 
   private static ObjectNode newObject() {
