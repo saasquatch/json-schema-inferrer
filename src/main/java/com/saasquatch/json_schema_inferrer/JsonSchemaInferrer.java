@@ -54,17 +54,51 @@ public final class JsonSchemaInferrer {
    */
   @Nonnull
   public ObjectNode infer(@Nullable JsonNode input) {
+    return inferMulti(Collections.singleton(input));
+  }
+
+  @Nonnull
+  public ObjectNode inferMulti(@Nonnull Collection<JsonNode> inputs) {
+    if (inputs.isEmpty()) {
+      throw new IllegalArgumentException("Unable to process empty Collection");
+    }
+    // Using LinkedList on purpose here since we do a lot of add and remove
+    final Collection<ObjectNode> anyOfs = new LinkedList<>();
+    final Set<ObjectNode> objectNodes = new HashSet<>();
+    final Set<ArrayNode> arrayNodes = new HashSet<>();
+    for (JsonNode input : inputs) {
+      if (input instanceof ObjectNode) {
+        objectNodes.add((ObjectNode) input);
+      } else if (input instanceof ArrayNode) {
+        arrayNodes.add((ArrayNode) input);
+      } else {
+        // input is null or a ValueNode
+        addAnyOf(anyOfs, processPrimitive((ValueNode) input));
+      }
+    }
+    if (!objectNodes.isEmpty()) {
+      addAnyOf(anyOfs, processObjects(objectNodes));
+    }
+    if (!arrayNodes.isEmpty()) {
+      final ArrayNode arrayToProcess = newArray();
+      arrayNodes.forEach(arrayToProcess::addAll);
+      addAnyOf(anyOfs, processArray(arrayToProcess));
+    }
     final ObjectNode result = newObject();
     if (includeMetaSchemaUrl) {
       result.put(Fields.DOLLAR_SCHEMA, specVersion.getMetaSchemaUrl());
     }
-    if (input instanceof ObjectNode) {
-      result.setAll(processObjects(Collections.singleton((ObjectNode) input)));
-    } else if (input instanceof ArrayNode) {
-      result.setAll(processArray((ArrayNode) input));
-    } else {
-      // input is null or a ValueNode
-      result.setAll(processPrimitive((ValueNode) input));
+    switch (anyOfs.size()) {
+      case 0:
+        throw new AssertionError();
+      case 1: {
+        result.setAll(anyOfs.iterator().next());
+        break;
+      }
+      default: {
+        result.set(Fields.ANY_OF, newArray().addAll(anyOfs));
+        break;
+      }
     }
     return result;
   }
@@ -188,7 +222,6 @@ public final class JsonSchemaInferrer {
 
   @Nonnull
   private ObjectNode processArray(@Nonnull ArrayNode arrayNode) {
-    // Using LinkedList on purpose here since we do a lot of add and remove
     final Collection<ObjectNode> anyOfs = new LinkedList<>();
     final Set<ObjectNode> objectNodes = new HashSet<>();
     final Set<ArrayNode> arrayNodes = new HashSet<>();
@@ -220,6 +253,7 @@ public final class JsonSchemaInferrer {
       default: {
         items = newObject();
         items.set(Fields.ANY_OF, newArray().addAll(anyOfs));
+        break;
       }
     }
     final ObjectNode result = newObject().put(Fields.TYPE, Types.ARRAY);
