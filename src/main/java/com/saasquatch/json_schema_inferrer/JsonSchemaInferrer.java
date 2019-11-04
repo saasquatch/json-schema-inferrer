@@ -25,7 +25,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.POJONode;
 import com.fasterxml.jackson.databind.node.ValueNode;
 import com.flipkart.zjsonpatch.JsonDiff;
-import com.saasquatch.json_schema_inferrer.JunkDrawer.Consts;
 
 /**
  * Infer JSON schema based on a sample JSON

@@ -1,10 +1,8 @@
 package com.saasquatch.json_schema_inferrer;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.Locale;
-import java.util.Set;
 import java.util.Spliterators;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -13,7 +11,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 
 /**
- * Exactly what it sounds like. NOT PUBLIC API!!!
+ * Exactly what it sounds like. NOT PUBLIC!!!
  *
  * @author sli
  */
@@ -44,26 +42,6 @@ interface JunkDrawer {
     final ArrayNode result = JsonNodeFactory.instance.arrayNode();
     strings.forEach(result::add);
     return result;
-  }
-
-  interface Consts {
-
-    interface Fields {
-      String TYPE = "type", ITEMS = "items", ANY_OF = "anyOf", PROPERTIES = "properties",
-          FORMAT = "format", DOLLAR_SCHEMA = "$schema", TITLE = "title";
-    }
-
-    interface Types {
-      String OBJECT = "object", ARRAY = "array", STRING = "string", BOOLEAN = "boolean",
-          INTEGER = "integer", NUMBER = "number", NULL = "null";
-    }
-
-    interface Diff {
-      String PATH = "path", OP = "op", ADD = "add", REMOVE = "remove";
-      Set<String> SINGLETON_ADD = Collections.singleton(ADD),
-          SINGLETON_REMOVE = Collections.singleton(REMOVE);
-    }
-
   }
 
 }
