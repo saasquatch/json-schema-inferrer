@@ -9,8 +9,9 @@ import java.util.LinkedList;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
-import java.util.function.Supplier;
+import java.util.Spliterators;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -178,10 +179,9 @@ public final class JsonSchemaInferrer {
     if (allObjectNodes.isEmpty()) {
       throw new IllegalArgumentException("Unable to process empty Collection");
     }
-    final Set<String> allFieldNames = new HashSet<>();
-    for (ObjectNode objectNode : allObjectNodes) {
-      objectNode.fieldNames().forEachRemaining(allFieldNames::add);
-    }
+    final Set<String> allFieldNames = allObjectNodes.stream()
+        .flatMap(j -> stream(j.fieldNames()))
+        .collect(Collectors.toSet());
     final ObjectNode properties = newObject();
     for (String key : allFieldNames) {
       final Collection<ObjectNode> anyOfs = new LinkedList<>();
@@ -316,7 +316,7 @@ public final class JsonSchemaInferrer {
     final Set<String> simpleTypes = new HashSet<>();
     final Collection<ObjectNode> simpleAnyOfs = new ArrayList<>();
     for (ObjectNode anyOf : anyOfs) {
-      final Set<String> fieldNames = toCol(anyOf.fieldNames(), HashSet::new);
+      final Set<String> fieldNames = stream(anyOf.fieldNames()).collect(Collectors.toSet());
       if (fieldNames.equals(Collections.singleton(Fields.TYPE))) {
         simpleAnyOfs.add(anyOf);
         simpleTypes.add(anyOf.path(Fields.TYPE).textValue());
@@ -408,11 +408,8 @@ public final class JsonSchemaInferrer {
     return JsonNodeFactory.instance.arrayNode();
   }
 
-  private static <E, C extends Collection<E>> C toCol(@Nonnull Iterator<E> iter,
-      Supplier<C> colSupplier) {
-    final C col = colSupplier.get();
-    iter.forEachRemaining(col::add);
-    return col;
+  private static <E> Stream<E> stream(@Nonnull Iterator<E> iter) {
+    return StreamSupport.stream(Spliterators.spliteratorUnknownSize(iter, 0), false);
   }
 
 }
