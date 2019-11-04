@@ -1,7 +1,8 @@
 package com.saasquatch.json_schema_inferrer;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
@@ -51,6 +52,7 @@ public final class JsonSchemaInferrer {
    * @param input the sample JSON
    * @return the inferred JSON schema
    */
+  @Nonnull
   public ObjectNode infer(@Nullable JsonNode input) {
     final ObjectNode result = newObject();
     if (includeMetaSchemaUrl) {
@@ -115,6 +117,7 @@ public final class JsonSchemaInferrer {
         String.format(Locale.ROOT, "Unrecognized %s: %s", type.getClass().getSimpleName(), type));
   }
 
+  @Nonnull
   private ObjectNode processPrimitive(@Nullable ValueNode valueNode) {
     final ObjectNode result = newObject();
     result.put(Fields.TYPE, inferType(valueNode));
@@ -125,6 +128,7 @@ public final class JsonSchemaInferrer {
     return result;
   }
 
+  @Nonnull
   private ObjectNode processObject(@Nonnull ObjectNode objectNode) {
     final ObjectNode properties = newObject();
     final Iterator<Map.Entry<String, JsonNode>> fields = objectNode.fields();
@@ -147,8 +151,9 @@ public final class JsonSchemaInferrer {
     return result;
   }
 
+  @Nonnull
   private ObjectNode processArray(@Nonnull ArrayNode arrayNode) {
-    final Set<ObjectNode> anyOfs = new HashSet<>();
+    final Collection<ObjectNode> anyOfs = new ArrayList<>();
     for (JsonNode val : arrayNode) {
       if (val instanceof ObjectNode) {
         addAnyOf(anyOfs, processObject((ObjectNode) val));
@@ -176,7 +181,7 @@ public final class JsonSchemaInferrer {
     return result;
   }
 
-  private void addAnyOf(Set<ObjectNode> anyOfs, ObjectNode newAnyOf) {
+  private void addAnyOf(@Nonnull Collection<ObjectNode> anyOfs, @Nonnull ObjectNode newAnyOf) {
     if (anyOfs.isEmpty()) {
       anyOfs.add(newAnyOf);
       return;

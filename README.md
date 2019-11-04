@@ -9,13 +9,13 @@ Java library for inferring JSON schema based on a sample JSON.
 ## Sample usage
 
 ```java
-final ObjectNode sample = JsonNodeFactory.instance.objectNode()
-    .put("one", 1).put("two", "1234:abcd::1234").put("three", "hello@saasquat.ch");
-sample.set("four",
-    JsonNodeFactory.instance.arrayNode().add(1).add("two")
-        .add(JsonNodeFactory.instance.arrayNode()
-            .add(JsonNodeFactory.instance.objectNode().put("true", true))
-            .add("https://saasquatch.com")));
+final ObjectNode sample =
+    JsonNodeFactory.instance.objectNode().put("one", 1).put("two", "https://saasquatch.com")
+        .put("three", "hello@saasquat.ch").put("four", "-1111-11-11T11:11:11.111Z");
+sample.set("five",
+    JsonNodeFactory.instance.arrayNode().add(-1.5).add("127.0.0.1")
+        .add(JsonNodeFactory.instance.objectNode().put("true", true))
+        .add(JsonNodeFactory.instance.arrayNode().add("1234:abcd::1234")));
 final ObjectNode inferredSchema =
     JsonSchemaInferrer.newBuilder().withSpecVersion(SpecVersion.DRAFT_06).build().infer(sample);
 ```
@@ -24,12 +24,11 @@ In the code above, the `sample` JSON is:
 
 ```json
 {
-  "one" : 1,
-  "two" : "1234:abcd::1234",
-  "three" : "hello@saasquat.ch",
-  "four" : [ 1, "two", [ {
-    "true" : true
-  }, "https://saasquatch.com" ] ]
+  "one": 1,
+  "two": "https://saasquatch.com",
+  "three": "hello@saasquat.ch",
+  "four": "-1111-11-11T11:11:11.111Z",
+  "five": [-1.5, "127.0.0.1", { "true": true }, ["1234:abcd::1234"]]
 }
 ```
 
@@ -37,43 +36,22 @@ And the result `inferredSchema` is:
 
 ```json
 {
-  "$schema" : "http://json-schema.org/draft-06/schema#",
-  "type" : "object",
-  "properties" : {
-    "one" : {
-      "type" : "integer"
-    },
-    "two" : {
-      "type" : "string",
-      "format" : "ipv6"
-    },
-    "three" : {
-      "type" : "string",
-      "format" : "email"
-    },
-    "four" : {
-      "type" : "array",
-      "items" : {
-        "anyOf" : [ {
-          "type" : "integer"
-        }, {
-          "type" : "string"
-        }, {
-          "type" : "array",
-          "items" : {
-            "anyOf" : [ {
-              "type" : "string",
-              "format" : "uri"
-            }, {
-              "type" : "object",
-              "properties" : {
-                "true" : {
-                  "type" : "boolean"
-                }
-              }
-            } ]
-          }
-        } ]
+  "$schema": "http://json-schema.org/draft-06/schema#",
+  "type": "object",
+  "properties": {
+    "one": { "type": "integer" },
+    "two": { "type": "string", "format": "uri" },
+    "three": { "type": "string", "format": "email" },
+    "four": { "type": "string", "format": "date-time" },
+    "five": {
+      "type": "array",
+      "items": {
+        "anyOf": [
+          { "type": "number" },
+          { "type": "string", "format": "ipv4" },
+          { "type": "object", "properties": { "true": { "type": "boolean" } } },
+          { "type": "array", "items": { "type": "string", "format": "ipv6" } }
+        ]
       }
     }
   }
