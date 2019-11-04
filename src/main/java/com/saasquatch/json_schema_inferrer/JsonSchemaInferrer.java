@@ -158,7 +158,6 @@ public final class JsonSchemaInferrer {
         addAnyOf(anyOfs, processPrimitive((ValueNode) val));
       }
     }
-    processAnyOfs(anyOfs);
     final ObjectNode items;
     switch (anyOfs.size()) {
       case 0:
@@ -212,16 +211,6 @@ public final class JsonSchemaInferrer {
       }
     }
     anyOfs.add(newAnyOf);
-  }
-
-  private void processAnyOfs(Set<ObjectNode> anyOfs) {
-    final Set<String> types = anyOfs.stream()
-        .map(j -> j.path(Fields.TYPE).textValue())
-        .filter(Objects::nonNull)
-        .collect(Collectors.toSet());
-    if (types.contains(Types.INTEGER) && types.contains(Types.NUMBER)) {
-      anyOfs.removeIf(j -> Types.INTEGER.equals(j.path(Fields.TYPE).textValue()));
-    }
   }
 
   public static final class Builder {
