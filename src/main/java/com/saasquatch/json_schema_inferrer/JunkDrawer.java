@@ -50,7 +50,7 @@ interface JunkDrawer {
 
     interface Fields {
       String TYPE = "type", ITEMS = "items", ANY_OF = "anyOf", PROPERTIES = "properties",
-          FORMAT = "format", DOLLAR_SCHEMA = "$schema";
+          FORMAT = "format", DOLLAR_SCHEMA = "$schema", TITLE = "title";
     }
 
     interface Types {

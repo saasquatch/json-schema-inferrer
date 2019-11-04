@@ -39,12 +39,14 @@ public final class JsonSchemaInferrer {
 
   private final SpecVersion specVersion;
   private final boolean includeMetaSchemaUrl;
+  private final boolean usePropertyNamesAsTitles;
   private final FormatInferrer formatInferrer;
 
   private JsonSchemaInferrer(@Nonnull SpecVersion specVersion, boolean includeMetaSchemaUrl,
-      @Nonnull FormatInferrer formatInferrer) {
+      boolean usePropertyNamesAsTitles, @Nonnull FormatInferrer formatInferrer) {
     this.specVersion = specVersion;
     this.includeMetaSchemaUrl = includeMetaSchemaUrl;
+    this.usePropertyNamesAsTitles = usePropertyNamesAsTitles;
     this.formatInferrer = formatInferrer;
   }
 
@@ -178,12 +180,14 @@ public final class JsonSchemaInferrer {
     if (allObjectNodes.isEmpty()) {
       throw new IllegalArgumentException("Unable to process empty Collection");
     }
+    // All the field names across all samples combined
     final Set<String> allFieldNames = allObjectNodes.stream()
         .flatMap(j -> stream(j.fieldNames()))
         .collect(Collectors.toSet());
     final ObjectNode properties = newObject();
     for (String key : allFieldNames) {
       final Collection<ObjectNode> anyOfs = new LinkedList<>();
+      // Get the vals from samples that have the key. vals cannot be empty.
       final Set<JsonNode> vals = allObjectNodes.stream()
           .map(j -> j.path(key))
           .filter(j -> !j.isMissingNode())
@@ -211,11 +215,19 @@ public final class JsonSchemaInferrer {
           // anyOfs cannot be empty here
           throw new AssertionError();
         case 1: {
-          properties.set(key, anyOfs.iterator().next());
+          final ObjectNode newProp = newObject();
+          if (usePropertyNamesAsTitles) {
+            newProp.put(Consts.Fields.TITLE, key);
+          }
+          newProp.setAll(anyOfs.iterator().next());
+          properties.set(key, newProp);
           break;
         }
         default: {
           final ObjectNode newProp = newObject();
+          if (usePropertyNamesAsTitles) {
+            newProp.put(Consts.Fields.TITLE, key);
+          }
           newProp.set(Consts.Fields.ANY_OF, newArray().addAll(anyOfs));
           properties.set(key, newProp);
           break;
@@ -334,6 +346,7 @@ public final class JsonSchemaInferrer {
 
     private SpecVersion specVersion = SpecVersion.DRAFT_04;
     private boolean includeMetaSchemaUrl = true;
+    private boolean usePropertyNamesAsTitles = false;
     private FormatInferrer formatInferrer = DefaultFormatInferrer.INSTANCE;
 
     private Builder() {}
@@ -351,6 +364,15 @@ public final class JsonSchemaInferrer {
      */
     public Builder includeMetaSchemaUrl(boolean includeMetaSchemaUrl) {
       this.includeMetaSchemaUrl = includeMetaSchemaUrl;
+      return this;
+    }
+
+    /**
+     * Set whether the {@code title} fields should be filled in with the property names. It is false
+     * by default.
+     */
+    public Builder usePropertyNamesAsTitles(boolean usePropertyNamesAsTitles) {
+      this.usePropertyNamesAsTitles = usePropertyNamesAsTitles;
       return this;
     }
 
@@ -375,7 +397,8 @@ public final class JsonSchemaInferrer {
      * @throws IllegalArgumentException if the spec version and features don't match up
      */
     public JsonSchemaInferrer build() {
-      return new JsonSchemaInferrer(specVersion, includeMetaSchemaUrl, formatInferrer);
+      return new JsonSchemaInferrer(specVersion, includeMetaSchemaUrl, usePropertyNamesAsTitles,
+          formatInferrer);
     }
 
   }
