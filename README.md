@@ -39,7 +39,7 @@ public class Example {
 }
 ```
 
-In the code above, the `sample1` is:
+In the code above, `sample1` is:
 
 ```json
 {
