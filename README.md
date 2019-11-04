@@ -121,24 +121,11 @@ Maven
 ```xml
 <repositories>
   <repository>
-    <snapshots>
-      <enabled>false</enabled>
-    </snapshots>
     <id>bintray-saasquatch-java-libs</id>
     <name>bintray</name>
     <url>https://dl.bintray.com/saasquatch/java-libs</url>
   </repository>
 </repositories>
-<pluginRepositories>
-  <pluginRepository>
-    <snapshots>
-      <enabled>false</enabled>
-    </snapshots>
-    <id>bintray-saasquatch-java-libs</id>
-    <name>bintray-plugins</name>
-    <url>https://dl.bintray.com/saasquatch/java-libs</url>
-  </pluginRepository>
-</pluginRepositories>
 ```
 
 Gradle
@@ -159,14 +146,14 @@ Maven
 <dependency>
   <groupId>com.saasquatch</groupId>
   <artifactId>json-schema-inferrer</artifactId>
-  <version>0.1.1-alpha-3</version>
+  <version>0.1.1-alpha-4</version>
 </dependency>
 ```
 
 Gradle
 
 ```gradle
-compile 'com.saasquatch:json-schema-inferrer:0.1.1-alpha-3'
+compile 'com.saasquatch:json-schema-inferrer:0.1.1-alpha-4'
 ```
 
 ## LICENSE
