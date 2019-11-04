@@ -1,5 +1,6 @@
 package com.saasquatch.json_schema_inferrer;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -8,6 +9,7 @@ import java.util.LinkedList;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import javax.annotation.Nonnull;
@@ -88,6 +90,7 @@ public final class JsonSchemaInferrer {
     if (includeMetaSchemaUrl) {
       result.put(Fields.DOLLAR_SCHEMA, specVersion.getMetaSchemaUrl());
     }
+    processAnyOfs(anyOfs);
     switch (anyOfs.size()) {
       case 0:
         throw new AssertionError();
@@ -197,6 +200,7 @@ public final class JsonSchemaInferrer {
         arrayNodes.forEach(arrayToProcess::addAll);
         addAnyOf(anyOfs, processArray(arrayToProcess));
       }
+      processAnyOfs(anyOfs);
       switch (anyOfs.size()) {
         case 0:
           // anyOfs cannot be empty here
@@ -242,6 +246,7 @@ public final class JsonSchemaInferrer {
       arrayNodes.forEach(arrayToProcess::addAll);
       addAnyOf(anyOfs, processArray(arrayToProcess));
     }
+    processAnyOfs(anyOfs);
     final ObjectNode items;
     switch (anyOfs.size()) {
       case 0:
@@ -296,6 +301,29 @@ public final class JsonSchemaInferrer {
       }
     }
     anyOfs.add(newAnyOf);
+  }
+
+  private void processAnyOfs(@Nonnull Collection<ObjectNode> anyOfs) {
+    // Combine all the "simple" anyOfs, i.e. anyOfs that only have the "type" field
+    final Set<String> simpleTypes = new HashSet<>();
+    final Collection<ObjectNode> simpleAnyOfs = new ArrayList<>();
+    for (ObjectNode anyOf : anyOfs) {
+      final Set<String> fieldNames = toCol(anyOf.fieldNames(), HashSet::new);
+      if (fieldNames.equals(Collections.singleton(Fields.TYPE))) {
+        simpleAnyOfs.add(anyOf);
+        simpleTypes.add(anyOf.path(Fields.TYPE).textValue());
+      }
+    }
+    if (simpleAnyOfs.size() <= 1) {
+      return;
+    }
+    // Combine all the simple types into an array
+    anyOfs.removeAll(simpleAnyOfs);
+    final ArrayNode simpleTypesArray = newArray();
+    simpleTypes.forEach(simpleTypesArray::add);
+    final ObjectNode combinedSimpleAnyOf = newObject();
+    combinedSimpleAnyOf.set(Fields.TYPE, simpleTypesArray);
+    anyOfs.add(combinedSimpleAnyOf);
   }
 
   public static final class Builder {
@@ -370,6 +398,13 @@ public final class JsonSchemaInferrer {
 
   private static ArrayNode newArray() {
     return JsonNodeFactory.instance.arrayNode();
+  }
+
+  private static <E, C extends Collection<E>> C toCol(@Nonnull Iterator<E> iter,
+      Supplier<C> colSupplier) {
+    final C col = colSupplier.get();
+    iter.forEachRemaining(col::add);
+    return col;
   }
 
 }

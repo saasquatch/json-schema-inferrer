@@ -11,9 +11,7 @@ import java.io.UncheckedIOException;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Objects;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -110,18 +108,9 @@ public class JsonSchemaInferrerTest {
           .path("body").path("type").textValue());
       assertEquals("array", schema.path("properties").path("comments").path("type").textValue());
       assertTrue(schema.path("properties").path("comments").path("items").isObject());
-      assertTrue(
-          StreamSupport
-              .stream(schema.path("properties").path("comments").path("items").path("anyOf")
-                  .spliterator(), false)
-              .anyMatch(
-                  j -> j.path("properties").path("body").path("type").asText("").equals("string")));
-      assertTrue(
-          StreamSupport
-              .stream(schema.path("properties").path("comments").path("items").path("anyOf")
-                  .spliterator(), false)
-              .anyMatch(
-                  j -> j.path("properties").path("body").path("type").asText("").equals("null")));
+      assertEquals(new HashSet<>(Arrays.asList("string", "null")),
+          toStringSet(schema.path("properties").path("comments").path("items").path("properties")
+              .path("body").path("type")));
     }
   }
 
@@ -131,20 +120,21 @@ public class JsonSchemaInferrerTest {
     {
       final ObjectNode schema = JsonSchemaInferrer.newBuilder().build().infer(advanced);
       assertTrue(schema.path("items").isObject());
-      assertTrue(StreamSupport.stream(schema.path("items").path("anyOf").spliterator(), false)
-          .anyMatch(j -> j.path("properties").path("tags").isObject()));
-      assertTrue(
-          StreamSupport.stream(schema.path("items").path("anyOf").spliterator(), false).anyMatch(
-              j -> j.path("properties").path("id").path("type").asText("").equals("integer")));
-      assertTrue(
-          StreamSupport.stream(schema.path("items").path("anyOf").spliterator(), false).anyMatch(
-              j -> j.path("properties").path("price").path("type").asText("").equals("number")));
+      assertTrue(schema.path("items").path("properties").path("tags").isObject());
+      assertEquals("integer",
+          schema.path("items").path("properties").path("id").path("type").textValue());
+      assertEquals("number",
+          schema.path("items").path("properties").path("price").path("type").textValue());
       assertEquals(new HashSet<>(Arrays.asList("integer", "number")),
-          StreamSupport.stream(schema.path("items").path("anyOf").spliterator(), false)
-              .map(j -> j.path("properties").path("dimensions").path("properties").path("length")
-                  .path("type"))
-              .map(j -> j.textValue()).filter(Objects::nonNull).collect(Collectors.toSet()));
+          toStringSet(schema.path("items").path("properties").path("dimensions").path("properties")
+              .path("length").path("type")));
     }
+  }
+
+  private static Set<String> toStringSet(JsonNode arrayNode) {
+    final Set<String> result = new HashSet<>();
+    arrayNode.forEach(j -> result.add(j.textValue()));
+    return result;
   }
 
 }
