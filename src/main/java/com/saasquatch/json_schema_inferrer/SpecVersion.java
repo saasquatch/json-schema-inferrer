@@ -16,10 +16,14 @@ public enum SpecVersion {
   ;
 
   @Nonnull
-  final String metaSchemaUrl;
+  private final String metaSchemaUrl;
 
   SpecVersion(String metaSchemaUrl) {
     this.metaSchemaUrl = metaSchemaUrl;
+  }
+
+  String getMetaSchemaUrl() {
+    return metaSchemaUrl;
   }
 
 }

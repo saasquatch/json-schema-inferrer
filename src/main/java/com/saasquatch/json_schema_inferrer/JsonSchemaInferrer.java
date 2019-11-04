@@ -54,7 +54,7 @@ public final class JsonSchemaInferrer {
   public ObjectNode infer(@Nullable JsonNode input) {
     final ObjectNode result = newObject();
     if (includeMetaSchemaUrl) {
-      result.put(Fields.DOLLAR_SCHEMA, specVersion.metaSchemaUrl);
+      result.put(Fields.DOLLAR_SCHEMA, specVersion.getMetaSchemaUrl());
     }
     if (input instanceof ObjectNode) {
       result.setAll(processObject((ObjectNode) input));
