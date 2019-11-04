@@ -1,9 +1,9 @@
 package com.saasquatch.json_schema_inferrer;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
@@ -153,7 +153,8 @@ public final class JsonSchemaInferrer {
 
   @Nonnull
   private ObjectNode processArray(@Nonnull ArrayNode arrayNode) {
-    final Collection<ObjectNode> anyOfs = new ArrayList<>();
+    // Using LinkedList on purpose here since we do a lot of add and remove
+    final Collection<ObjectNode> anyOfs = new LinkedList<>();
     for (JsonNode val : arrayNode) {
       if (val instanceof ObjectNode) {
         addAnyOf(anyOfs, processObject((ObjectNode) val));
