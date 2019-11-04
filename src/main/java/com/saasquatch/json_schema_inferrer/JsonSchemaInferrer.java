@@ -51,6 +51,8 @@ public final class JsonSchemaInferrer {
   }
 
   /**
+   * Infer the JSON schema from a sample JSON.
+   *
    * @param input the sample JSON
    * @return the inferred JSON schema
    */
@@ -59,6 +61,12 @@ public final class JsonSchemaInferrer {
     return inferMulti(Collections.singleton(input));
   }
 
+  /**
+   * Infer the JSON schema from multiple sample JSONs.
+   *
+   * @param input the sample JSONs
+   * @return the inferred JSON schema
+   */
   @Nonnull
   public ObjectNode inferMulti(@Nonnull Collection<JsonNode> inputs) {
     if (inputs.isEmpty()) {
