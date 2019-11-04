@@ -69,22 +69,6 @@ public final class JsonSchemaInferrer {
     return result;
   }
 
-  @Nullable
-  private String inferFormat(@Nullable ValueNode value) {
-    final ValueNode valueNodeToUse = value == null ? NullNode.getInstance() : value;
-    return formatInferrer.infer(new FormatInferrerInput() {
-      @Override
-      public ValueNode getValueNode() {
-        return valueNodeToUse;
-      }
-
-      @Override
-      public SpecVersion getSpecVersion() {
-        return specVersion;
-      }
-    });
-  }
-
   @Nonnull
   private static String inferType(@Nullable JsonNode value) {
     if (value == null) {
@@ -115,6 +99,22 @@ public final class JsonSchemaInferrer {
     }
     throw new IllegalArgumentException(
         String.format(Locale.ROOT, "Unrecognized %s: %s", type.getClass().getSimpleName(), type));
+  }
+
+  @Nullable
+  private String inferFormat(@Nullable JsonNode value) {
+    final JsonNode valueNodeToUse = value == null ? NullNode.getInstance() : value;
+    return formatInferrer.infer(new FormatInferrerInput() {
+      @Override
+      public JsonNode getJsonNode() {
+        return valueNodeToUse;
+      }
+
+      @Override
+      public SpecVersion getSpecVersion() {
+        return specVersion;
+      }
+    });
   }
 
   @Nonnull
@@ -148,6 +148,10 @@ public final class JsonSchemaInferrer {
     if (properties.size() > 0) {
       result.set(Fields.PROPERTIES, properties);
     }
+    final String format = inferFormat(objectNode);
+    if (format != null) {
+      result.put(Fields.FORMAT, format);
+    }
     return result;
   }
 
@@ -179,6 +183,10 @@ public final class JsonSchemaInferrer {
     }
     final ObjectNode result = newObject().put(Fields.TYPE, Types.ARRAY);
     result.set(Fields.ITEMS, items);
+    final String format = inferFormat(arrayNode);
+    if (format != null) {
+      result.put(Fields.FORMAT, format);
+    }
     return result;
   }
 

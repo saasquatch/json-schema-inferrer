@@ -18,7 +18,7 @@ public enum DefaultFormatInferrer implements FormatInferrer {
 
   @Override
   public String infer(FormatInferrerInput input) {
-    final String textValue = input.getValueNode().textValue();
+    final String textValue = input.getJsonNode().textValue();
     if (textValue != null) {
       if (EmailValidator.getInstance().isValid(textValue)) {
         return "email";
