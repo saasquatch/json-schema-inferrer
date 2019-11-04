@@ -76,33 +76,15 @@ public final class JsonSchemaInferrer {
     if (inputs.isEmpty()) {
       throw new IllegalArgumentException("Unable to process empty Collection");
     }
-    // Using LinkedList on purpose here since we do a lot of add and remove
-    final Collection<ObjectNode> anyOfs = new LinkedList<>();
-    final Set<ObjectNode> objectNodes = new HashSet<>();
-    final Set<ArrayNode> arrayNodes = new HashSet<>();
-    for (JsonNode input : inputs) {
-      if (input instanceof ObjectNode) {
-        objectNodes.add((ObjectNode) input);
-      } else if (input instanceof ArrayNode) {
-        arrayNodes.add((ArrayNode) input);
-      } else {
-        // input is null or a ValueNode
-        addAnyOf(anyOfs, processPrimitive((ValueNode) input));
-      }
-    }
-    if (!objectNodes.isEmpty()) {
-      addAnyOf(anyOfs, processObjects(objectNodes));
-    }
-    if (!arrayNodes.isEmpty()) {
-      addAnyOf(anyOfs, processArray(combineArrays(arrayNodes)));
-    }
     final ObjectNode result = newObject();
     if (includeMetaSchemaUrl) {
       result.put(Consts.Fields.DOLLAR_SCHEMA, specVersion.getMetaSchemaUrl());
     }
-    processAnyOfs(anyOfs);
+    // Using LinkedList on purpose here since we do a lot of add and remove
+    final Collection<ObjectNode> anyOfs = getAnyOfsFromSamples(inputs);
     switch (anyOfs.size()) {
       case 0:
+        // anyOfs cannot be empty here
         throw new AssertionError();
       case 1: {
         result.setAll(anyOfs.iterator().next());
@@ -186,30 +168,12 @@ public final class JsonSchemaInferrer {
         .collect(Collectors.toSet());
     final ObjectNode properties = newObject();
     for (String key : allFieldNames) {
-      final Collection<ObjectNode> anyOfs = new LinkedList<>();
       // Get the vals from samples that have the key. vals cannot be empty.
       final Set<JsonNode> vals = allObjectNodes.stream()
-          .map(j -> j.path(key))
-          .filter(j -> !j.isMissingNode())
+          .map(j -> j.get(key))
+          .filter(Objects::nonNull)
           .collect(Collectors.toSet());
-      final Set<ObjectNode> objectNodes = new HashSet<>();
-      final Set<ArrayNode> arrayNodes = new HashSet<>();
-      for (JsonNode val : vals) {
-        if (val instanceof ObjectNode) {
-          objectNodes.add((ObjectNode) val);
-        } else if (val instanceof ArrayNode) {
-          arrayNodes.add((ArrayNode) val);
-        } else {
-          addAnyOf(anyOfs, processPrimitive((ValueNode) val));
-        }
-      }
-      if (!objectNodes.isEmpty()) {
-        addAnyOf(anyOfs, processObjects(objectNodes));
-      }
-      if (!arrayNodes.isEmpty()) {
-        addAnyOf(anyOfs, processArray(combineArrays(arrayNodes)));
-      }
-      processAnyOfs(anyOfs);
+      final Collection<ObjectNode> anyOfs = getAnyOfsFromSamples(vals);
       switch (anyOfs.size()) {
         case 0:
           // anyOfs cannot be empty here
@@ -243,30 +207,11 @@ public final class JsonSchemaInferrer {
 
   @Nonnull
   private ObjectNode processArray(@Nonnull ArrayNode arrayNode) {
-    final Collection<ObjectNode> anyOfs = new LinkedList<>();
-    final Set<ObjectNode> objectNodes = new HashSet<>();
-    final Set<ArrayNode> arrayNodes = new HashSet<>();
-    for (JsonNode val : arrayNode) {
-      if (val instanceof ObjectNode) {
-        objectNodes.add((ObjectNode) val);
-      } else if (val instanceof ArrayNode) {
-        arrayNodes.add((ArrayNode) val);
-      } else {
-        addAnyOf(anyOfs, processPrimitive((ValueNode) val));
-      }
-    }
-    if (!objectNodes.isEmpty()) {
-      addAnyOf(anyOfs, processObjects(objectNodes));
-    }
-    if (!arrayNodes.isEmpty()) {
-      final ArrayNode arrayToProcess = newArray();
-      arrayNodes.forEach(arrayToProcess::addAll);
-      addAnyOf(anyOfs, processArray(arrayToProcess));
-    }
-    processAnyOfs(anyOfs);
     final ObjectNode items;
+    final Collection<ObjectNode> anyOfs = getAnyOfsFromSamples(arrayNode);
     switch (anyOfs.size()) {
       case 0:
+        // anyOfs can be empty here
         items = newObject();
         break;
       case 1:
@@ -281,6 +226,35 @@ public final class JsonSchemaInferrer {
     final ObjectNode result = newObject().put(Consts.Fields.TYPE, Consts.Types.ARRAY);
     result.set(Consts.Fields.ITEMS, items);
     return result;
+  }
+
+  /**
+   * Build {@code anyOf} from sample JSONs. Note that all the arrays and objects will be combined.
+   */
+  @Nonnull
+  private Collection<ObjectNode> getAnyOfsFromSamples(@Nonnull Iterable<JsonNode> samples) {
+    // Using LinkedList on purpose here since we do a lot of add and remove
+    final Collection<ObjectNode> anyOfs = new LinkedList<>();
+    final Set<ObjectNode> objectNodes = new HashSet<>();
+    final Set<ArrayNode> arrayNodes = new HashSet<>();
+    for (JsonNode sample : samples) {
+      if (sample instanceof ObjectNode) {
+        objectNodes.add((ObjectNode) sample);
+      } else if (sample instanceof ArrayNode) {
+        arrayNodes.add((ArrayNode) sample);
+      } else {
+        // input is null or a ValueNode
+        addAnyOf(anyOfs, processPrimitive((ValueNode) sample));
+      }
+    }
+    if (!objectNodes.isEmpty()) {
+      addAnyOf(anyOfs, processObjects(objectNodes));
+    }
+    if (!arrayNodes.isEmpty()) {
+      addAnyOf(anyOfs, processArray(combineArrays(arrayNodes)));
+    }
+    processAnyOfs(anyOfs);
+    return anyOfs;
   }
 
   private void addAnyOf(@Nonnull Collection<ObjectNode> anyOfs, @Nonnull ObjectNode newAnyOf) {
