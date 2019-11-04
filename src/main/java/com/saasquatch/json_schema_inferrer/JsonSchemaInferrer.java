@@ -69,10 +69,11 @@ public final class JsonSchemaInferrer {
 
   @Nullable
   private String inferFormat(@Nullable ValueNode value) {
+    final ValueNode valueNodeToUse = value == null ? NullNode.getInstance() : value;
     return formatInferrer.infer(new FormatInferrerInput() {
       @Override
       public ValueNode getValueNode() {
-        return value == null ? NullNode.getInstance() : value;
+        return valueNodeToUse;
       }
 
       @Override
@@ -147,7 +148,6 @@ public final class JsonSchemaInferrer {
   }
 
   private ObjectNode processArray(@Nonnull ArrayNode arrayNode) {
-    final ObjectNode items;
     final Set<ObjectNode> anyOfs = new HashSet<>();
     for (JsonNode val : arrayNode) {
       if (val instanceof ObjectNode) {
@@ -159,6 +159,7 @@ public final class JsonSchemaInferrer {
       }
     }
     processAnyOfs(anyOfs);
+    final ObjectNode items;
     switch (anyOfs.size()) {
       case 0:
         items = newObject();
