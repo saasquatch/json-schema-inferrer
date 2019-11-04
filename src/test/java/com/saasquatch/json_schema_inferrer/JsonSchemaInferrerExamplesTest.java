@@ -13,6 +13,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
@@ -34,6 +35,10 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+import com.google.common.collect.Iterables;
 
 public class JsonSchemaInferrerExamplesTest {
 
@@ -41,7 +46,14 @@ public class JsonSchemaInferrerExamplesTest {
       "https://cdn.jsdelivr.net/gh/quicktype/quicktype@f75f66bff3d1f812b61c481637c12173778a29b8";
   private static CloseableHttpClient httpClient;
   private static final ObjectMapper mapper = new ObjectMapper();
-  private Collection<JsonSchemaInferrer> testInferrers = getTestInferrers();
+  private static Collection<JsonSchemaInferrer> testInferrers = getTestInferrers();
+  private static LoadingCache<String, JsonNode> testJsonCache =
+      CacheBuilder.newBuilder().softValues().build(new CacheLoader<String, JsonNode>() {
+        @Override
+        public JsonNode load(String url) throws Exception {
+          return loadJsonFromUrl(url);
+        }
+      });
 
   @BeforeAll
   public static void beforeAll() {
@@ -60,15 +72,22 @@ public class JsonSchemaInferrerExamplesTest {
     }
   }
 
-  private void doTestForJsonUrl(String jsonUrl) {
+  @Test
+  public void testMulti() {
+    for (List<String> jsonUrls : Iterables.partition(getSampleJsonUrls(), 4)) {
+      doTestForJsonUrls(jsonUrls);
+    }
+  }
+
+  private static void doTestForJsonUrl(String jsonUrl) {
     final JsonNode sampleJson;
     // Not being able to load the sample JSON should not be considered a failure
     try {
-      sampleJson = loadJsonFromUrl(jsonUrl);
+      sampleJson = testJsonCache.get(jsonUrl);
       if (sampleJson == null) {
         return;
       }
-    } catch (IOException e) {
+    } catch (Exception e) {
       System.out.printf(Locale.ROOT, "Exception encountered loading JSON from url[%s]. "
           + "Error message: [%s]. Skipping tests.\n", jsonUrl, e.getMessage());
       return;
@@ -98,6 +117,49 @@ public class JsonSchemaInferrerExamplesTest {
         System.out.println("Error messages:");
         e.getAllMessages().forEach(System.out::println);
         fail(format("Inferred schema for url[%s] failed to validate", jsonUrl), e);
+      }
+    }
+  }
+
+  private static void doTestForJsonUrls(Collection<String> jsonUrls) {
+    final List<JsonNode> sampleJsons = jsonUrls.stream()
+        .map(jsonUrl -> {
+          try {
+            return testJsonCache.get(jsonUrl);
+          } catch (Exception e) {
+            System.out.printf(Locale.ROOT, "Exception encountered loading JSON from url[%s]. "
+                + "Error message: [%s]. Skipping tests.\n", jsonUrl, e.getMessage());
+            return null;
+          }
+        })
+        .collect(Collectors.toList());
+    System.out.printf(Locale.ROOT, "Got valid JSONs from urls%s\n", jsonUrls);
+    for (JsonSchemaInferrer inferrer : testInferrers) {
+      final ObjectNode schemaJson = inferrer.inferMulti(sampleJsons);
+      assertNotNull(schemaJson, format("Inferred schema for urls%s is null", jsonUrls));
+      final Schema schema;
+      try {
+        schema = SchemaLoader.load(new JSONObject(toMap(schemaJson)));
+      } catch (RuntimeException e) {
+        fail(format("Unable to parse the inferred schema for urls%s", jsonUrls), e);
+        throw e;
+      }
+      for (JsonNode sampleJson : sampleJsons) {
+        try {
+          if (sampleJson.isObject()) {
+            schema.validate(new JSONObject(toMap(sampleJson)));
+          } else if (sampleJson.isArray()) {
+            schema.validate(new JSONArray(sampleJson.toString()));
+          } else {
+            schema.validate(mapper.convertValue(sampleJson, Object.class));
+          }
+        } catch (ValidationException e) {
+          System.out.println(e.getClass().getSimpleName() + " encountered");
+          System.out.println(schemaJson.toPrettyString());
+          System.out.println("Error messages:");
+          e.getAllMessages().forEach(System.out::println);
+          fail(format("Inferred schema for urls%s failed to validate", jsonUrls), e);
+        }
       }
     }
   }
