@@ -6,7 +6,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -60,7 +59,7 @@ public final class JsonSchemaInferrer {
       result.put(Fields.DOLLAR_SCHEMA, specVersion.getMetaSchemaUrl());
     }
     if (input instanceof ObjectNode) {
-      result.setAll(processObject((ObjectNode) input));
+      result.setAll(processObjects(Collections.singleton((ObjectNode) input)));
     } else if (input instanceof ArrayNode) {
       result.setAll(processArray((ArrayNode) input));
     } else {
@@ -130,29 +129,10 @@ public final class JsonSchemaInferrer {
   }
 
   @Nonnull
-  private ObjectNode processObject(@Nonnull ObjectNode objectNode) {
-    final ObjectNode properties = newObject();
-    final Iterator<Map.Entry<String, JsonNode>> fields = objectNode.fields();
-    while (fields.hasNext()) {
-      final Map.Entry<String, JsonNode> field = fields.next();
-      final String key = field.getKey();
-      final JsonNode val = field.getValue();
-      if (val instanceof ObjectNode) {
-        properties.set(key, processObject((ObjectNode) val));
-      } else if (val instanceof ArrayNode) {
-        properties.set(key, processArray((ArrayNode) val));
-      } else {
-        properties.set(key, processPrimitive((ValueNode) val));
-      }
-    }
-    final ObjectNode result = newObject().put(Fields.TYPE, Types.OBJECT);
-    if (properties.size() > 0) {
-      result.set(Fields.PROPERTIES, properties);
-    }
-    return result;
-  }
-
   private ObjectNode processObjects(@Nonnull Collection<ObjectNode> allObjectNodes) {
+    if (allObjectNodes.isEmpty()) {
+      throw new IllegalArgumentException("Unable to process empty Collection");
+    }
     final Set<String> allFieldNames = new HashSet<>();
     for (ObjectNode objectNode : allObjectNodes) {
       objectNode.fieldNames().forEachRemaining(allFieldNames::add);
@@ -165,21 +145,23 @@ public final class JsonSchemaInferrer {
           .filter(j -> !j.isMissingNode())
           .collect(Collectors.toSet());
       final Set<ObjectNode> objectNodes = new HashSet<>();
-      final Set<JsonNode> arrayElements = new HashSet<>();
-      for (JsonNode input : vals) {
-        if (input instanceof ObjectNode) {
-          objectNodes.add((ObjectNode) input);
-        } else if (input instanceof ArrayNode) {
-          input.forEach(arrayElements::add);
+      final Set<ArrayNode> arrayNodes = new HashSet<>();
+      for (JsonNode val : vals) {
+        if (val instanceof ObjectNode) {
+          objectNodes.add((ObjectNode) val);
+        } else if (val instanceof ArrayNode) {
+          arrayNodes.add((ArrayNode) val);
         } else {
-          addAnyOf(anyOfs, processPrimitive((ValueNode) input));
+          addAnyOf(anyOfs, processPrimitive((ValueNode) val));
         }
       }
       if (!objectNodes.isEmpty()) {
         addAnyOf(anyOfs, processObjects(objectNodes));
       }
-      if (!arrayElements.isEmpty()) {
-        addAnyOf(anyOfs, processArray(newArray().addAll(arrayElements)));
+      if (!arrayNodes.isEmpty()) {
+        final ArrayNode arrayToProcess = newArray();
+        arrayNodes.forEach(arrayToProcess::addAll);
+        addAnyOf(anyOfs, processArray(arrayToProcess));
       }
       switch (anyOfs.size()) {
         case 0:
@@ -208,14 +190,24 @@ public final class JsonSchemaInferrer {
   private ObjectNode processArray(@Nonnull ArrayNode arrayNode) {
     // Using LinkedList on purpose here since we do a lot of add and remove
     final Collection<ObjectNode> anyOfs = new LinkedList<>();
+    final Set<ObjectNode> objectNodes = new HashSet<>();
+    final Set<ArrayNode> arrayNodes = new HashSet<>();
     for (JsonNode val : arrayNode) {
       if (val instanceof ObjectNode) {
-        addAnyOf(anyOfs, processObject((ObjectNode) val));
+        objectNodes.add((ObjectNode) val);
       } else if (val instanceof ArrayNode) {
-        addAnyOf(anyOfs, processArray((ArrayNode) val));
+        arrayNodes.add((ArrayNode) val);
       } else {
         addAnyOf(anyOfs, processPrimitive((ValueNode) val));
       }
+    }
+    if (!objectNodes.isEmpty()) {
+      addAnyOf(anyOfs, processObjects(objectNodes));
+    }
+    if (!arrayNodes.isEmpty()) {
+      final ArrayNode arrayToProcess = newArray();
+      arrayNodes.forEach(arrayToProcess::addAll);
+      addAnyOf(anyOfs, processArray(arrayToProcess));
     }
     final ObjectNode items;
     switch (anyOfs.size()) {
