@@ -2,6 +2,7 @@ package com.saasquatch.json_schema_inferrer;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Locale;
@@ -148,9 +149,57 @@ public final class JsonSchemaInferrer {
     if (properties.size() > 0) {
       result.set(Fields.PROPERTIES, properties);
     }
-    final String format = inferFormat(objectNode);
-    if (format != null) {
-      result.put(Fields.FORMAT, format);
+    return result;
+  }
+
+  private ObjectNode processObjects(@Nonnull Collection<ObjectNode> allObjectNodes) {
+    final Set<String> allFieldNames = new HashSet<>();
+    for (ObjectNode objectNode : allObjectNodes) {
+      objectNode.fieldNames().forEachRemaining(allFieldNames::add);
+    }
+    final ObjectNode properties = newObject();
+    for (String key : allFieldNames) {
+      final Collection<ObjectNode> anyOfs = new LinkedList<>();
+      final Set<JsonNode> vals = allObjectNodes.stream()
+          .map(j -> j.path(key))
+          .filter(j -> !j.isMissingNode())
+          .collect(Collectors.toSet());
+      final Set<ObjectNode> objectNodes = new HashSet<>();
+      final Set<JsonNode> arrayElements = new HashSet<>();
+      for (JsonNode input : vals) {
+        if (input instanceof ObjectNode) {
+          objectNodes.add((ObjectNode) input);
+        } else if (input instanceof ArrayNode) {
+          input.forEach(arrayElements::add);
+        } else {
+          addAnyOf(anyOfs, processPrimitive((ValueNode) input));
+        }
+      }
+      if (!objectNodes.isEmpty()) {
+        addAnyOf(anyOfs, processObjects(objectNodes));
+      }
+      if (!arrayElements.isEmpty()) {
+        addAnyOf(anyOfs, processArray(newArray().addAll(arrayElements)));
+      }
+      switch (anyOfs.size()) {
+        case 0:
+          // anyOfs cannot be empty here
+          throw new AssertionError();
+        case 1: {
+          properties.set(key, anyOfs.iterator().next());
+          break;
+        }
+        default: {
+          final ObjectNode newProp = newObject();
+          newProp.set(Fields.ANY_OF, newArray().addAll(anyOfs));
+          properties.set(key, newProp);
+          break;
+        }
+      }
+    }
+    final ObjectNode result = newObject().put(Fields.TYPE, Types.OBJECT);
+    if (properties.size() > 0) {
+      result.set(Fields.PROPERTIES, properties);
     }
     return result;
   }
@@ -183,10 +232,6 @@ public final class JsonSchemaInferrer {
     }
     final ObjectNode result = newObject().put(Fields.TYPE, Types.ARRAY);
     result.set(Fields.ITEMS, items);
-    final String format = inferFormat(arrayNode);
-    if (format != null) {
-      result.put(Fields.FORMAT, format);
-    }
     return result;
   }
 
