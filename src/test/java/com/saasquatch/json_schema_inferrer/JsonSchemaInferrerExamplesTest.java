@@ -40,6 +40,7 @@ public class JsonSchemaInferrerExamplesTest {
       "https://cdn.jsdelivr.net/gh/quicktype/quicktype@f75f66bff3d1f812b61c481637c12173778a29b8";
   private static CloseableHttpClient httpClient;
   private static final ObjectMapper mapper = new ObjectMapper();
+  private Collection<JsonSchemaInferrer> testInferrers = getTestInferrers();
 
   @BeforeAll
   public static void beforeAll() {
@@ -58,7 +59,7 @@ public class JsonSchemaInferrerExamplesTest {
     }
   }
 
-  private static void doTestForJsonUrl(String jsonUrl) {
+  private void doTestForJsonUrl(String jsonUrl) {
     final JsonNode sampleJson;
     // Not being able to load the sample JSON should not be considered a failure
     try {
@@ -72,7 +73,7 @@ public class JsonSchemaInferrerExamplesTest {
       return;
     }
     System.out.printf(Locale.ROOT, "Got valid JSON from url[%s]\n", jsonUrl);
-    for (JsonSchemaInferrer inferrer : getTestInferrers()) {
+    for (JsonSchemaInferrer inferrer : testInferrers) {
       final ObjectNode schemaJson = inferrer.infer(sampleJson);
       assertNotNull(schemaJson, format("Inferred schema for url[%s] is null", jsonUrl));
       final Schema schema;
@@ -184,7 +185,7 @@ public class JsonSchemaInferrerExamplesTest {
     request.setConfig(RequestConfig.custom()
         .setConnectTimeout(1, TimeUnit.SECONDS)
         .setConnectionRequestTimeout(1, TimeUnit.SECONDS)
-        .setResponseTimeout(3, TimeUnit.SECONDS)
+        .setResponseTimeout(5, TimeUnit.SECONDS)
         .build());
     return httpClient.execute(request, new AbstractHttpClientResponseHandler<JsonNode>() {
       @Override
