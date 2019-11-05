@@ -231,10 +231,10 @@ public class JsonSchemaInferrerExamplesTest {
           final JsonSchemaInferrer.Builder builder =
               JsonSchemaInferrer.newBuilder().withSpecVersion(specVersion);
           if (!inferFormat) {
-            builder.withFormatInferrer(StaticFormatInferrer.NO_OP);
+            builder.withFormatInferrer(FormatInferrers.noOp());
           }
           if (usePropertyNamesAsTitles) {
-            builder.withTitleGenerator(StaticTitleGenerator.FIELD_NAME);
+            builder.withTitleGenerator(TitleGenerators.useFieldNames());
           }
           try {
             inferrers.add(builder.build());

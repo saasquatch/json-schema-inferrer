@@ -10,46 +10,28 @@ import java.util.stream.Stream;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-/**
- * Built-in static implementations of {@link AdditionalPropertiesPolicy}
- *
- * @author sli
- */
-public enum StaticAdditionalPropertiesPolicy implements AdditionalPropertiesPolicy {
+public class AdditionalPropertiesPolicies {
 
-  /**
-   * Does not add {@code additionalProperties}
-   */
-  NO_OP {
-    @Override
-    public void process(AdditionalPropertiesPolicyInput input) {}
-  },
-  /**
-   * Always set {@code additionalProperties} to true
-   */
-  ALLOWED {
-    @Override
-    public void process(AdditionalPropertiesPolicyInput input) {
+  public static AdditionalPropertiesPolicy noOp() {
+    return input -> {};
+  }
+
+  public static AdditionalPropertiesPolicy allowed() {
+    return input -> {
       final ObjectNode schema = input.getSchema();
       schema.put(Consts.Fields.ADDITIONAL_PROPERTIES, true);
-    }
-  },
-  /**
-   * Always set {@code additionalProperties} to false
-   */
-  NOT_ALLOWED {
-    @Override
-    public void process(AdditionalPropertiesPolicyInput input) {
+    };
+  }
+
+  public static AdditionalPropertiesPolicy notAllowed() {
+    return input -> {
       final ObjectNode schema = input.getSchema();
       schema.put(Consts.Fields.ADDITIONAL_PROPERTIES, false);
-    }
-  },
-  /**
-   * Set {@code additionalProperties} to the existing types
-   */
-  EXISTING_TYPES {
-    @Override
-    public void process(AdditionalPropertiesPolicyInput input) {
+    };
+  }
+
+  public static AdditionalPropertiesPolicy existingTypes() {
+    return input -> {
       final ObjectNode schema = input.getSchema();
       final Set<String> existingTypes = stream(schema.path(Consts.Fields.PROPERTIES))
           .map(j -> j.path(Consts.Fields.TYPE)).flatMap(typeNode -> {
@@ -73,7 +55,7 @@ public enum StaticAdditionalPropertiesPolicy implements AdditionalPropertiesPoli
           break;
       }
       schema.set(Consts.Fields.ADDITIONAL_PROPERTIES, additionalProps);
-    }
-  };
+    };
+  }
 
 }

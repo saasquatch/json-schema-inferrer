@@ -8,27 +8,24 @@ import org.apache.commons.validator.routines.InetAddressValidator;
 import org.apache.commons.validator.routines.UrlValidator;
 
 /**
- * Built-in static implementations of {@link FormatInferrer}
+ * Utilities for {@link FormatInferrer}s
  *
  * @author sli
  */
-enum StaticFormatInferrer implements FormatInferrer {
+public final class FormatInferrers {
 
   /**
-   * Always returns null. Does not infer formats.
+   * @return a singleton {@link FormatInferrer} that not infer formats.
    */
-  NO_OP {
-    @Override
-    public String infer(FormatInferrerInput input) {
-      return null;
-    }
-  },
+  public static FormatInferrer noOp() {
+    return input -> null;
+  }
+
   /**
    * The default implementation that supports a subset of the built-in formats.
    */
-  DEFAULT {
-    @Override
-    public String infer(FormatInferrerInput input) {
+  static FormatInferrer defaultImpl() {
+    return input -> {
       final String textValue = input.getJsonNode().textValue();
       if (textValue != null) {
         if (EmailValidator.getInstance().isValid(textValue)) {
@@ -65,7 +62,7 @@ enum StaticFormatInferrer implements FormatInferrer {
         }
       }
       return null;
-    }
-  },;
+    };
+  }
 
 }
