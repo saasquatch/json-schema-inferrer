@@ -1,10 +1,6 @@
 package com.saasquatch.json_schema_inferrer;
 
-import static com.saasquatch.json_schema_inferrer.JunkDrawer.stream;
 import static com.saasquatch.json_schema_inferrer.JunkDrawer.stringColToArrayDistinct;
-import java.util.Set;
-import java.util.stream.Collectors;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
  * Utilities for {@link RequiredPolicy}
@@ -21,19 +17,11 @@ public final class RequiredPolicies {
   }
 
   /**
-   * @return A singleton {@link RequiredPolicy} that sets {@code required} to all the existing field
-   *         names
+   * @return A singleton {@link RequiredPolicy} that sets {@code required} to field names common to
+   *         the given samples.
    */
-  public static RequiredPolicy existingFieldNames() {
-    return input -> {
-      final ObjectNode schema = input.getSchema();
-      final Set<String> fieldNames = stream(schema.path(Consts.Fields.PROPERTIES).fieldNames())
-          .collect(Collectors.toSet());
-      if (fieldNames.isEmpty()) {
-        return null;
-      }
-      return stringColToArrayDistinct(fieldNames);
-    };
+  public static RequiredPolicy commonFieldNames() {
+    return input -> stringColToArrayDistinct(input.getCommonFieldNames());
   }
 
 }

@@ -148,9 +148,9 @@ public final class JsonSchemaInferrer {
       throw new IllegalArgumentException("Unable to process empty Collection");
     }
     // All the field names across all samples combined
-    final Set<String> fieldNames = getAllFieldNames(objectNodes);
+    final Set<String> allFieldNames = getAllFieldNames(objectNodes);
     final ObjectNode properties = newObject();
-    for (String fieldName : fieldNames) {
+    for (String fieldName : allFieldNames) {
       // Get the vals from samples that have the field name. vals cannot be empty.
       final Set<JsonNode> samples =
           preProcessJsonNodes(getAllValuesForFieldName(objectNodes, fieldName));
@@ -178,7 +178,7 @@ public final class JsonSchemaInferrer {
       schema.set(Consts.Fields.PROPERTIES, properties);
     }
     handleObjectAdditionalProperties(schema);
-    handleObjectRequired(schema);
+    handleObjectRequired(schema, objectNodes, allFieldNames);
     return schema;
   }
 
@@ -346,6 +346,7 @@ public final class JsonSchemaInferrer {
   private String inferFormat(@Nullable JsonNode value) {
     final JsonNode valueNodeToUse = value == null ? NullNode.getInstance() : value;
     return formatInferrer.infer(new FormatInferrerInput() {
+
       @Override
       public JsonNode getJsonNode() {
         return valueNodeToUse;
@@ -355,12 +356,14 @@ public final class JsonSchemaInferrer {
       public SpecVersion getSpecVersion() {
         return specVersion;
       }
+
     });
   }
 
   @Nullable
   private String generateTitle(@Nonnull String fieldName) {
     return titleGenerator.generate(new TitleGeneratorInput() {
+
       @Override
       public String getFieldName() {
         return fieldName;
@@ -370,12 +373,14 @@ public final class JsonSchemaInferrer {
       public SpecVersion getSpecVersion() {
         return specVersion;
       }
+
     });
   }
 
   private void handleObjectAdditionalProperties(@Nonnull ObjectNode schema) {
     final JsonNode additionalProps =
         additionalPropertiesPolicy.getAdditionalProperties(new AdditionalPropertiesPolicyInput() {
+
           @Override
           public ObjectNode getSchema() {
             return schema;
@@ -385,23 +390,48 @@ public final class JsonSchemaInferrer {
           public SpecVersion specVersion() {
             return specVersion;
           }
+
         });
     if (additionalProps != null) {
       schema.set(Consts.Fields.ADDITIONAL_PROPERTIES, additionalProps);
     }
   }
 
-  private void handleObjectRequired(@Nonnull ObjectNode schema) {
+  private void handleObjectRequired(@Nonnull ObjectNode schema,
+      @Nonnull Collection<ObjectNode> objectNodes, @Nonnull Set<String> allFieldNames) {
     final JsonNode required = requiredPolicy.getRequired(new RequiredPolicyInput() {
+
+      private Set<String> commonFieldNames;
+
       @Override
       public ObjectNode getSchema() {
         return schema;
       }
 
       @Override
+      public Set<String> getCommonFieldNames() {
+        Set<String> result = commonFieldNames;
+        if (result == null) {
+          commonFieldNames = result = _getCommonFieldNames();
+        }
+        return result;
+      }
+
+      private Set<String> _getCommonFieldNames() {
+        final Set<String> commonFieldNames = new HashSet<>(allFieldNames);
+        for (ObjectNode objectNode : objectNodes) {
+          final Set<String> fieldNames = stream(objectNode.fieldNames())
+              .collect(Collectors.toSet());
+          commonFieldNames.retainAll(fieldNames);
+        }
+        return Collections.unmodifiableSet(commonFieldNames);
+      }
+
+      @Override
       public SpecVersion getSpecVersion() {
         return specVersion;
       }
+
     });
     if (required != null) {
       schema.set(Consts.Fields.REQUIRED, required);
