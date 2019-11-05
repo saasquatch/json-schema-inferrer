@@ -455,7 +455,7 @@ public final class JsonSchemaInferrer {
      * @see RequiredPolicy
      * @see RequiredPolicies
      */
-    public Builder setRequiredPolicy(@Nonnull RequiredPolicy requiredPolicy) {
+    public Builder withRequiredPolicy(@Nonnull RequiredPolicy requiredPolicy) {
       this.requiredPolicy = Objects.requireNonNull(requiredPolicy);
       return this;
     }
