@@ -351,21 +351,6 @@ public final class JsonSchemaInferrer {
     }
 
     /**
-     * Set whether the {@code title} fields should be filled in with the property names. It is false
-     * by default.
-     *
-     * @deprecated use {@link #withTitleGenerator(TitleGenerator)} instead
-     */
-    @Deprecated
-    public Builder usePropertyNamesAsTitles(boolean usePropertyNamesAsTitles) {
-      if (usePropertyNamesAsTitles) {
-        return withTitleGenerator(TitleGeneratorInput::getFieldName);
-      } else {
-        return withTitleGenerator(TitleGenerator.noOp());
-      }
-    }
-
-    /**
      * Set the {@link FormatInferrer} for inferring the <a href=
      * "https://json-schema.org/understanding-json-schema/reference/string.html#format">format</a>
      * of strings. By default it uses {@link FormatInferrer#defaultImpl()}, which implements a
