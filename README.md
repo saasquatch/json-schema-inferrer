@@ -9,8 +9,6 @@ Java library for inferring JSON schema based on sample JSONs.
 ## Sample usage
 
 ```java
-package com.saasquatch.json_schema_inferrer.examples;
-
 import java.util.Arrays;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -26,9 +24,9 @@ public class Example {
 
   public static void main(String[] args) throws Exception {
     final JsonNode sample1 = mapper.readTree(
-        "{\"one\":1,\"two\":\"https://saasquatch.com\",\"three\":[-1.5,\"127.0.0.1\"]}");
+        "{\"one\":1,\"two\":\"https://saasquatch.com\",\"three\":[-1.5,\"127.0.0.1\",false]}");
     final JsonNode sample2 = mapper.readTree(
-        "{\"one\":\"-1111-11-11T11:11:11.111Z\",\"two\":\"hello@saasquat.ch\",\"three\":[{\"true\":true},[\"1234:abcd::1234\"]]}");
+        "{\"one\":\"1\",\"two\":\"hello@saasquat.ch\",\"three\":[{\"true\":true},[\"1234:abcd::1234\"]]}");
     final ObjectNode resultForSample1 = inferrer.inferForSample(sample1);
     final ObjectNode resultForSample1And2 =
         inferrer.inferForSamples(Arrays.asList(sample1, sample2));
@@ -46,7 +44,7 @@ In the code above, `sample1` is:
 {
   "one": 1,
   "two": "https://saasquatch.com",
-  "three": [-1.5, "127.0.0.1"]
+  "three": [-1.5, "127.0.0.1", false]
 }
 ```
 
@@ -54,7 +52,7 @@ In the code above, `sample1` is:
 
 ```json
 {
-  "one": "-1111-11-11T11:11:11.111Z",
+  "one": "1",
   "two": "hello@saasquat.ch",
   "three": [{ "true": true }, ["1234:abcd::1234"]]
 }
@@ -72,7 +70,10 @@ In the code above, `sample1` is:
     "three": {
       "type": "array",
       "items": {
-        "anyOf": [{ "type": "number" }, { "type": "string", "format": "ipv4" }]
+        "anyOf": [
+          { "type": "string", "format": "ipv4" },
+          { "type": ["number", "boolean"] }
+        ]
       }
     }
   }
@@ -86,12 +87,7 @@ And `resultForSample1And2` is:
   "$schema": "http://json-schema.org/draft-06/schema#",
   "type": "object",
   "properties": {
-    "one": {
-      "anyOf": [
-        { "type": "string", "format": "date-time" },
-        { "type": "integer" }
-      ]
-    },
+    "one": { "type": ["string", "integer"] },
     "two": {
       "anyOf": [
         { "type": "string", "format": "email" },
@@ -102,10 +98,10 @@ And `resultForSample1And2` is:
       "type": "array",
       "items": {
         "anyOf": [
-          { "type": "number" },
           { "type": "string", "format": "ipv4" },
           { "type": "object", "properties": { "true": { "type": "boolean" } } },
-          { "type": "array", "items": { "type": "string", "format": "ipv6" } }
+          { "type": "array", "items": { "type": "string", "format": "ipv6" } },
+          { "type": ["number", "boolean"] }
         ]
       }
     }

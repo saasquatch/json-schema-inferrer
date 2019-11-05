@@ -15,9 +15,9 @@ public class Example {
 
   public static void main(String[] args) throws Exception {
     final JsonNode sample1 = mapper.readTree(
-        "{\"one\":1,\"two\":\"https://saasquatch.com\",\"three\":[-1.5,\"127.0.0.1\"]}");
+        "{\"one\":1,\"two\":\"https://saasquatch.com\",\"three\":[-1.5,\"127.0.0.1\",false]}");
     final JsonNode sample2 = mapper.readTree(
-        "{\"one\":\"-1111-11-11T11:11:11.111Z\",\"two\":\"hello@saasquat.ch\",\"three\":[{\"true\":true},[\"1234:abcd::1234\"]]}");
+        "{\"one\":\"1\",\"two\":\"hello@saasquat.ch\",\"three\":[{\"true\":true},[\"1234:abcd::1234\"]]}");
     final ObjectNode resultForSample1 = inferrer.inferForSample(sample1);
     final ObjectNode resultForSample1And2 =
         inferrer.inferForSamples(Arrays.asList(sample1, sample2));
