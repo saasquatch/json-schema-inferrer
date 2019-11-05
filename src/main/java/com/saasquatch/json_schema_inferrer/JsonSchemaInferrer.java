@@ -87,14 +87,12 @@ public final class JsonSchemaInferrer {
       case 0:
         // anyOfs cannot be empty here
         throw new AssertionError();
-      case 1: {
+      case 1:
         result.setAll(anyOfs.iterator().next());
         break;
-      }
-      default: {
+      default:
         result.set(Consts.Fields.ANY_OF, newArray().addAll(anyOfs));
         break;
-      }
     }
     return result;
   }
@@ -194,14 +192,12 @@ public final class JsonSchemaInferrer {
         case 0:
           // anyOfs cannot be empty here, since we should have at least one match of the fieldName
           throw new AssertionError();
-        case 1: {
+        case 1:
           newProperty.setAll(anyOfs.iterator().next());
           break;
-        }
-        default: {
+        default:
           newProperty.set(Consts.Fields.ANY_OF, newArray().addAll(anyOfs));
           break;
-        }
       }
       properties.set(fieldName, newProperty);
     }
@@ -224,11 +220,10 @@ public final class JsonSchemaInferrer {
       case 1:
         items = anyOfs.iterator().next();
         break;
-      default: {
+      default:
         items = newObject();
         items.set(Consts.Fields.ANY_OF, newArray().addAll(anyOfs));
         break;
-      }
     }
     final ObjectNode result = newObject().put(Consts.Fields.TYPE, Consts.Types.ARRAY);
     if (items.size() > 0) {
