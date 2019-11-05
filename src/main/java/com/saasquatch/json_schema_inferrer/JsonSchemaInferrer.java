@@ -370,7 +370,7 @@ public final class JsonSchemaInferrer {
     private SpecVersion specVersion = SpecVersion.DRAFT_04;
     private boolean includeMetaSchemaUrl = true;
     private FormatInferrer formatInferrer = DefaultFormatInferrer.INSTANCE;
-    private TitleGenerator titleGenerator = TitleGenerator.noOp();
+    private TitleGenerator titleGenerator = StaticTitleGenerator.NO_OP;
 
     private Builder() {}
 
@@ -408,9 +408,8 @@ public final class JsonSchemaInferrer {
 
     /**
      * Set the {@link TitleGenerator} for this inferrer. By default it is
-     * {@link TitleGenerator#noOp()}. If you want to use field names as the titles, for example, you
-     * can use {@link TitleGeneratorInput#getFieldName()}, or you can transform it however you see
-     * fit.
+     * {@link StaticTitleGenerator#NO_OP}. You can provide your custom implementations and transform
+     * the field names however you see fit.
      *
      * @see TitleGenerator
      */

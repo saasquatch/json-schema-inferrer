@@ -7,7 +7,7 @@ import javax.annotation.Nullable;
  * Interface for generating {@code title}s based on the sample JSON
  *
  * @author sli
- * @see #noOp()
+ * @see StaticTitleGenerator
  */
 @FunctionalInterface
 public interface TitleGenerator {
@@ -19,12 +19,5 @@ public interface TitleGenerator {
    */
   @Nullable
   String generate(@Nonnull TitleGeneratorInput input);
-
-  /**
-   * @return A singleton {@link TitleGenerator} that always returns null
-   */
-  public static TitleGenerator noOp() {
-    return input -> null;
-  }
 
 }

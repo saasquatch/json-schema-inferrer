@@ -10,12 +10,23 @@ import java.util.stream.Stream;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+/**
+ * Built-in static implementations of {@link AdditionalPropertiesPolicy}
+ *
+ * @author sli
+ */
 public enum StaticAdditionalPropertiesPolicy implements AdditionalPropertiesPolicy {
 
+  /**
+   * Does not add {@code additionalProperties}
+   */
   NO_OP {
     @Override
     public void process(AdditionalPropertiesPolicyInput input) {}
   },
+  /**
+   * Always set {@code additionalProperties} to true
+   */
   ALLOWED {
     @Override
     public void process(AdditionalPropertiesPolicyInput input) {
@@ -23,6 +34,9 @@ public enum StaticAdditionalPropertiesPolicy implements AdditionalPropertiesPoli
       schema.put(Consts.Fields.ADDITIONAL_PROPERTIES, true);
     }
   },
+  /**
+   * Always set {@code additionalProperties} to false
+   */
   NOT_ALLOWED {
     @Override
     public void process(AdditionalPropertiesPolicyInput input) {
@@ -30,6 +44,9 @@ public enum StaticAdditionalPropertiesPolicy implements AdditionalPropertiesPoli
       schema.put(Consts.Fields.ADDITIONAL_PROPERTIES, false);
     }
   },
+  /**
+   * Set {@code additionalProperties} to the existing types
+   */
   EXISTING_TYPES {
     @Override
     public void process(AdditionalPropertiesPolicyInput input) {
@@ -44,7 +61,17 @@ public enum StaticAdditionalPropertiesPolicy implements AdditionalPropertiesPoli
             return Stream.empty();
           }).collect(Collectors.toSet());
       final ObjectNode additionalProps = newObject();
-      additionalProps.set(Consts.Fields.TYPE, stringColToArrayNode(existingTypes));
+      switch (existingTypes.size()) {
+        case 0:
+          schema.put(Consts.Fields.ADDITIONAL_PROPERTIES, false);
+          break;
+        case 1:
+          additionalProps.put(Consts.Fields.TYPE, existingTypes.iterator().next());
+          break;
+        default:
+          additionalProps.set(Consts.Fields.TYPE, stringColToArrayNode(existingTypes));
+          break;
+      }
       schema.set(Consts.Fields.ADDITIONAL_PROPERTIES, additionalProps);
     }
   };
