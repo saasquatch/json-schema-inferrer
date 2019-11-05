@@ -12,7 +12,7 @@ import org.apache.commons.validator.routines.UrlValidator;
  *
  * @author sli
  */
-public enum DefaultFormatInferrer implements FormatInferrer {
+enum DefaultFormatInferrer implements FormatInferrer {
 
   INSTANCE,;
 

@@ -38,15 +38,15 @@ public final class JsonSchemaInferrer {
 
   private final SpecVersion specVersion;
   private final boolean includeMetaSchemaUrl;
-  private final boolean usePropertyNamesAsTitles;
   private final FormatInferrer formatInferrer;
+  private final TitleGenerator titleGenerator;
 
   private JsonSchemaInferrer(@Nonnull SpecVersion specVersion, boolean includeMetaSchemaUrl,
-      boolean usePropertyNamesAsTitles, @Nonnull FormatInferrer formatInferrer) {
+      @Nonnull FormatInferrer formatInferrer, @Nonnull TitleGenerator titleGenerator) {
     this.specVersion = specVersion;
     this.includeMetaSchemaUrl = includeMetaSchemaUrl;
-    this.usePropertyNamesAsTitles = usePropertyNamesAsTitles;
     this.formatInferrer = formatInferrer;
+    this.titleGenerator = titleGenerator;
   }
 
   public static Builder newBuilder() {
@@ -145,6 +145,20 @@ public final class JsonSchemaInferrer {
     });
   }
 
+  private String generateTitle(@Nonnull String fieldName) {
+    return titleGenerator.generate(new TitleGeneratorInput() {
+      @Override
+      public String getFieldName() {
+        return fieldName;
+      }
+
+      @Override
+      public SpecVersion getSpecVersion() {
+        return specVersion;
+      }
+    });
+  }
+
   @Nonnull
   private ObjectNode processPrimitive(@Nullable ValueNode valueNode) {
     final ObjectNode result = newObject();
@@ -166,36 +180,32 @@ public final class JsonSchemaInferrer {
         .flatMap(j -> stream(j.fieldNames()))
         .collect(Collectors.toSet());
     final ObjectNode properties = newObject();
-    for (String key : allFieldNames) {
-      // Get the vals from samples that have the key. vals cannot be empty.
+    for (String fieldName : allFieldNames) {
+      // Get the vals from samples that have the field name. vals cannot be empty.
       final Set<JsonNode> vals = allObjectNodes.stream()
-          .map(j -> j.get(key))
+          .map(j -> j.get(fieldName))
           .filter(Objects::nonNull)
           .collect(Collectors.toSet());
+      final ObjectNode newProperty = newObject();
+      final String title = generateTitle(fieldName);
+      if (title != null) {
+        newProperty.put(Consts.Fields.TITLE, title);
+      }
       final Collection<ObjectNode> anyOfs = getAnyOfsFromSamples(vals);
       switch (anyOfs.size()) {
         case 0:
           // anyOfs cannot be empty here
           throw new AssertionError();
         case 1: {
-          final ObjectNode newProp = newObject();
-          if (usePropertyNamesAsTitles) {
-            newProp.put(Consts.Fields.TITLE, key);
-          }
-          newProp.setAll(anyOfs.iterator().next());
-          properties.set(key, newProp);
+          newProperty.setAll(anyOfs.iterator().next());
           break;
         }
         default: {
-          final ObjectNode newProp = newObject();
-          if (usePropertyNamesAsTitles) {
-            newProp.put(Consts.Fields.TITLE, key);
-          }
-          newProp.set(Consts.Fields.ANY_OF, newArray().addAll(anyOfs));
-          properties.set(key, newProp);
+          newProperty.set(Consts.Fields.ANY_OF, newArray().addAll(anyOfs));
           break;
         }
       }
+      properties.set(fieldName, newProperty);
     }
     final ObjectNode result = newObject().put(Consts.Fields.TYPE, Consts.Types.OBJECT);
     if (properties.size() > 0) {
@@ -319,8 +329,8 @@ public final class JsonSchemaInferrer {
 
     private SpecVersion specVersion = SpecVersion.DRAFT_04;
     private boolean includeMetaSchemaUrl = true;
-    private boolean usePropertyNamesAsTitles = false;
-    private FormatInferrer formatInferrer = DefaultFormatInferrer.INSTANCE;
+    private FormatInferrer formatInferrer = FormatInferrer.defaultImpl();
+    private TitleGenerator titleGenerator = TitleGenerator.noOp();
 
     private Builder() {}
 
@@ -343,18 +353,24 @@ public final class JsonSchemaInferrer {
     /**
      * Set whether the {@code title} fields should be filled in with the property names. It is false
      * by default.
+     *
+     * @deprecated use {@link #withTitleGenerator(TitleGenerator)} instead
      */
+    @Deprecated
     public Builder usePropertyNamesAsTitles(boolean usePropertyNamesAsTitles) {
-      this.usePropertyNamesAsTitles = usePropertyNamesAsTitles;
-      return this;
+      if (usePropertyNamesAsTitles) {
+        return withTitleGenerator(TitleGeneratorInput::getFieldName);
+      } else {
+        return withTitleGenerator(TitleGenerator.noOp());
+      }
     }
 
     /**
      * Set the {@link FormatInferrer} for inferring the <a href=
      * "https://json-schema.org/understanding-json-schema/reference/string.html#format">format</a>
-     * of strings. By default it uses {@link DefaultFormatInferrer}, which implements a subset of
-     * standard formats. To use custom formats, provide your own implementation. To disable string
-     * format inference, use {@link FormatInferrer#noOp()}.<br>
+     * of strings. By default it uses {@link FormatInferrer#defaultImpl()}, which implements a
+     * subset of standard formats. To use custom formats, provide your own implementation. To
+     * disable string format inference, use {@link FormatInferrer#noOp()}.<br>
      * Note that if your JSON samples have large nested arrays, it's recommended to set this to
      * false to prevent confusing outputs.
      *
@@ -366,12 +382,24 @@ public final class JsonSchemaInferrer {
     }
 
     /**
+     * Set the {@link TitleGenerator} for this inferrer. By default it is
+     * {@link TitleGenerator#noOp()}. If you want to use field names as the titles, for example, you
+     * can use {@link TitleGeneratorInput#getFieldName()}.
+     *
+     * @see TitleGenerator
+     */
+    public Builder withTitleGenerator(@Nonnull TitleGenerator titleGenerator) {
+      this.titleGenerator = Objects.requireNonNull(titleGenerator);
+      return this;
+    }
+
+    /**
      * @return the {@link JsonSchemaInferrer} built
      * @throws IllegalArgumentException if the spec version and features don't match up
      */
     public JsonSchemaInferrer build() {
-      return new JsonSchemaInferrer(specVersion, includeMetaSchemaUrl, usePropertyNamesAsTitles,
-          formatInferrer);
+      return new JsonSchemaInferrer(specVersion, includeMetaSchemaUrl, formatInferrer,
+          titleGenerator);
     }
 
   }

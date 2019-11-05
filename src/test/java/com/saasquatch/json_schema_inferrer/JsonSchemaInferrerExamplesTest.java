@@ -233,7 +233,9 @@ public class JsonSchemaInferrerExamplesTest {
           if (!inferFormat) {
             builder.withFormatInferrer(FormatInferrer.noOp());
           }
-          builder.usePropertyNamesAsTitles(usePropertyNamesAsTitles);
+          if (usePropertyNamesAsTitles) {
+            builder.withTitleGenerator(TitleGeneratorInput::getFieldName);
+          }
           try {
             inferrers.add(builder.build());
           } catch (IllegalArgumentException e) {

@@ -14,6 +14,11 @@ import javax.annotation.Nullable;
 @FunctionalInterface
 public interface FormatInferrer {
 
+  /**
+   * Infer the {@code format} based on the input.
+   *
+   * @return the inferred format, or null if no format is inferred
+   */
   @Nullable
   String infer(@Nonnull FormatInferrerInput input);
 
@@ -21,7 +26,14 @@ public interface FormatInferrer {
    * @return A singleton no-op {@link FormatInferrer} that always returns null
    */
   public static FormatInferrer noOp() {
-    return NoOpFormatInferrer.INSTANCE;
+    return input -> null;
+  }
+
+  /**
+   * @return A singleton {@link FormatInferrer} with the default implementation
+   */
+  public static FormatInferrer defaultImpl() {
+    return DefaultFormatInferrer.INSTANCE;
   }
 
 }
