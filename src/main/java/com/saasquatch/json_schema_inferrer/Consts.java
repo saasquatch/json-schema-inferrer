@@ -13,7 +13,7 @@ interface Consts {
   interface Fields {
     String TYPE = "type", ITEMS = "items", ANY_OF = "anyOf", PROPERTIES = "properties",
         FORMAT = "format", DOLLAR_SCHEMA = "$schema", TITLE = "title",
-        ADDITIONAL_PROPERTIES = "additionalProperties";
+        ADDITIONAL_PROPERTIES = "additionalProperties", REQUIRED = "required";
     Set<String> SINGLETON_TYPE = Collections.singleton(TYPE);
   }
 

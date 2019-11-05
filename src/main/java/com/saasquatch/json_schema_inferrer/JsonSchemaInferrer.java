@@ -43,15 +43,18 @@ public final class JsonSchemaInferrer {
   private final SpecVersion specVersion;
   private final boolean includeMetaSchemaUrl;
   private final AdditionalPropertiesPolicy additionalPropertiesPolicy;
+  private final RequiredPolicy requiredPolicy;
   private final FormatInferrer formatInferrer;
   private final TitleGenerator titleGenerator;
 
   private JsonSchemaInferrer(@Nonnull SpecVersion specVersion, boolean includeMetaSchemaUrl,
       @Nonnull AdditionalPropertiesPolicy additionalPropertiesPolicy,
-      @Nonnull FormatInferrer formatInferrer, @Nonnull TitleGenerator titleGenerator) {
+      @Nonnull RequiredPolicy requiredPolicy, @Nonnull FormatInferrer formatInferrer,
+      @Nonnull TitleGenerator titleGenerator) {
     this.specVersion = specVersion;
     this.includeMetaSchemaUrl = includeMetaSchemaUrl;
     this.additionalPropertiesPolicy = additionalPropertiesPolicy;
+    this.requiredPolicy = requiredPolicy;
     this.formatInferrer = formatInferrer;
     this.titleGenerator = titleGenerator;
   }
@@ -129,96 +132,6 @@ public final class JsonSchemaInferrer {
   }
 
   @Nonnull
-  private static String inferType(@Nullable JsonNode value) {
-    if (value == null) {
-      return Consts.Types.NULL;
-    }
-    // Marker for whether the error is caused by a known type
-    boolean knownType = false;
-    final JsonNodeType type = value.getNodeType();
-    switch (type) {
-      case ARRAY:
-        return Consts.Types.ARRAY;
-      case BINARY:
-        return Consts.Types.STRING;
-      case BOOLEAN:
-        return Consts.Types.BOOLEAN;
-      case MISSING:
-        knownType = true;
-        break;
-      case NULL:
-        return Consts.Types.NULL;
-      case NUMBER:
-        return value.isIntegralNumber() ? Consts.Types.INTEGER : Consts.Types.NUMBER;
-      case OBJECT:
-        return Consts.Types.OBJECT;
-      case POJO:
-        knownType = true;
-        break;
-      case STRING:
-        return Consts.Types.STRING;
-      default:
-        break;
-    }
-    if (knownType) {
-      throw new IllegalArgumentException(
-          format("Unexpected %s: %s encountered", type.getClass().getSimpleName(), type));
-    } else {
-      throw new IllegalArgumentException(
-          format("Unrecognized %s: %s", type.getClass().getSimpleName(), type));
-    }
-  }
-
-  @Nullable
-  private String inferFormat(@Nullable JsonNode value) {
-    final JsonNode valueNodeToUse = value == null ? NullNode.getInstance() : value;
-    return formatInferrer.infer(new FormatInferrerInput() {
-      @Override
-      public JsonNode getJsonNode() {
-        return valueNodeToUse;
-      }
-
-      @Override
-      public SpecVersion getSpecVersion() {
-        return specVersion;
-      }
-    });
-  }
-
-  @Nullable
-  private String generateTitle(@Nonnull String fieldName) {
-    return titleGenerator.generate(new TitleGeneratorInput() {
-      @Override
-      public String getFieldName() {
-        return fieldName;
-      }
-
-      @Override
-      public SpecVersion getSpecVersion() {
-        return specVersion;
-      }
-    });
-  }
-
-  private void handleAdditionalProperties(@Nonnull ObjectNode schema) {
-    final JsonNode additionalProperties =
-        additionalPropertiesPolicy.getAdditionalProperties(new AdditionalPropertiesPolicyInput() {
-          @Override
-          public ObjectNode getSchema() {
-            return schema;
-          }
-
-          @Override
-          public SpecVersion specVersion() {
-            return specVersion;
-          }
-        });
-    if (additionalProperties != null) {
-      schema.set(Consts.Fields.ADDITIONAL_PROPERTIES, additionalProperties);
-    }
-  }
-
-  @Nonnull
   private ObjectNode processPrimitive(@Nullable ValueNode valueNode) {
     final ObjectNode schema = newObject();
     schema.put(Consts.Fields.TYPE, inferType(valueNode));
@@ -264,7 +177,8 @@ public final class JsonSchemaInferrer {
     if (properties.size() > 0) {
       schema.set(Consts.Fields.PROPERTIES, properties);
     }
-    handleAdditionalProperties(schema);
+    handleObjectAdditionalProperties(schema);
+    handleObjectRequired(schema);
     return schema;
   }
 
@@ -387,12 +301,120 @@ public final class JsonSchemaInferrer {
     anyOfs.add(combinedSimpleAnyOf);
   }
 
+  @Nonnull
+  private static String inferType(@Nullable JsonNode value) {
+    if (value == null) {
+      return Consts.Types.NULL;
+    }
+    // Marker for whether the error is caused by a known type
+    boolean knownType = false;
+    final JsonNodeType type = value.getNodeType();
+    switch (type) {
+      case ARRAY:
+        return Consts.Types.ARRAY;
+      case BINARY:
+        return Consts.Types.STRING;
+      case BOOLEAN:
+        return Consts.Types.BOOLEAN;
+      case MISSING:
+        knownType = true;
+        break;
+      case NULL:
+        return Consts.Types.NULL;
+      case NUMBER:
+        return value.isIntegralNumber() ? Consts.Types.INTEGER : Consts.Types.NUMBER;
+      case OBJECT:
+        return Consts.Types.OBJECT;
+      case POJO:
+        knownType = true;
+        break;
+      case STRING:
+        return Consts.Types.STRING;
+      default:
+        break;
+    }
+    if (knownType) {
+      throw new IllegalArgumentException(
+          format("Unexpected %s: %s encountered", type.getClass().getSimpleName(), type));
+    } else {
+      throw new IllegalArgumentException(
+          format("Unrecognized %s: %s", type.getClass().getSimpleName(), type));
+    }
+  }
+
+  @Nullable
+  private String inferFormat(@Nullable JsonNode value) {
+    final JsonNode valueNodeToUse = value == null ? NullNode.getInstance() : value;
+    return formatInferrer.infer(new FormatInferrerInput() {
+      @Override
+      public JsonNode getJsonNode() {
+        return valueNodeToUse;
+      }
+
+      @Override
+      public SpecVersion getSpecVersion() {
+        return specVersion;
+      }
+    });
+  }
+
+  @Nullable
+  private String generateTitle(@Nonnull String fieldName) {
+    return titleGenerator.generate(new TitleGeneratorInput() {
+      @Override
+      public String getFieldName() {
+        return fieldName;
+      }
+
+      @Override
+      public SpecVersion getSpecVersion() {
+        return specVersion;
+      }
+    });
+  }
+
+  private void handleObjectAdditionalProperties(@Nonnull ObjectNode schema) {
+    final JsonNode additionalProps =
+        additionalPropertiesPolicy.getAdditionalProperties(new AdditionalPropertiesPolicyInput() {
+          @Override
+          public ObjectNode getSchema() {
+            return schema;
+          }
+
+          @Override
+          public SpecVersion specVersion() {
+            return specVersion;
+          }
+        });
+    if (additionalProps != null) {
+      schema.set(Consts.Fields.ADDITIONAL_PROPERTIES, additionalProps);
+    }
+  }
+
+  private void handleObjectRequired(@Nonnull ObjectNode schema) {
+    final JsonNode required = requiredPolicy.getRequired(new RequiredPolicyInput() {
+      @Override
+      public ObjectNode getSchema() {
+        return schema;
+      }
+
+      @Override
+      public SpecVersion getSpecVersion() {
+        return specVersion;
+      }
+    });
+    if (required != null) {
+      schema.set(Consts.Fields.REQUIRED, required);
+    }
+  }
+
   public static final class Builder {
 
     private SpecVersion specVersion = SpecVersion.DRAFT_04;
     private boolean includeMetaSchemaUrl = true;
     private AdditionalPropertiesPolicy additionalPropertiesPolicy =
         AdditionalPropertiesPolicies.noOp();
+    private RequiredPolicy requiredPolicy = RequiredPolicies.noOp();
     private FormatInferrer formatInferrer = FormatInferrers.defaultImpl();
     private TitleGenerator titleGenerator = TitleGenerators.noOp();
 
@@ -416,7 +438,7 @@ public final class JsonSchemaInferrer {
 
     /**
      * Set the {@link AdditionalPropertiesPolicy}. By default it is
-     * {@link AdditionalPropertiesPolicies#noOp()}
+     * {@link AdditionalPropertiesPolicies#noOp()}.
      *
      * @see AdditionalPropertiesPolicy
      * @see AdditionalPropertiesPolicies
@@ -424,6 +446,17 @@ public final class JsonSchemaInferrer {
     public Builder withAdditionalPropertiesPolicy(
         @Nonnull AdditionalPropertiesPolicy additionalPropertiesPolicy) {
       this.additionalPropertiesPolicy = Objects.requireNonNull(additionalPropertiesPolicy);
+      return this;
+    }
+
+    /**
+     * Set the {@link RequiredPolicy}. By default it is {@link RequiredPolicies#noOp()}.
+     *
+     * @see RequiredPolicy
+     * @see RequiredPolicies
+     */
+    public Builder setRequiredPolicy(@Nonnull RequiredPolicy requiredPolicy) {
+      this.requiredPolicy = Objects.requireNonNull(requiredPolicy);
       return this;
     }
 
@@ -463,7 +496,7 @@ public final class JsonSchemaInferrer {
      */
     public JsonSchemaInferrer build() {
       return new JsonSchemaInferrer(specVersion, includeMetaSchemaUrl, additionalPropertiesPolicy,
-          formatInferrer, titleGenerator);
+          requiredPolicy, formatInferrer, titleGenerator);
     }
 
   }
