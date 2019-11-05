@@ -21,8 +21,7 @@ public class AdditionalPropertiesPolicies {
    * @return A singleton {@link AdditionalPropertiesPolicy} that does nothing
    */
   public static AdditionalPropertiesPolicy noOp() {
-    return input -> {
-    };
+    return input -> {};
   }
 
   /**
@@ -56,14 +55,18 @@ public class AdditionalPropertiesPolicies {
     return input -> {
       final ObjectNode schema = input.getSchema();
       final Set<String> existingTypes = stream(schema.path(Consts.Fields.PROPERTIES))
-          .map(j -> j.path(Consts.Fields.TYPE)).flatMap(typeNode -> {
+          .map(j -> j.path(Consts.Fields.TYPE))
+          .flatMap(typeNode -> {
             if (typeNode.isTextual()) {
               return Stream.of(typeNode.textValue());
             } else if (typeNode.isArray()) {
-              return stream(typeNode).map(JsonNode::textValue).filter(Objects::nonNull);
+              return stream(typeNode)
+                  .map(JsonNode::textValue)
+                  .filter(Objects::nonNull);
             }
             return Stream.empty();
-          }).collect(Collectors.toSet());
+          })
+          .collect(Collectors.toSet());
       final ObjectNode additionalProps = newObject();
       switch (existingTypes.size()) {
         case 0:

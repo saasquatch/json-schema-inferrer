@@ -413,6 +413,9 @@ public final class JsonSchemaInferrer {
     /**
      * Set the {@link AdditionalPropertiesPolicy}. By default it is
      * {@link AdditionalPropertiesPolicies#noOp()}
+     *
+     * @see AdditionalPropertiesPolicy
+     * @see AdditionalPropertiesPolicies
      */
     public Builder withAdditionalPropertiesPolicy(
         @Nonnull AdditionalPropertiesPolicy additionalPropertiesPolicy) {
@@ -430,6 +433,7 @@ public final class JsonSchemaInferrer {
      * false to prevent confusing outputs.
      *
      * @see FormatInferrer
+     * @see FormatInferrers
      */
     public Builder withFormatInferrer(@Nonnull FormatInferrer formatInferrer) {
       this.formatInferrer = Objects.requireNonNull(formatInferrer);
@@ -442,6 +446,7 @@ public final class JsonSchemaInferrer {
      * field names however you see fit.
      *
      * @see TitleGenerator
+     * @see TitleGenerators
      */
     public Builder withTitleGenerator(@Nonnull TitleGenerator titleGenerator) {
       this.titleGenerator = Objects.requireNonNull(titleGenerator);
