@@ -236,7 +236,7 @@ public final class JsonSchemaInferrer {
       addAnyOf(anyOfs, processArray(combineArraysDistinct(arrayNodes)));
     }
     postProcessAnyOfs(anyOfs);
-    return anyOfs;
+    return Collections.unmodifiableCollection(anyOfs);
   }
 
   private void addAnyOf(@Nonnull Collection<ObjectNode> anyOfs, @Nonnull ObjectNode newAnyOf) {
