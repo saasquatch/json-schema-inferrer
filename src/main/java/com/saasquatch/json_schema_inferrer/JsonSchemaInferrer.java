@@ -3,7 +3,7 @@ package com.saasquatch.json_schema_inferrer;
 import static com.saasquatch.json_schema_inferrer.JunkDrawer.combineArrays;
 import static com.saasquatch.json_schema_inferrer.JunkDrawer.format;
 import static com.saasquatch.json_schema_inferrer.JunkDrawer.stream;
-import static com.saasquatch.json_schema_inferrer.JunkDrawer.toArrayNode;
+import static com.saasquatch.json_schema_inferrer.JunkDrawer.stringColToArrayNode;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -145,6 +145,7 @@ public final class JsonSchemaInferrer {
     });
   }
 
+  @Nullable
   private String generateTitle(@Nonnull String fieldName) {
     return titleGenerator.generate(new TitleGeneratorInput() {
       @Override
@@ -323,7 +324,7 @@ public final class JsonSchemaInferrer {
     // Combine all the simple types into an array
     anyOfs.removeAll(simpleAnyOfs);
     final ObjectNode combinedSimpleAnyOf = newObject();
-    combinedSimpleAnyOf.set(Consts.Fields.TYPE, toArrayNode(simpleTypes));
+    combinedSimpleAnyOf.set(Consts.Fields.TYPE, stringColToArrayNode(simpleTypes));
     anyOfs.add(combinedSimpleAnyOf);
   }
 

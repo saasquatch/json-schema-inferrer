@@ -38,7 +38,7 @@ interface JunkDrawer {
     return result;
   }
 
-  static ArrayNode toArrayNode(@Nonnull Collection<String> strings) {
+  static ArrayNode stringColToArrayNode(@Nonnull Collection<String> strings) {
     final ArrayNode result = JsonNodeFactory.instance.arrayNode();
     strings.forEach(result::add);
     return result;
