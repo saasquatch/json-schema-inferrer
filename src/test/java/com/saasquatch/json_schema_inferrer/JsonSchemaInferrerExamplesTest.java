@@ -94,7 +94,7 @@ public class JsonSchemaInferrerExamplesTest {
     }
     System.out.printf(Locale.ROOT, "Got valid JSON from url[%s]\n", jsonUrl);
     for (JsonSchemaInferrer inferrer : testInferrers) {
-      final ObjectNode schemaJson = inferrer.infer(sampleJson);
+      final ObjectNode schemaJson = inferrer.inferFromSample(sampleJson);
       assertNotNull(schemaJson, format("Inferred schema for url[%s] is null", jsonUrl));
       final Schema schema;
       try {
@@ -135,7 +135,7 @@ public class JsonSchemaInferrerExamplesTest {
         .collect(Collectors.toList());
     System.out.printf(Locale.ROOT, "Got valid JSONs from urls%s\n", jsonUrls);
     for (JsonSchemaInferrer inferrer : testInferrers) {
-      final ObjectNode schemaJson = inferrer.inferMulti(sampleJsons);
+      final ObjectNode schemaJson = inferrer.inferFromSamples(sampleJsons);
       assertNotNull(schemaJson, format("Inferred schema for urls%s is null", jsonUrls));
       final Schema schema;
       try {
