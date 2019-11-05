@@ -1,6 +1,7 @@
 package com.saasquatch.json_schema_inferrer;
 
 import static com.saasquatch.json_schema_inferrer.JunkDrawer.stream;
+import static com.saasquatch.json_schema_inferrer.JunkDrawer.stringColToArrayDistinct;
 import java.util.Set;
 import java.util.stream.Collectors;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -31,7 +32,7 @@ public final class RequiredPolicies {
       if (fieldNames.isEmpty()) {
         return null;
       }
-      return JunkDrawer.stringColToArrayDistinct(fieldNames);
+      return stringColToArrayDistinct(fieldNames);
     };
   }
 
