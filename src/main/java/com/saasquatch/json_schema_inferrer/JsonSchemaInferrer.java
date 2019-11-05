@@ -265,7 +265,7 @@ public final class JsonSchemaInferrer {
     if (!arrayNodes.isEmpty()) {
       addAnyOf(anyOfs, processArray(combineArrays(arrayNodes)));
     }
-    processAnyOfs(anyOfs);
+    postProcessAnyOfs(anyOfs);
     return anyOfs;
   }
 
@@ -274,9 +274,9 @@ public final class JsonSchemaInferrer {
       anyOfs.add(newAnyOf);
       return;
     }
-    final Iterator<ObjectNode> anyOfIter = anyOfs.iterator();
-    anyOfsLoop: while (anyOfIter.hasNext()) {
-      final ObjectNode anyOf = anyOfIter.next();
+    final Iterator<ObjectNode> anyOfsIterator = anyOfs.iterator();
+    anyOfsLoop: while (anyOfsIterator.hasNext()) {
+      final ObjectNode anyOf = anyOfsIterator.next();
       final JsonNode diffs = JsonDiff.asJson(anyOf, newAnyOf);
       for (JsonNode diff : diffs) {
         final String path = diff.path(Consts.Diff.PATH).textValue();
@@ -297,7 +297,7 @@ public final class JsonSchemaInferrer {
          * The new anyOf is a superset of one of the existing anyOfs. Discard the existing one and
          * add the new one.
          */
-        anyOfIter.remove();
+        anyOfsIterator.remove();
         break;
       } else if (ops.isEmpty() || ops.equals(Consts.Diff.SINGLETON_REMOVE)) {
         // The new anyOf is the same or a subset of one of the existing anyOfs. Do nothing.
@@ -307,7 +307,7 @@ public final class JsonSchemaInferrer {
     anyOfs.add(newAnyOf);
   }
 
-  private void processAnyOfs(@Nonnull Collection<ObjectNode> anyOfs) {
+  private void postProcessAnyOfs(@Nonnull Collection<ObjectNode> anyOfs) {
     // Combine all the "simple" anyOfs, i.e. anyOfs that only have the "type" field
     final Set<String> simpleTypes = new HashSet<>();
     final Collection<ObjectNode> simpleAnyOfs = new ArrayList<>();
