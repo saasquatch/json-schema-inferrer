@@ -4,7 +4,7 @@
 [![Build Status](https://travis-ci.org/saasquatch/json-schema-inferrer.svg?branch=master)](https://travis-ci.org/saasquatch/json-schema-inferrer)
 [ ![Download](https://api.bintray.com/packages/saasquatch/java-libs/json-schema-inferrer/images/download.svg) ](https://bintray.com/saasquatch/java-libs/json-schema-inferrer/_latestVersion)
 
-Java library for inferring JSON schema based on a sample JSON.
+Java library for inferring JSON schema based on sample JSONs.
 
 ## Sample usage
 

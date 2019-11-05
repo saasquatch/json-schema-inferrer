@@ -31,7 +31,7 @@ import com.fasterxml.jackson.databind.node.ValueNode;
 import com.flipkart.zjsonpatch.JsonDiff;
 
 /**
- * Infer JSON schema based on a sample JSON
+ * Infer JSON schema based on sample JSONs
  *
  * @author sli
  * @see #newBuilder()
