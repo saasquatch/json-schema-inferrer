@@ -220,31 +220,32 @@ public class JsonSchemaInferrerExamplesTest {
     final List<JsonSchemaInferrer> inferrers = new ArrayList<>();
     for (SpecVersion specVersion : SpecVersion.values()) {
       for (AdditionalPropertiesPolicy additionalPropertiesPolicy : Arrays.asList(
-          AdditionalPropertiesPolicies.noOp(),
-          AdditionalPropertiesPolicies.allowed(),
-          AdditionalPropertiesPolicies.notAllowed(),
-          AdditionalPropertiesPolicies.existingTypes())) {
-        for (boolean inferFormat : Arrays.asList(true, false)) {
-          for (TitleGenerator titleGenerator : Arrays.asList(TitleGenerators.noOp(),
-              TitleGenerators.useFieldNames())) {
-            if (specVersion == SpecVersion.DRAFT_07 && inferFormat) {
-              /*
-               * Skip tests for inferring format with draft-07 due to a disagreement between Java
-               * time and the schema library on what a valid time string is.
-               */
-              continue;
-            }
-            final JsonSchemaInferrer.Builder builder =
-                JsonSchemaInferrer.newBuilder().withSpecVersion(specVersion)
-                    .withAdditionalPropertiesPolicy(additionalPropertiesPolicy)
-                    .withTitleGenerator(titleGenerator);
-            if (!inferFormat) {
-              builder.withFormatInferrer(FormatInferrers.noOp());
-            }
-            try {
-              inferrers.add(builder.build());
-            } catch (IllegalArgumentException e) {
-              // Ignore
+          AdditionalPropertiesPolicies.noOp(), AdditionalPropertiesPolicies.existingTypes())) {
+        for (RequiredPolicy requiredPolicy : Arrays.asList(RequiredPolicies.noOp(),
+            RequiredPolicies.nonNullCommonFieldNames())) {
+          for (boolean inferFormat : Arrays.asList(true, false)) {
+            for (TitleGenerator titleGenerator : Arrays.asList(TitleGenerators.noOp(),
+                TitleGenerators.useFieldNames())) {
+              if (specVersion == SpecVersion.DRAFT_07 && inferFormat) {
+                /*
+                 * Skip tests for inferring format with draft-07 due to a disagreement between Java
+                 * time and the schema library on what a valid time string is.
+                 */
+                continue;
+              }
+              final JsonSchemaInferrer.Builder builder =
+                  JsonSchemaInferrer.newBuilder().withSpecVersion(specVersion)
+                      .withAdditionalPropertiesPolicy(additionalPropertiesPolicy)
+                      .withRequiredPolicy(requiredPolicy)
+                      .withTitleGenerator(titleGenerator);
+              if (!inferFormat) {
+                builder.withFormatInferrer(FormatInferrers.noOp());
+              }
+              try {
+                inferrers.add(builder.build());
+              } catch (IllegalArgumentException e) {
+                // Ignore
+              }
             }
           }
         }
