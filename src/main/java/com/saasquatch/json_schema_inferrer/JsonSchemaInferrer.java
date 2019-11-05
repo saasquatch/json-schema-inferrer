@@ -312,7 +312,7 @@ public final class JsonSchemaInferrer {
     final Collection<ObjectNode> simpleAnyOfs = new ArrayList<>();
     for (ObjectNode anyOf : anyOfs) {
       final Set<String> fieldNames = stream(anyOf.fieldNames()).collect(Collectors.toSet());
-      if (fieldNames.equals(Collections.singleton(Consts.Fields.TYPE))) {
+      if (fieldNames.equals(Consts.Fields.SINGLETON_TYPE)) {
         simpleAnyOfs.add(anyOf);
         simpleTypes.add(anyOf.path(Consts.Fields.TYPE).textValue());
       }
