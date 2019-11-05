@@ -24,4 +24,12 @@ public final class RequiredPolicies {
     return input -> stringColToArrayDistinct(input.getCommonFieldNames());
   }
 
+  /**
+   * @return A singleton {@link RequiredPolicy} that sets {@code required} to field names common to
+   *         the given samples that are not null.
+   */
+  public static RequiredPolicy nonNullCommonFieldNames() {
+    return input -> stringColToArrayDistinct(input.getNonNullCommonFieldNames());
+  }
+
 }

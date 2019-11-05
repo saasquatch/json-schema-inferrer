@@ -177,8 +177,8 @@ public final class JsonSchemaInferrer {
     if (properties.size() > 0) {
       schema.set(Consts.Fields.PROPERTIES, properties);
     }
-    handleObjectAdditionalProperties(schema);
-    handleObjectRequired(schema, objectNodes, allFieldNames);
+    processAdditionalProperties(schema);
+    processRequired(schema, objectNodes);
     return schema;
   }
 
@@ -377,7 +377,7 @@ public final class JsonSchemaInferrer {
     });
   }
 
-  private void handleObjectAdditionalProperties(@Nonnull ObjectNode schema) {
+  private void processAdditionalProperties(@Nonnull ObjectNode schema) {
     final JsonNode additionalProps =
         additionalPropertiesPolicy.getAdditionalProperties(new AdditionalPropertiesPolicyInput() {
 
@@ -397,11 +397,12 @@ public final class JsonSchemaInferrer {
     }
   }
 
-  private void handleObjectRequired(@Nonnull ObjectNode schema,
-      @Nonnull Collection<ObjectNode> objectNodes, @Nonnull Set<String> allFieldNames) {
+  private void processRequired(@Nonnull ObjectNode schema,
+      @Nonnull Collection<ObjectNode> objectNodes) {
     final JsonNode required = requiredPolicy.getRequired(new RequiredPolicyInput() {
 
       private Set<String> commonFieldNames;
+      private Set<String> nonNullCommonFieldNames;
 
       @Override
       public ObjectNode getSchema() {
@@ -412,17 +413,33 @@ public final class JsonSchemaInferrer {
       public Set<String> getCommonFieldNames() {
         Set<String> result = commonFieldNames;
         if (result == null) {
-          commonFieldNames = result = _getCommonFieldNames();
+          commonFieldNames = result = _getCommonFieldNames(false);
         }
         return result;
       }
 
-      private Set<String> _getCommonFieldNames() {
-        final Set<String> commonFieldNames = new HashSet<>(allFieldNames);
+      @Override
+      public Set<String> getNonNullCommonFieldNames() {
+        Set<String> result = nonNullCommonFieldNames;
+        if (result == null) {
+          nonNullCommonFieldNames = result = _getCommonFieldNames(true);
+        }
+        return result;
+      }
+
+      private Set<String> _getCommonFieldNames(boolean nonNull) {
+        Set<String> commonFieldNames = null;
         for (ObjectNode objectNode : objectNodes) {
           final Set<String> fieldNames = stream(objectNode.fieldNames())
+              .filter(nonNull
+                  ? fieldName -> !objectNode.path(fieldName).isNull()
+                  : fieldName -> true)
               .collect(Collectors.toSet());
-          commonFieldNames.retainAll(fieldNames);
+          if (commonFieldNames == null) {
+            commonFieldNames = new HashSet<>(fieldNames);
+          } else {
+            commonFieldNames.retainAll(fieldNames);
+          }
         }
         return Collections.unmodifiableSet(commonFieldNames);
       }

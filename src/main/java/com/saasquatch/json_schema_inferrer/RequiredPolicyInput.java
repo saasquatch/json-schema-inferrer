@@ -17,8 +17,17 @@ public interface RequiredPolicyInput {
   @Nonnull
   ObjectNode getSchema();
 
+  /**
+   * @return All the common field names in the sample objects
+   */
   @Nonnull
   Set<String> getCommonFieldNames();
+
+  /**
+   * @return All the non-null common field names in the sample objects
+   */
+  @Nonnull
+  Set<String> getNonNullCommonFieldNames();
 
   @Nonnull
   SpecVersion getSpecVersion();
