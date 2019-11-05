@@ -9,7 +9,7 @@ import javax.annotation.Nullable;
  * strings
  *
  * @author sli
- * @see #noOp()
+ * @see StaticFormatInferrer
  */
 @FunctionalInterface
 public interface FormatInferrer {
@@ -21,12 +21,5 @@ public interface FormatInferrer {
    */
   @Nullable
   String infer(@Nonnull FormatInferrerInput input);
-
-  /**
-   * @return A singleton no-op {@link FormatInferrer} that always returns null
-   */
-  public static FormatInferrer noOp() {
-    return input -> null;
-  }
 
 }

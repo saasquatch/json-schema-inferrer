@@ -1,5 +1,6 @@
 package com.saasquatch.json_schema_inferrer;
 
+import javax.annotation.Nonnull;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
@@ -9,8 +10,13 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  */
 public interface AdditionalPropertiesPolicyInput {
 
+  /**
+   * @return The input JSON schema
+   */
+  @Nonnull
   ObjectNode getSchema();
 
+  @Nonnull
   SpecVersion specVersion();
 
 }
