@@ -46,7 +46,6 @@ public class AdditionalPropertiesPolicies {
     };
   }
 
-
   /**
    * @return A singleton {@link AdditionalPropertiesPolicy} that sets {@code additionalProperties}
    *         to existing types on the schema
