@@ -38,16 +38,16 @@ public class JsonSchemaInferrerTest {
 
   @Test
   public void testFormatInference() {
-    assertEquals("email", JsonSchemaInferrer.newBuilder().build().inferFromSample(jnf.textNode("foo@bar.com"))
-        .path("format").textValue());
+    assertEquals("email", JsonSchemaInferrer.newBuilder().build()
+        .inferFromSample(jnf.textNode("foo@bar.com")).path("format").textValue());
     assertNull(JsonSchemaInferrer.newBuilder().withFormatInferrer(FormatInferrer.noOp()).build()
         .inferFromSample(jnf.textNode("foo@bar.com")).path("format").textValue());
     assertNull(JsonSchemaInferrer.newBuilder().withSpecVersion(SpecVersion.DRAFT_07).build()
         .inferFromSample(jnf.textNode("aaaaaaaaa")).path("format").textValue());
-    assertEquals("ipv4", JsonSchemaInferrer.newBuilder().build().inferFromSample(jnf.textNode("1.2.3.4"))
-        .path("format").textValue());
-    assertEquals("ipv6", JsonSchemaInferrer.newBuilder().build().inferFromSample(jnf.textNode("1::1"))
-        .path("format").textValue());
+    assertEquals("ipv4", JsonSchemaInferrer.newBuilder().build()
+        .inferFromSample(jnf.textNode("1.2.3.4")).path("format").textValue());
+    assertEquals("ipv6", JsonSchemaInferrer.newBuilder().build()
+        .inferFromSample(jnf.textNode("1::1")).path("format").textValue());
     assertEquals("uri", JsonSchemaInferrer.newBuilder().build()
         .inferFromSample(jnf.textNode("https://saasquat.ch")).path("format").textValue());
     assertEquals("date-time", JsonSchemaInferrer.newBuilder().build()
@@ -79,8 +79,9 @@ public class JsonSchemaInferrerTest {
       assertTrue(schema.hasNonNull("type"));
     }
     {
-      final ObjectNode schema = JsonSchemaInferrer.newBuilder()
-          .withSpecVersion(SpecVersion.DRAFT_06).includeMetaSchemaUrl(false).build().inferFromSample(simple);
+      final ObjectNode schema =
+          JsonSchemaInferrer.newBuilder().withSpecVersion(SpecVersion.DRAFT_06)
+              .includeMetaSchemaUrl(false).build().inferFromSample(simple);
       assertFalse(schema.hasNonNull("$schema"));
       assertTrue(schema.hasNonNull("type"));
     }

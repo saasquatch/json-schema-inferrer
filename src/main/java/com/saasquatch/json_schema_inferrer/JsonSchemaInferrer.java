@@ -2,6 +2,8 @@ package com.saasquatch.json_schema_inferrer;
 
 import static com.saasquatch.json_schema_inferrer.JunkDrawer.combineArrays;
 import static com.saasquatch.json_schema_inferrer.JunkDrawer.format;
+import static com.saasquatch.json_schema_inferrer.JunkDrawer.getAllFieldNames;
+import static com.saasquatch.json_schema_inferrer.JunkDrawer.getAllValuesForFieldName;
 import static com.saasquatch.json_schema_inferrer.JunkDrawer.stream;
 import static com.saasquatch.json_schema_inferrer.JunkDrawer.stringColToArrayNode;
 import java.util.ArrayList;
@@ -172,21 +174,16 @@ public final class JsonSchemaInferrer {
   }
 
   @Nonnull
-  private ObjectNode processObjects(@Nonnull Collection<ObjectNode> allObjectNodes) {
-    if (allObjectNodes.isEmpty()) {
+  private ObjectNode processObjects(@Nonnull Collection<ObjectNode> objectNodes) {
+    if (objectNodes.isEmpty()) {
       throw new IllegalArgumentException("Unable to process empty Collection");
     }
     // All the field names across all samples combined
-    final Set<String> allFieldNames = allObjectNodes.stream()
-        .flatMap(j -> stream(j.fieldNames()))
-        .collect(Collectors.toSet());
+    final Set<String> fieldNames = getAllFieldNames(objectNodes);
     final ObjectNode properties = newObject();
-    for (String fieldName : allFieldNames) {
+    for (String fieldName : fieldNames) {
       // Get the vals from samples that have the field name. vals cannot be empty.
-      final Set<JsonNode> vals = allObjectNodes.stream()
-          .map(j -> j.get(fieldName))
-          .filter(Objects::nonNull)
-          .collect(Collectors.toSet());
+      final Set<JsonNode> vals = getAllValuesForFieldName(objectNodes, fieldName);
       final ObjectNode newProperty = newObject();
       final String title = generateTitle(fieldName);
       if (title != null) {
@@ -195,7 +192,7 @@ public final class JsonSchemaInferrer {
       final Collection<ObjectNode> anyOfs = getAnyOfsFromSamples(vals);
       switch (anyOfs.size()) {
         case 0:
-          // anyOfs cannot be empty here
+          // anyOfs cannot be empty here, since we should have at least one match of the fieldName
           throw new AssertionError();
         case 1: {
           newProperty.setAll(anyOfs.iterator().next());
@@ -221,7 +218,7 @@ public final class JsonSchemaInferrer {
     final Collection<ObjectNode> anyOfs = getAnyOfsFromSamples(arrayNode);
     switch (anyOfs.size()) {
       case 0:
-        // anyOfs can be empty here
+        // anyOfs can be empty here, since the original array can be empty
         items = newObject();
         break;
       case 1:
