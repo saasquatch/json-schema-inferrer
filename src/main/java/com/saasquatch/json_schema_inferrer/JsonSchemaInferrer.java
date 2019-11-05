@@ -58,12 +58,12 @@ public final class JsonSchemaInferrer {
   /**
    * Infer the JSON schema from a sample JSON.
    *
-   * @param input the sample JSON
+   * @param sample the sample JSON
    * @return the inferred JSON schema
    */
   @Nonnull
-  public ObjectNode inferFromSample(@Nullable JsonNode input) {
-    return inferFromSamples(Collections.singleton(input));
+  public ObjectNode inferFromSample(@Nullable JsonNode sample) {
+    return inferFromSamples(Collections.singleton(sample));
   }
 
   /**
@@ -73,19 +73,22 @@ public final class JsonSchemaInferrer {
    * @return the inferred JSON schema
    */
   @Nonnull
-  public ObjectNode inferFromSamples(@Nonnull Collection<JsonNode> inputs) {
-    if (inputs.isEmpty()) {
+  public ObjectNode inferFromSamples(@Nonnull Collection<JsonNode> samples) {
+    final Set<JsonNode> processedSamples = samples.stream()
+        .map(this::preProcessJsonNode)
+        .filter(Objects::nonNull)
+        .collect(Collectors.toSet());
+    if (processedSamples.isEmpty()) {
       throw new IllegalArgumentException("Unable to process empty Collection");
     }
     final ObjectNode result = newObject();
     if (includeMetaSchemaUrl) {
       result.put(Consts.Fields.DOLLAR_SCHEMA, specVersion.getMetaSchemaUrl());
     }
-    // Using LinkedList on purpose here since we do a lot of add and remove
-    final Collection<ObjectNode> anyOfs = getAnyOfsFromSamples(inputs);
+    final Collection<ObjectNode> anyOfs = getAnyOfsFromSamples(processedSamples);
     switch (anyOfs.size()) {
       case 0:
-        // anyOfs cannot be empty here
+        // anyOfs cannot be empty here, since we force inputs to be non empty
         throw new AssertionError();
       case 1:
         result.setAll(anyOfs.iterator().next());
@@ -95,6 +98,19 @@ public final class JsonSchemaInferrer {
         break;
     }
     return result;
+  }
+
+  private JsonNode preProcessJsonNode(@Nullable JsonNode value) {
+    if (value == null) {
+      // Treat null as NullNode
+      return JsonNodeFactory.instance.nullNode();
+    } else if (value.isMissingNode()) {
+      // Treat MissingNode as non-existent
+      return null;
+    } else if (value.isPojo()) {
+      throw new IllegalArgumentException(POJONode.class.getSimpleName() + " not supported");
+    }
+    return value;
   }
 
   @Nonnull
@@ -241,8 +257,11 @@ public final class JsonSchemaInferrer {
     final Collection<ObjectNode> anyOfs = new LinkedList<>();
     final Set<ObjectNode> objectNodes = new HashSet<>();
     final Set<ArrayNode> arrayNodes = new HashSet<>();
-    for (JsonNode sample : samples) {
-      if (sample instanceof ObjectNode) {
+    for (JsonNode rawSample : samples) {
+      final JsonNode sample = preProcessJsonNode(rawSample);
+      if (sample == null) {
+        continue;
+      } else if (sample instanceof ObjectNode) {
         objectNodes.add((ObjectNode) sample);
       } else if (sample instanceof ArrayNode) {
         arrayNodes.add((ArrayNode) sample);
