@@ -10,12 +10,25 @@ import java.util.stream.Stream;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+/**
+ * Utilities for {@link AdditionalPropertiesPolicy}
+ *
+ * @author sli
+ */
 public class AdditionalPropertiesPolicies {
 
+  /**
+   * @return A singleton {@link AdditionalPropertiesPolicy} that does nothing
+   */
   public static AdditionalPropertiesPolicy noOp() {
-    return input -> {};
+    return input -> {
+    };
   }
 
+  /**
+   * @return A singleton {@link AdditionalPropertiesPolicy} that always sets
+   *         {@code additionalProperties} to true
+   */
   public static AdditionalPropertiesPolicy allowed() {
     return input -> {
       final ObjectNode schema = input.getSchema();
@@ -23,6 +36,10 @@ public class AdditionalPropertiesPolicies {
     };
   }
 
+  /**
+   * @return A singleton {@link AdditionalPropertiesPolicy} that always sets
+   *         {@code additionalProperties} to false
+   */
   public static AdditionalPropertiesPolicy notAllowed() {
     return input -> {
       final ObjectNode schema = input.getSchema();
@@ -30,6 +47,11 @@ public class AdditionalPropertiesPolicies {
     };
   }
 
+
+  /**
+   * @return A singleton {@link AdditionalPropertiesPolicy} that sets {@code additionalProperties}
+   *         to existing types on the schema
+   */
   public static AdditionalPropertiesPolicy existingTypes() {
     return input -> {
       final ObjectNode schema = input.getSchema();

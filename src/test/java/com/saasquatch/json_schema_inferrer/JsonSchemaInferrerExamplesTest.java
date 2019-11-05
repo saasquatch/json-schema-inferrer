@@ -219,27 +219,33 @@ public class JsonSchemaInferrerExamplesTest {
   private static Collection<JsonSchemaInferrer> getTestInferrers() {
     final List<JsonSchemaInferrer> inferrers = new ArrayList<>();
     for (SpecVersion specVersion : SpecVersion.values()) {
-      for (boolean inferFormat : Arrays.asList(true, false)) {
-        for (boolean usePropertyNamesAsTitles : Arrays.asList(true, false)) {
-          if (specVersion == SpecVersion.DRAFT_07 && inferFormat) {
-            /*
-             * Skip tests for inferring format with draft-07 due to a disagreement between Java time
-             * and the schema library on what a valid time string is.
-             */
-            continue;
-          }
-          final JsonSchemaInferrer.Builder builder =
-              JsonSchemaInferrer.newBuilder().withSpecVersion(specVersion);
-          if (!inferFormat) {
-            builder.withFormatInferrer(FormatInferrers.noOp());
-          }
-          if (usePropertyNamesAsTitles) {
-            builder.withTitleGenerator(TitleGenerators.useFieldNames());
-          }
-          try {
-            inferrers.add(builder.build());
-          } catch (IllegalArgumentException e) {
-            // Ignore
+      for (AdditionalPropertiesPolicy additionalPropertiesPolicy : Arrays.asList(
+          AdditionalPropertiesPolicies.noOp(),
+          AdditionalPropertiesPolicies.allowed(),
+          AdditionalPropertiesPolicies.notAllowed(),
+          AdditionalPropertiesPolicies.existingTypes())) {
+        for (boolean inferFormat : Arrays.asList(true, false)) {
+          for (TitleGenerator titleGenerator : Arrays.asList(TitleGenerators.noOp(),
+              TitleGenerators.useFieldNames())) {
+            if (specVersion == SpecVersion.DRAFT_07 && inferFormat) {
+              /*
+               * Skip tests for inferring format with draft-07 due to a disagreement between Java
+               * time and the schema library on what a valid time string is.
+               */
+              continue;
+            }
+            final JsonSchemaInferrer.Builder builder =
+                JsonSchemaInferrer.newBuilder().withSpecVersion(specVersion)
+                    .withAdditionalPropertiesPolicy(additionalPropertiesPolicy)
+                    .withTitleGenerator(titleGenerator);
+            if (!inferFormat) {
+              builder.withFormatInferrer(FormatInferrers.noOp());
+            }
+            try {
+              inferrers.add(builder.build());
+            } catch (IllegalArgumentException e) {
+              // Ignore
+            }
           }
         }
       }
