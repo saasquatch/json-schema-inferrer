@@ -42,13 +42,16 @@ public final class JsonSchemaInferrer {
 
   private final SpecVersion specVersion;
   private final boolean includeMetaSchemaUrl;
+  private final AdditionalPropertiesPolicy additionalPropertiesPolicy;
   private final FormatInferrer formatInferrer;
   private final TitleGenerator titleGenerator;
 
   private JsonSchemaInferrer(@Nonnull SpecVersion specVersion, boolean includeMetaSchemaUrl,
+      @Nonnull AdditionalPropertiesPolicy additionalPropertiesPolicy,
       @Nonnull FormatInferrer formatInferrer, @Nonnull TitleGenerator titleGenerator) {
     this.specVersion = specVersion;
     this.includeMetaSchemaUrl = includeMetaSchemaUrl;
+    this.additionalPropertiesPolicy = additionalPropertiesPolicy;
     this.formatInferrer = formatInferrer;
     this.titleGenerator = titleGenerator;
   }
@@ -80,9 +83,9 @@ public final class JsonSchemaInferrer {
     if (processedSamples.isEmpty()) {
       throw new IllegalArgumentException("Unable to process empty Collection");
     }
-    final ObjectNode result = newObject();
+    final ObjectNode schema = newObject();
     if (includeMetaSchemaUrl) {
-      result.put(Consts.Fields.DOLLAR_SCHEMA, specVersion.getMetaSchemaUrl());
+      schema.put(Consts.Fields.DOLLAR_SCHEMA, specVersion.getMetaSchemaUrl());
     }
     final Collection<ObjectNode> anyOfs = getAnyOfsFromSamples(processedSamples);
     switch (anyOfs.size()) {
@@ -90,13 +93,13 @@ public final class JsonSchemaInferrer {
         // anyOfs cannot be empty here, since we force inputs to be non empty
         throw new AssertionError();
       case 1:
-        result.setAll(anyOfs.iterator().next());
+        schema.setAll(anyOfs.iterator().next());
         break;
       default:
-        result.set(Consts.Fields.ANY_OF, newArray().addAll(anyOfs));
+        schema.set(Consts.Fields.ANY_OF, newArray().addAll(anyOfs));
         break;
     }
-    return result;
+    return schema;
   }
 
   /**
@@ -197,15 +200,29 @@ public final class JsonSchemaInferrer {
     });
   }
 
+  private void handleAdditionalProperties(@Nonnull ObjectNode schema) {
+    additionalPropertiesPolicy.process(new AdditionalPropertiesPolicyInput() {
+      @Override
+      public ObjectNode getSchema() {
+        return schema;
+      }
+
+      @Override
+      public SpecVersion specVersion() {
+        return specVersion;
+      }
+    });
+  }
+
   @Nonnull
   private ObjectNode processPrimitive(@Nullable ValueNode valueNode) {
-    final ObjectNode result = newObject();
-    result.put(Consts.Fields.TYPE, inferType(valueNode));
+    final ObjectNode schema = newObject();
+    schema.put(Consts.Fields.TYPE, inferType(valueNode));
     final String format = inferFormat(valueNode);
     if (format != null) {
-      result.put(Consts.Fields.FORMAT, format);
+      schema.put(Consts.Fields.FORMAT, format);
     }
-    return result;
+    return schema;
   }
 
   @Nonnull
@@ -239,11 +256,12 @@ public final class JsonSchemaInferrer {
       }
       properties.set(fieldName, newProperty);
     }
-    final ObjectNode result = newObject().put(Consts.Fields.TYPE, Consts.Types.OBJECT);
+    final ObjectNode schema = newObject().put(Consts.Fields.TYPE, Consts.Types.OBJECT);
     if (properties.size() > 0) {
-      result.set(Consts.Fields.PROPERTIES, properties);
+      schema.set(Consts.Fields.PROPERTIES, properties);
     }
-    return result;
+    handleAdditionalProperties(schema);
+    return schema;
   }
 
   @Nonnull
@@ -264,11 +282,11 @@ public final class JsonSchemaInferrer {
         items.set(Consts.Fields.ANY_OF, newArray().addAll(anyOfs));
         break;
     }
-    final ObjectNode result = newObject().put(Consts.Fields.TYPE, Consts.Types.ARRAY);
+    final ObjectNode schema = newObject().put(Consts.Fields.TYPE, Consts.Types.ARRAY);
     if (items.size() > 0) {
-      result.set(Consts.Fields.ITEMS, items);
+      schema.set(Consts.Fields.ITEMS, items);
     }
-    return result;
+    return schema;
   }
 
   /**
@@ -369,6 +387,8 @@ public final class JsonSchemaInferrer {
 
     private SpecVersion specVersion = SpecVersion.DRAFT_04;
     private boolean includeMetaSchemaUrl = true;
+    private AdditionalPropertiesPolicy additionalPropertiesPolicy =
+        AdditionalPropertiesPolicies.noOp();
     private FormatInferrer formatInferrer = FormatInferrers.defaultImpl();
     private TitleGenerator titleGenerator = TitleGenerators.noOp();
 
@@ -387,6 +407,16 @@ public final class JsonSchemaInferrer {
      */
     public Builder includeMetaSchemaUrl(boolean includeMetaSchemaUrl) {
       this.includeMetaSchemaUrl = includeMetaSchemaUrl;
+      return this;
+    }
+
+    /**
+     * Set the {@link AdditionalPropertiesPolicy}. By default it is
+     * {@link AdditionalPropertiesPolicies#noOp()}
+     */
+    public Builder withAdditionalPropertiesPolicy(
+        @Nonnull AdditionalPropertiesPolicy additionalPropertiesPolicy) {
+      this.additionalPropertiesPolicy = Objects.requireNonNull(additionalPropertiesPolicy);
       return this;
     }
 
@@ -423,8 +453,8 @@ public final class JsonSchemaInferrer {
      * @throws IllegalArgumentException if the spec version and features don't match up
      */
     public JsonSchemaInferrer build() {
-      return new JsonSchemaInferrer(specVersion, includeMetaSchemaUrl, formatInferrer,
-          titleGenerator);
+      return new JsonSchemaInferrer(specVersion, includeMetaSchemaUrl, additionalPropertiesPolicy,
+          formatInferrer, titleGenerator);
     }
 
   }
