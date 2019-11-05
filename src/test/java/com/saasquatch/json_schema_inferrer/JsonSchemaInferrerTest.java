@@ -4,12 +4,14 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
@@ -33,7 +35,14 @@ public class JsonSchemaInferrerTest {
 
   @Test
   public void testBasic() {
-    assertDoesNotThrow(() -> JsonSchemaInferrer.newBuilder().build().inferFromSample(null));
+    final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder().build();
+    assertDoesNotThrow(() -> inferrer.inferFromSample(null));
+    assertThrows(IllegalArgumentException.class,
+        () -> inferrer.inferFromSamples(Collections.emptyList()));
+    assertThrows(IllegalArgumentException.class,
+        () -> inferrer.inferFromSamples(Collections.singleton(jnf.missingNode())));
+    assertDoesNotThrow(() -> inferrer.inferFromSamples(Collections.singleton(null)));
+    assertDoesNotThrow(() -> inferrer.inferFromSamples(Collections.singleton(jnf.nullNode())));
   }
 
   @Test
