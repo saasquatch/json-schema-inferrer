@@ -277,6 +277,9 @@ public final class JsonSchemaInferrer {
     final Iterator<ObjectNode> anyOfsIterator = anyOfs.iterator();
     anyOfsLoop: while (anyOfsIterator.hasNext()) {
       final ObjectNode anyOf = anyOfsIterator.next();
+      if (anyOf.equals(newAnyOf)) {
+        return; // Low hanging fruit
+      }
       final JsonNode diffs = JsonDiff.asJson(anyOf, newAnyOf);
       for (JsonNode diff : diffs) {
         final String path = diff.path(Consts.Diff.PATH).textValue();
@@ -372,7 +375,8 @@ public final class JsonSchemaInferrer {
     /**
      * Set the {@link TitleGenerator} for this inferrer. By default it is
      * {@link TitleGenerator#noOp()}. If you want to use field names as the titles, for example, you
-     * can use {@link TitleGeneratorInput#getFieldName()}.
+     * can use {@link TitleGeneratorInput#getFieldName()}, or you can transform it however you see
+     * fit.
      *
      * @see TitleGenerator
      */
