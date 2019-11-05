@@ -29,11 +29,4 @@ public interface FormatInferrer {
     return input -> null;
   }
 
-  /**
-   * @return A singleton {@link FormatInferrer} with the default implementation
-   */
-  public static FormatInferrer defaultImpl() {
-    return DefaultFormatInferrer.INSTANCE;
-  }
-
 }
