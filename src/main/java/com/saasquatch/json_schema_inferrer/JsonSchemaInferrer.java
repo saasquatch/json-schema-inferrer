@@ -201,17 +201,21 @@ public final class JsonSchemaInferrer {
   }
 
   private void handleAdditionalProperties(@Nonnull ObjectNode schema) {
-    additionalPropertiesPolicy.process(new AdditionalPropertiesPolicyInput() {
-      @Override
-      public ObjectNode getSchema() {
-        return schema;
-      }
+    final JsonNode additionalProperties =
+        additionalPropertiesPolicy.getAdditionalProperties(new AdditionalPropertiesPolicyInput() {
+          @Override
+          public ObjectNode getSchema() {
+            return schema;
+          }
 
-      @Override
-      public SpecVersion specVersion() {
-        return specVersion;
-      }
-    });
+          @Override
+          public SpecVersion specVersion() {
+            return specVersion;
+          }
+        });
+    if (additionalProperties != null) {
+      schema.set(Consts.Fields.ADDITIONAL_PROPERTIES, additionalProperties);
+    }
   }
 
   @Nonnull

@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
@@ -21,7 +22,7 @@ public class AdditionalPropertiesPolicies {
    * @return A singleton {@link AdditionalPropertiesPolicy} that does nothing
    */
   public static AdditionalPropertiesPolicy noOp() {
-    return input -> {};
+    return input -> null;
   }
 
   /**
@@ -29,10 +30,7 @@ public class AdditionalPropertiesPolicies {
    *         {@code additionalProperties} to true
    */
   public static AdditionalPropertiesPolicy allowed() {
-    return input -> {
-      final ObjectNode schema = input.getSchema();
-      schema.put(Consts.Fields.ADDITIONAL_PROPERTIES, true);
-    };
+    return input -> JsonNodeFactory.instance.booleanNode(true);
   }
 
   /**
@@ -40,10 +38,7 @@ public class AdditionalPropertiesPolicies {
    *         {@code additionalProperties} to false
    */
   public static AdditionalPropertiesPolicy notAllowed() {
-    return input -> {
-      final ObjectNode schema = input.getSchema();
-      schema.put(Consts.Fields.ADDITIONAL_PROPERTIES, false);
-    };
+    return input -> JsonNodeFactory.instance.booleanNode(false);
   }
 
   /**
@@ -69,8 +64,7 @@ public class AdditionalPropertiesPolicies {
       final ObjectNode additionalProps = newObject();
       switch (existingTypes.size()) {
         case 0:
-          schema.put(Consts.Fields.ADDITIONAL_PROPERTIES, false);
-          break;
+          return JsonNodeFactory.instance.booleanNode(false);
         case 1:
           additionalProps.put(Consts.Fields.TYPE, existingTypes.iterator().next());
           break;
@@ -78,7 +72,7 @@ public class AdditionalPropertiesPolicies {
           additionalProps.set(Consts.Fields.TYPE, stringColToArrayDistinct(existingTypes));
           break;
       }
-      schema.set(Consts.Fields.ADDITIONAL_PROPERTIES, additionalProps);
+      return additionalProps;
     };
   }
 

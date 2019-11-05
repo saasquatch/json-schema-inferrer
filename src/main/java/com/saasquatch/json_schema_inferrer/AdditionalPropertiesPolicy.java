@@ -1,6 +1,8 @@
 package com.saasquatch.json_schema_inferrer;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import com.fasterxml.jackson.databind.JsonNode;
 
 /**
  * Policy for {@code additionalProperties}
@@ -11,6 +13,11 @@ import javax.annotation.Nonnull;
 @FunctionalInterface
 public interface AdditionalPropertiesPolicy {
 
-  void process(@Nonnull AdditionalPropertiesPolicyInput input);
+  /**
+   * Get the appropriate {@code additionalProperties} field based on the input. Note that this
+   * method should not modify the original input.
+   */
+  @Nullable
+  JsonNode getAdditionalProperties(@Nonnull AdditionalPropertiesPolicyInput input);
 
 }
