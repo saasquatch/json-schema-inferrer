@@ -43,6 +43,15 @@ public class JsonSchemaInferrerTest {
         () -> inferrer.inferForSamples(Collections.singleton(jnf.missingNode())));
     assertDoesNotThrow(() -> inferrer.inferForSamples(Collections.singleton(null)));
     assertDoesNotThrow(() -> inferrer.inferForSamples(Collections.singleton(jnf.nullNode())));
+    assertThrows(IllegalArgumentException.class, () -> inferrer.inferForSample(jnf.pojoNode("")));
+    assertThrows(IllegalArgumentException.class,
+        () -> inferrer.inferForSample(jnf.arrayNode().add(jnf.pojoNode(""))));
+    assertThrows(IllegalArgumentException.class, () -> {
+      final ObjectNode sampleObj = jnf.objectNode();
+      sampleObj.set("foo",
+          jnf.arrayNode().add(jnf.arrayNode().add(jnf.arrayNode().add(jnf.pojoNode("")))));
+      inferrer.inferForSample(sampleObj);
+    });
   }
 
   @Test
