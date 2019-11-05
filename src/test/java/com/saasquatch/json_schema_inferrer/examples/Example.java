@@ -18,8 +18,8 @@ public class Example {
         "{\"one\":1,\"two\":\"https://saasquatch.com\",\"three\":[-1.5,\"127.0.0.1\"]}");
     final JsonNode sample2 = mapper.readTree(
         "{\"one\":\"-1111-11-11T11:11:11.111Z\",\"two\":\"hello@saasquat.ch\",\"three\":[{\"true\":true},[\"1234:abcd::1234\"]]}");
-    final ObjectNode resultForSample1 = inferrer.inferFromSample(sample1);
-    final ObjectNode resultForSample1And2 = inferrer.inferFromSamples(Arrays.asList(sample1, sample2));
+    final ObjectNode resultForSample1 = inferrer.inferForSample(sample1);
+    final ObjectNode resultForSample1And2 = inferrer.inferForSamples(Arrays.asList(sample1, sample2));
     for (JsonNode j : Arrays.asList(sample1, sample2, resultForSample1, resultForSample1And2)) {
       System.out.println(mapper.writeValueAsString(j));
     }

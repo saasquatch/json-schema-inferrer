@@ -36,53 +36,53 @@ public class JsonSchemaInferrerTest {
   @Test
   public void testBasic() {
     final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder().build();
-    assertDoesNotThrow(() -> inferrer.inferFromSample(null));
+    assertDoesNotThrow(() -> inferrer.inferForSample(null));
     assertThrows(IllegalArgumentException.class,
-        () -> inferrer.inferFromSamples(Collections.emptyList()));
+        () -> inferrer.inferForSamples(Collections.emptyList()));
     assertThrows(IllegalArgumentException.class,
-        () -> inferrer.inferFromSamples(Collections.singleton(jnf.missingNode())));
-    assertDoesNotThrow(() -> inferrer.inferFromSamples(Collections.singleton(null)));
-    assertDoesNotThrow(() -> inferrer.inferFromSamples(Collections.singleton(jnf.nullNode())));
+        () -> inferrer.inferForSamples(Collections.singleton(jnf.missingNode())));
+    assertDoesNotThrow(() -> inferrer.inferForSamples(Collections.singleton(null)));
+    assertDoesNotThrow(() -> inferrer.inferForSamples(Collections.singleton(jnf.nullNode())));
   }
 
   @Test
   public void testFormatInference() {
     assertEquals("email", JsonSchemaInferrer.newBuilder().build()
-        .inferFromSample(jnf.textNode("foo@bar.com")).path("format").textValue());
+        .inferForSample(jnf.textNode("foo@bar.com")).path("format").textValue());
     assertNull(JsonSchemaInferrer.newBuilder().withFormatInferrer(FormatInferrer.noOp()).build()
-        .inferFromSample(jnf.textNode("foo@bar.com")).path("format").textValue());
+        .inferForSample(jnf.textNode("foo@bar.com")).path("format").textValue());
     assertNull(JsonSchemaInferrer.newBuilder().withSpecVersion(SpecVersion.DRAFT_07).build()
-        .inferFromSample(jnf.textNode("aaaaaaaaa")).path("format").textValue());
+        .inferForSample(jnf.textNode("aaaaaaaaa")).path("format").textValue());
     assertEquals("ipv4", JsonSchemaInferrer.newBuilder().build()
-        .inferFromSample(jnf.textNode("1.2.3.4")).path("format").textValue());
+        .inferForSample(jnf.textNode("1.2.3.4")).path("format").textValue());
     assertEquals("ipv6", JsonSchemaInferrer.newBuilder().build()
-        .inferFromSample(jnf.textNode("1::1")).path("format").textValue());
+        .inferForSample(jnf.textNode("1::1")).path("format").textValue());
     assertEquals("uri", JsonSchemaInferrer.newBuilder().build()
-        .inferFromSample(jnf.textNode("https://saasquat.ch")).path("format").textValue());
+        .inferForSample(jnf.textNode("https://saasquat.ch")).path("format").textValue());
     assertEquals("date-time", JsonSchemaInferrer.newBuilder().build()
-        .inferFromSample(jnf.textNode(Instant.now().toString())).path("format").textValue());
+        .inferForSample(jnf.textNode(Instant.now().toString())).path("format").textValue());
     assertNull(JsonSchemaInferrer.newBuilder().withSpecVersion(SpecVersion.DRAFT_06).build()
-        .inferFromSample(jnf.textNode("1900-01-01")).path("format").textValue());
+        .inferForSample(jnf.textNode("1900-01-01")).path("format").textValue());
     assertEquals("date", JsonSchemaInferrer.newBuilder().withSpecVersion(SpecVersion.DRAFT_07)
-        .build().inferFromSample(jnf.textNode("1900-01-01")).path("format").textValue());
+        .build().inferForSample(jnf.textNode("1900-01-01")).path("format").textValue());
     assertNull(JsonSchemaInferrer.newBuilder().withSpecVersion(SpecVersion.DRAFT_06).build()
-        .inferFromSample(jnf.textNode("20:20:39")).path("format").textValue());
+        .inferForSample(jnf.textNode("20:20:39")).path("format").textValue());
     assertEquals("time", JsonSchemaInferrer.newBuilder().withSpecVersion(SpecVersion.DRAFT_07)
-        .build().inferFromSample(jnf.textNode("20:20:39")).path("format").textValue());
+        .build().inferForSample(jnf.textNode("20:20:39")).path("format").textValue());
   }
 
   @Test
   public void testSimpleExample() throws Exception {
     final JsonNode simple = loadJson("simple.json");
     {
-      final ObjectNode schema = JsonSchemaInferrer.newBuilder().build().inferFromSample(simple);
+      final ObjectNode schema = JsonSchemaInferrer.newBuilder().build().inferForSample(simple);
       assertTrue(schema.hasNonNull("$schema"));
       assertTrue(schema.path("$schema").textValue().contains("-04"));
       assertTrue(schema.hasNonNull("type"));
     }
     {
       final ObjectNode schema = JsonSchemaInferrer.newBuilder()
-          .withSpecVersion(SpecVersion.DRAFT_06).build().inferFromSample(simple);
+          .withSpecVersion(SpecVersion.DRAFT_06).build().inferForSample(simple);
       assertTrue(schema.hasNonNull("$schema"));
       assertTrue(schema.path("$schema").textValue().contains("-06"));
       assertTrue(schema.hasNonNull("type"));
@@ -90,12 +90,12 @@ public class JsonSchemaInferrerTest {
     {
       final ObjectNode schema =
           JsonSchemaInferrer.newBuilder().withSpecVersion(SpecVersion.DRAFT_06)
-              .includeMetaSchemaUrl(false).build().inferFromSample(simple);
+              .includeMetaSchemaUrl(false).build().inferForSample(simple);
       assertFalse(schema.hasNonNull("$schema"));
       assertTrue(schema.hasNonNull("type"));
     }
     {
-      final ObjectNode schema = JsonSchemaInferrer.newBuilder().build().inferFromSample(simple);
+      final ObjectNode schema = JsonSchemaInferrer.newBuilder().build().inferForSample(simple);
       assertTrue(schema.hasNonNull("properties"));
       assertTrue(schema.path("properties").isObject());
       assertEquals("integer", schema.path("properties").path("id").path("type").textValue());
@@ -124,7 +124,7 @@ public class JsonSchemaInferrerTest {
   public void testAdvancedExample() throws Exception {
     final JsonNode advanced = loadJson("advanced.json");
     {
-      final ObjectNode schema = JsonSchemaInferrer.newBuilder().build().inferFromSample(advanced);
+      final ObjectNode schema = JsonSchemaInferrer.newBuilder().build().inferForSample(advanced);
       assertTrue(schema.path("items").isObject());
       assertTrue(schema.path("items").path("properties").path("tags").isObject());
       assertEquals("integer",

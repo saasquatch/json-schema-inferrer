@@ -35,7 +35,7 @@ import com.flipkart.zjsonpatch.JsonDiff;
  *
  * @author sli
  * @see #newBuilder()
- * @see #inferFromSample(JsonNode)
+ * @see #inferForSample(JsonNode)
  */
 @Immutable
 public final class JsonSchemaInferrer {
@@ -64,8 +64,8 @@ public final class JsonSchemaInferrer {
    * @return the inferred JSON schema
    */
   @Nonnull
-  public ObjectNode inferFromSample(@Nullable JsonNode sample) {
-    return inferFromSamples(Collections.singleton(sample));
+  public ObjectNode inferForSample(@Nullable JsonNode sample) {
+    return inferForSamples(Collections.singleton(sample));
   }
 
   /**
@@ -75,7 +75,7 @@ public final class JsonSchemaInferrer {
    * @return the inferred JSON schema
    */
   @Nonnull
-  public ObjectNode inferFromSamples(@Nonnull Collection<JsonNode> samples) {
+  public ObjectNode inferForSamples(@Nonnull Collection<JsonNode> samples) {
     final Set<JsonNode> processedSamples = preProcessJsonNodes(samples);
     if (processedSamples.isEmpty()) {
       throw new IllegalArgumentException("Unable to process empty Collection");
