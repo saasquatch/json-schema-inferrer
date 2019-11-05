@@ -43,15 +43,18 @@ public final class JsonSchemaInferrer {
   private final SpecVersion specVersion;
   private final boolean includeMetaSchemaUrl;
   private final AdditionalPropertiesPolicy additionalPropertiesPolicy;
+  private final RequiredPolicy requiredPolicy;
   private final FormatInferrer formatInferrer;
   private final TitleGenerator titleGenerator;
 
   private JsonSchemaInferrer(@Nonnull SpecVersion specVersion, boolean includeMetaSchemaUrl,
       @Nonnull AdditionalPropertiesPolicy additionalPropertiesPolicy,
-      @Nonnull FormatInferrer formatInferrer, @Nonnull TitleGenerator titleGenerator) {
+      @Nonnull RequiredPolicy requiredPolicy, @Nonnull FormatInferrer formatInferrer,
+      @Nonnull TitleGenerator titleGenerator) {
     this.specVersion = specVersion;
     this.includeMetaSchemaUrl = includeMetaSchemaUrl;
     this.additionalPropertiesPolicy = additionalPropertiesPolicy;
+    this.requiredPolicy = requiredPolicy;
     this.formatInferrer = formatInferrer;
     this.titleGenerator = titleGenerator;
   }
@@ -175,6 +178,7 @@ public final class JsonSchemaInferrer {
       schema.set(Consts.Fields.PROPERTIES, properties);
     }
     handleObjectAdditionalProperties(schema);
+    handleObjectRequired(schema, objectNodes, allFieldNames);
     return schema;
   }
 
@@ -393,12 +397,54 @@ public final class JsonSchemaInferrer {
     }
   }
 
+  private void handleObjectRequired(@Nonnull ObjectNode schema,
+      @Nonnull Collection<ObjectNode> objectNodes, @Nonnull Set<String> allFieldNames) {
+    final JsonNode required = requiredPolicy.getRequired(new RequiredPolicyInput() {
+
+      private Set<String> commonFieldNames;
+
+      @Override
+      public ObjectNode getSchema() {
+        return schema;
+      }
+
+      @Override
+      public Set<String> getCommonFieldNames() {
+        Set<String> result = commonFieldNames;
+        if (result == null) {
+          commonFieldNames = result = _getCommonFieldNames();
+        }
+        return result;
+      }
+
+      private Set<String> _getCommonFieldNames() {
+        final Set<String> commonFieldNames = new HashSet<>(allFieldNames);
+        for (ObjectNode objectNode : objectNodes) {
+          final Set<String> fieldNames = stream(objectNode.fieldNames())
+              .collect(Collectors.toSet());
+          commonFieldNames.retainAll(fieldNames);
+        }
+        return Collections.unmodifiableSet(commonFieldNames);
+      }
+
+      @Override
+      public SpecVersion getSpecVersion() {
+        return specVersion;
+      }
+
+    });
+    if (required != null) {
+      schema.set(Consts.Fields.REQUIRED, required);
+    }
+  }
+
   public static final class Builder {
 
     private SpecVersion specVersion = SpecVersion.DRAFT_04;
     private boolean includeMetaSchemaUrl = true;
     private AdditionalPropertiesPolicy additionalPropertiesPolicy =
         AdditionalPropertiesPolicies.noOp();
+    private RequiredPolicy requiredPolicy = RequiredPolicies.noOp();
     private FormatInferrer formatInferrer = FormatInferrers.defaultImpl();
     private TitleGenerator titleGenerator = TitleGenerators.noOp();
 
@@ -430,6 +476,17 @@ public final class JsonSchemaInferrer {
     public Builder withAdditionalPropertiesPolicy(
         @Nonnull AdditionalPropertiesPolicy additionalPropertiesPolicy) {
       this.additionalPropertiesPolicy = Objects.requireNonNull(additionalPropertiesPolicy);
+      return this;
+    }
+
+    /**
+     * Set the {@link RequiredPolicy}. By default it is {@link RequiredPolicies#noOp()}.
+     *
+     * @see RequiredPolicy
+     * @see RequiredPolicies
+     */
+    public Builder withRequiredPolicy(@Nonnull RequiredPolicy requiredPolicy) {
+      this.requiredPolicy = Objects.requireNonNull(requiredPolicy);
       return this;
     }
 
@@ -469,7 +526,7 @@ public final class JsonSchemaInferrer {
      */
     public JsonSchemaInferrer build() {
       return new JsonSchemaInferrer(specVersion, includeMetaSchemaUrl, additionalPropertiesPolicy,
-          formatInferrer, titleGenerator);
+          requiredPolicy, formatInferrer, titleGenerator);
     }
 
   }
