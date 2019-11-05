@@ -50,15 +50,22 @@ interface JunkDrawer {
   /**
    * Combine multiple {@link ArrayNode} with their unique elements
    */
-  static ArrayNode combineArrays(@Nonnull Collection<ArrayNode> arrays) {
+  static ArrayNode combineArraysDistinct(@Nonnull Collection<ArrayNode> arrays) {
     final ArrayNode result = JsonNodeFactory.instance.arrayNode();
     arrays.stream().flatMap(JunkDrawer::stream).distinct().forEach(result::add);
     return result;
   }
 
-  static ArrayNode stringColToArrayNode(@Nonnull Collection<String> strings) {
+  /**
+   * Build an {@link ArrayNode} with distinct strings
+   */
+  static ArrayNode stringColToArrayDistinct(@Nonnull Collection<String> strings) {
     final ArrayNode result = JsonNodeFactory.instance.arrayNode();
-    strings.forEach(result::add);
+    if (strings instanceof Set) {
+      strings.forEach(result::add);
+    } else {
+      strings.stream().distinct().forEach(result::add);
+    }
     return result;
   }
 

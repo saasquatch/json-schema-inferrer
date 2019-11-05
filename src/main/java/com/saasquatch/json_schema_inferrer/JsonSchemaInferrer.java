@@ -1,13 +1,13 @@
 package com.saasquatch.json_schema_inferrer;
 
-import static com.saasquatch.json_schema_inferrer.JunkDrawer.combineArrays;
+import static com.saasquatch.json_schema_inferrer.JunkDrawer.combineArraysDistinct;
 import static com.saasquatch.json_schema_inferrer.JunkDrawer.format;
 import static com.saasquatch.json_schema_inferrer.JunkDrawer.getAllFieldNames;
 import static com.saasquatch.json_schema_inferrer.JunkDrawer.getAllValuesForFieldName;
 import static com.saasquatch.json_schema_inferrer.JunkDrawer.newArray;
 import static com.saasquatch.json_schema_inferrer.JunkDrawer.newObject;
 import static com.saasquatch.json_schema_inferrer.JunkDrawer.stream;
-import static com.saasquatch.json_schema_inferrer.JunkDrawer.stringColToArrayNode;
+import static com.saasquatch.json_schema_inferrer.JunkDrawer.stringColToArrayDistinct;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -315,7 +315,7 @@ public final class JsonSchemaInferrer {
       addAnyOf(anyOfs, processObjects(objectNodes));
     }
     if (!arrayNodes.isEmpty()) {
-      addAnyOf(anyOfs, processArray(combineArrays(arrayNodes)));
+      addAnyOf(anyOfs, processArray(combineArraysDistinct(arrayNodes)));
     }
     postProcessAnyOfs(anyOfs);
     return anyOfs;
@@ -379,7 +379,7 @@ public final class JsonSchemaInferrer {
     // Combine all the simple types into an array
     anyOfs.removeAll(simpleAnyOfs);
     final ObjectNode combinedSimpleAnyOf = newObject();
-    combinedSimpleAnyOf.set(Consts.Fields.TYPE, stringColToArrayNode(simpleTypes));
+    combinedSimpleAnyOf.set(Consts.Fields.TYPE, stringColToArrayDistinct(simpleTypes));
     anyOfs.add(combinedSimpleAnyOf);
   }
 

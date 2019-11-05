@@ -9,7 +9,7 @@ import javax.annotation.Nullable;
  * strings
  *
  * @author sli
- * @see StaticFormatInferrer
+ * @see FormatInferrers
  */
 @FunctionalInterface
 public interface FormatInferrer {

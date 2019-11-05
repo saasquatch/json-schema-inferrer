@@ -2,7 +2,7 @@ package com.saasquatch.json_schema_inferrer;
 
 import static com.saasquatch.json_schema_inferrer.JunkDrawer.newObject;
 import static com.saasquatch.json_schema_inferrer.JunkDrawer.stream;
-import static com.saasquatch.json_schema_inferrer.JunkDrawer.stringColToArrayNode;
+import static com.saasquatch.json_schema_inferrer.JunkDrawer.stringColToArrayDistinct;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -76,7 +76,7 @@ public class AdditionalPropertiesPolicies {
           additionalProps.put(Consts.Fields.TYPE, existingTypes.iterator().next());
           break;
         default:
-          additionalProps.set(Consts.Fields.TYPE, stringColToArrayNode(existingTypes));
+          additionalProps.set(Consts.Fields.TYPE, stringColToArrayDistinct(existingTypes));
           break;
       }
       schema.set(Consts.Fields.ADDITIONAL_PROPERTIES, additionalProps);
