@@ -12,6 +12,7 @@ import javax.annotation.Nonnull;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
  * Exactly what it sounds like. NOT PUBLIC!!!
@@ -20,6 +21,9 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
  */
 interface JunkDrawer {
 
+  /**
+   * String.format with {@link Locale#ROOT}
+   */
   static String format(String format, Object... args) {
     return String.format(Locale.ROOT, format, args);
   }
@@ -35,6 +39,17 @@ interface JunkDrawer {
     return StreamSupport.stream(iter.spliterator(), false);
   }
 
+  static ObjectNode newObject() {
+    return JsonNodeFactory.instance.objectNode();
+  }
+
+  static ArrayNode newArray() {
+    return JsonNodeFactory.instance.arrayNode();
+  }
+
+  /**
+   * Combine multiple {@link ArrayNode} with their unique elements
+   */
   static ArrayNode combineArrays(@Nonnull Collection<ArrayNode> arrays) {
     final ArrayNode result = JsonNodeFactory.instance.arrayNode();
     arrays.stream().flatMap(JunkDrawer::stream).distinct().forEach(result::add);
@@ -47,12 +62,18 @@ interface JunkDrawer {
     return result;
   }
 
+  /**
+   * Get all the unique field names across multiple {@link ObjectNode}s
+   */
   static Set<String> getAllFieldNames(@Nonnull Iterable<? extends JsonNode> objectNodes) {
     return stream(objectNodes)
         .flatMap(j -> stream(j.fieldNames()))
         .collect(Collectors.toSet());
   }
 
+  /**
+   * Get all the unique values for a field name across multiple {@link ObjectNode}s
+   */
   static Set<JsonNode> getAllValuesForFieldName(@Nonnull Iterable<? extends JsonNode> objectNodes,
       @Nonnull String fieldName) {
     return stream(objectNodes)

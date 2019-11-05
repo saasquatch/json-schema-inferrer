@@ -4,6 +4,8 @@ import static com.saasquatch.json_schema_inferrer.JunkDrawer.combineArrays;
 import static com.saasquatch.json_schema_inferrer.JunkDrawer.format;
 import static com.saasquatch.json_schema_inferrer.JunkDrawer.getAllFieldNames;
 import static com.saasquatch.json_schema_inferrer.JunkDrawer.getAllValuesForFieldName;
+import static com.saasquatch.json_schema_inferrer.JunkDrawer.newArray;
+import static com.saasquatch.json_schema_inferrer.JunkDrawer.newObject;
 import static com.saasquatch.json_schema_inferrer.JunkDrawer.stream;
 import static com.saasquatch.json_schema_inferrer.JunkDrawer.stringColToArrayNode;
 import java.util.ArrayList;
@@ -74,10 +76,7 @@ public final class JsonSchemaInferrer {
    */
   @Nonnull
   public ObjectNode inferFromSamples(@Nonnull Collection<JsonNode> samples) {
-    final Set<JsonNode> processedSamples = samples.stream()
-        .map(this::preProcessJsonNode)
-        .filter(Objects::nonNull)
-        .collect(Collectors.toSet());
+    final Set<JsonNode> processedSamples = preProcessJsonNodes(samples);
     if (processedSamples.isEmpty()) {
       throw new IllegalArgumentException("Unable to process empty Collection");
     }
@@ -100,6 +99,11 @@ public final class JsonSchemaInferrer {
     return result;
   }
 
+  /**
+   * Pre-process a {@link JsonNode} input. Note that {@code null}s produced by this method should be
+   * discarded.
+   */
+  @Nullable
   private JsonNode preProcessJsonNode(@Nullable JsonNode value) {
     if (value == null) {
       // Treat null as NullNode
@@ -114,10 +118,20 @@ public final class JsonSchemaInferrer {
   }
 
   @Nonnull
+  private Set<JsonNode> preProcessJsonNodes(@Nonnull Iterable<JsonNode> values) {
+    return stream(values)
+        .map(this::preProcessJsonNode)
+        .filter(Objects::nonNull)
+        .collect(Collectors.toSet());
+  }
+
+  @Nonnull
   private static String inferType(@Nullable JsonNode value) {
     if (value == null) {
       return Consts.Types.NULL;
     }
+    // Marker for whether the error is caused by a known type
+    boolean knownType = false;
     final JsonNodeType type = value.getNodeType();
     switch (type) {
       case ARRAY:
@@ -127,7 +141,8 @@ public final class JsonSchemaInferrer {
       case BOOLEAN:
         return Consts.Types.BOOLEAN;
       case MISSING:
-        return Consts.Types.NULL;
+        knownType = true;
+        break;
       case NULL:
         return Consts.Types.NULL;
       case NUMBER:
@@ -135,14 +150,20 @@ public final class JsonSchemaInferrer {
       case OBJECT:
         return Consts.Types.OBJECT;
       case POJO:
-        throw new IllegalArgumentException(POJONode.class.getSimpleName() + " not supported");
+        knownType = true;
+        break;
       case STRING:
         return Consts.Types.STRING;
       default:
         break;
     }
-    throw new IllegalArgumentException(
-        format("Unrecognized %s: %s", type.getClass().getSimpleName(), type));
+    if (knownType) {
+      throw new IllegalArgumentException(
+          format("Unexpected %s: %s encountered", type.getClass().getSimpleName(), type));
+    } else {
+      throw new IllegalArgumentException(
+          format("Unrecognized %s: %s", type.getClass().getSimpleName(), type));
+    }
   }
 
   @Nullable
@@ -197,13 +218,14 @@ public final class JsonSchemaInferrer {
     final ObjectNode properties = newObject();
     for (String fieldName : fieldNames) {
       // Get the vals from samples that have the field name. vals cannot be empty.
-      final Set<JsonNode> vals = getAllValuesForFieldName(objectNodes, fieldName);
+      final Set<JsonNode> samples =
+          preProcessJsonNodes(getAllValuesForFieldName(objectNodes, fieldName));
       final ObjectNode newProperty = newObject();
       final String title = generateTitle(fieldName);
       if (title != null) {
         newProperty.put(Consts.Fields.TITLE, title);
       }
-      final Collection<ObjectNode> anyOfs = getAnyOfsFromSamples(vals);
+      final Collection<ObjectNode> anyOfs = getAnyOfsFromSamples(samples);
       switch (anyOfs.size()) {
         case 0:
           // anyOfs cannot be empty here, since we should have at least one match of the fieldName
@@ -226,8 +248,9 @@ public final class JsonSchemaInferrer {
 
   @Nonnull
   private ObjectNode processArray(@Nonnull ArrayNode arrayNode) {
+    final Set<JsonNode> samples = preProcessJsonNodes(arrayNode);
     final ObjectNode items;
-    final Collection<ObjectNode> anyOfs = getAnyOfsFromSamples(arrayNode);
+    final Collection<ObjectNode> anyOfs = getAnyOfsFromSamples(samples);
     switch (anyOfs.size()) {
       case 0:
         // anyOfs can be empty here, since the original array can be empty
@@ -250,18 +273,18 @@ public final class JsonSchemaInferrer {
 
   /**
    * Build {@code anyOf} from sample JSONs. Note that all the arrays and objects will be combined.
+   *
+   * @param samples the <em>processed</em> samples that have gone through
+   *        {@link #preProcessJsonNode(JsonNode)}
    */
   @Nonnull
-  private Collection<ObjectNode> getAnyOfsFromSamples(@Nonnull Iterable<JsonNode> samples) {
+  private Collection<ObjectNode> getAnyOfsFromSamples(@Nonnull Set<JsonNode> samples) {
     // Using LinkedList on purpose here since we do a lot of add and remove
     final Collection<ObjectNode> anyOfs = new LinkedList<>();
     final Set<ObjectNode> objectNodes = new HashSet<>();
     final Set<ArrayNode> arrayNodes = new HashSet<>();
-    for (JsonNode rawSample : samples) {
-      final JsonNode sample = preProcessJsonNode(rawSample);
-      if (sample == null) {
-        continue;
-      } else if (sample instanceof ObjectNode) {
+    for (JsonNode sample : samples) {
+      if (sample instanceof ObjectNode) {
         objectNodes.add((ObjectNode) sample);
       } else if (sample instanceof ArrayNode) {
         arrayNodes.add((ArrayNode) sample);
@@ -405,14 +428,6 @@ public final class JsonSchemaInferrer {
           titleGenerator);
     }
 
-  }
-
-  private static ObjectNode newObject() {
-    return JsonNodeFactory.instance.objectNode();
-  }
-
-  private static ArrayNode newArray() {
-    return JsonNodeFactory.instance.arrayNode();
   }
 
 }
