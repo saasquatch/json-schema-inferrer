@@ -233,7 +233,9 @@ public final class JsonSchemaInferrer {
       }
     }
     final ObjectNode result = newObject().put(Consts.Fields.TYPE, Consts.Types.ARRAY);
-    result.set(Consts.Fields.ITEMS, items);
+    if (items.size() > 0) {
+      result.set(Consts.Fields.ITEMS, items);
+    }
     return result;
   }
 
