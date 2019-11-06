@@ -1,6 +1,8 @@
 package com.saasquatch.json_schema_inferrer;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Set;
@@ -87,6 +89,26 @@ interface JunkDrawer {
         .map(j -> j.path(fieldName))
         .filter(j -> !j.isMissingNode())
         .collect(Collectors.toSet());
+  }
+
+  @Nonnull
+  static Set<String> getCommonFieldNames(@Nonnull Collection<? extends JsonNode> samples,
+      boolean requireNonNull) {
+    Set<String> commonFieldNames = null;
+    for (JsonNode sample : samples) {
+      final Set<String> fieldNames = stream(sample.fieldNames())
+          .filter(requireNonNull
+              ? fieldName -> !sample.path(fieldName).isNull()
+              : fieldName -> true)
+          .collect(Collectors.toSet());
+      if (commonFieldNames == null) {
+        commonFieldNames = new HashSet<>(fieldNames);
+      } else {
+        commonFieldNames.retainAll(fieldNames);
+      }
+    }
+    return commonFieldNames == null ? Collections.emptySet()
+        : Collections.unmodifiableSet(commonFieldNames);
   }
 
 }

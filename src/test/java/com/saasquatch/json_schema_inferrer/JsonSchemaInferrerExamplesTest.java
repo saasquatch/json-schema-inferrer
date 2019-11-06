@@ -220,7 +220,7 @@ public class JsonSchemaInferrerExamplesTest {
       for (AdditionalPropertiesPolicy additionalPropertiesPolicy : Arrays.asList(
           AdditionalPropertiesPolicies.noOp(), AdditionalPropertiesPolicies.existingTypes())) {
         for (RequiredPolicy requiredPolicy : Arrays.asList(RequiredPolicies.noOp(),
-            RequiredPolicies.commonFieldNames())) {
+            RequiredPolicies.commonFields())) {
           for (boolean inferFormat : Arrays.asList(true, false)) {
             for (TitleGenerator titleGenerator : Arrays.asList(TitleGenerators.noOp(),
                 TitleGenerators.useFieldNames())) {

@@ -26,7 +26,7 @@ public class Example {
       JsonSchemaInferrer.newBuilder()
           .withSpecVersion(SpecVersion.DRAFT_06)
           .withAdditionalPropertiesPolicy(AdditionalPropertiesPolicies.notAllowed())
-          .withRequiredPolicy(RequiredPolicies.nonNullCommonFieldNames())
+          .withRequiredPolicy(RequiredPolicies.nonNullCommonFields())
           .withTitleGenerator(TitleGenerators.useFieldNames())
           .build();
 

@@ -15,8 +15,8 @@ public class LambdaSingletonTest {
     doTest(FormatInferrers::noOp);
     doTest(FormatInferrers::defaultImpl);
     doTest(RequiredPolicies::noOp);
-    doTest(RequiredPolicies::commonFieldNames);
-    doTest(RequiredPolicies::nonNullCommonFieldNames);
+    doTest(RequiredPolicies::commonFields);
+    doTest(RequiredPolicies::nonNullCommonFields);
     doTest(TitleGenerators::noOp);
     doTest(TitleGenerators::useFieldNames);
   }
