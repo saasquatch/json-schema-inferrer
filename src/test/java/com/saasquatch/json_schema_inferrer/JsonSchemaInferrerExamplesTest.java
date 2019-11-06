@@ -236,8 +236,8 @@ public class JsonSchemaInferrerExamplesTest {
                       .withAdditionalPropertiesPolicy(additionalPropertiesPolicy)
                       .withRequiredPolicy(requiredPolicy)
                       .withTitleGenerator(titleGenerator);
-              if (!inferFormat) {
-                builder.withFormatInferrer(FormatInferrers.noOp());
+              if (inferFormat) {
+                builder.withFormatInferrer(FormatInferrers.dateTime());
               }
               try {
                 inferrers.add(builder.build());

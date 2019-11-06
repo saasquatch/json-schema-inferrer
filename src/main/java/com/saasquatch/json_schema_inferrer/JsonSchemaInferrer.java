@@ -424,7 +424,7 @@ public final class JsonSchemaInferrer {
     private AdditionalPropertiesPolicy additionalPropertiesPolicy =
         AdditionalPropertiesPolicies.noOp();
     private RequiredPolicy requiredPolicy = RequiredPolicies.noOp();
-    private FormatInferrer formatInferrer = FormatInferrers.defaultImpl();
+    private FormatInferrer formatInferrer = FormatInferrers.noOp();
     private TitleGenerator titleGenerator = TitleGenerators.noOp();
 
     private Builder() {}
@@ -472,9 +472,10 @@ public final class JsonSchemaInferrer {
     /**
      * Set the {@link FormatInferrer} for inferring the <a href=
      * "https://json-schema.org/understanding-json-schema/reference/string.html#format">format</a>
-     * of strings. By default it uses {@link FormatInferrers#defaultImpl()}, which implements a
-     * subset of standard formats. To use custom formats, provide your own implementation. To
-     * disable string format inference, use {@link FormatInferrer#noOp()}.<br>
+     * of strings. By default it uses {@link FormatInferrers#noOp()}. An example of a possible
+     * custom implementation is available at {@link FormatInferrers#dateTime()}, which you can
+     * potentially use or use it combined with your own implementations with
+     * {@link FormatInferrers#chained(FormatInferrer...)}.<br>
      * Note that if your JSON samples have large nested arrays, it's recommended to set this to
      * false to prevent confusing outputs.
      *

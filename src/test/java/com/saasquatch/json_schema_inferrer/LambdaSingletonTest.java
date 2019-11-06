@@ -13,7 +13,7 @@ public class LambdaSingletonTest {
     doTest(AdditionalPropertiesPolicies::notAllowed);
     doTest(AdditionalPropertiesPolicies::existingTypes);
     doTest(FormatInferrers::noOp);
-    doTest(FormatInferrers::defaultImpl);
+    doTest(FormatInferrers::dateTime);
     doTest(RequiredPolicies::noOp);
     doTest(RequiredPolicies::commonFields);
     doTest(RequiredPolicies::nonNullCommonFields);
