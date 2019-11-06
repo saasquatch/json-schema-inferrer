@@ -35,7 +35,7 @@ public final class FormatInferrers {
         } catch (Exception e) {
           // Ignore
         }
-        if (input.getSpecVersion() == SpecVersion.DRAFT_07) {
+        if (input.getSpecVersion().compareTo(SpecVersion.DRAFT_07) >= 0) {
           try {
             LocalTime.parse(textValue);
             return "time";

@@ -9,11 +9,15 @@ import static com.saasquatch.json_schema_inferrer.JunkDrawer.newObject;
 import static com.saasquatch.json_schema_inferrer.JunkDrawer.stream;
 import static com.saasquatch.json_schema_inferrer.JunkDrawer.stringColToArrayDistinct;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -41,17 +45,19 @@ public final class JsonSchemaInferrer {
 
   private final SpecVersion specVersion;
   private final boolean includeMetaSchemaUrl;
+  private final int examplesLimit;
   private final AdditionalPropertiesPolicy additionalPropertiesPolicy;
   private final RequiredPolicy requiredPolicy;
   private final FormatInferrer formatInferrer;
   private final TitleGenerator titleGenerator;
 
   private JsonSchemaInferrer(@Nonnull SpecVersion specVersion, boolean includeMetaSchemaUrl,
-      @Nonnull AdditionalPropertiesPolicy additionalPropertiesPolicy,
+      int examplesLimit, @Nonnull AdditionalPropertiesPolicy additionalPropertiesPolicy,
       @Nonnull RequiredPolicy requiredPolicy, @Nonnull FormatInferrer formatInferrer,
       @Nonnull TitleGenerator titleGenerator) {
     this.specVersion = specVersion;
     this.includeMetaSchemaUrl = includeMetaSchemaUrl;
+    this.examplesLimit = examplesLimit;
     this.additionalPropertiesPolicy = additionalPropertiesPolicy;
     this.requiredPolicy = requiredPolicy;
     this.formatInferrer = formatInferrer;
@@ -128,14 +134,46 @@ public final class JsonSchemaInferrer {
   }
 
   @Nonnull
-  private ObjectNode processPrimitive(@Nonnull ValueNode valueNode) {
-    final ObjectNode schema = newObject();
-    schema.put(Consts.Fields.TYPE, inferType(valueNode));
-    final String format = inferFormat(valueNode);
-    if (format != null) {
-      schema.put(Consts.Fields.FORMAT, format);
+  private Collection<ObjectNode> processPrimitives(@Nonnull Collection<ValueNode> valueNodes) {
+    final Collection<ObjectNode> anyOfs = new LinkedList<>();
+    /*
+     * Map to keep track of examples. The keys are pairs of [type, format] stored in Lists, and the
+     * vales are examples for that type/format combo.
+     */
+    final Map<List<String>, Set<ValueNode>> examplesMap = new HashMap<>();
+    for (ValueNode valueNode : valueNodes) {
+      final ObjectNode newAnyOf = newObject();
+      final String type = inferType(valueNode);
+      newAnyOf.put(Consts.Fields.TYPE, type);
+      final String format = inferFormat(valueNode);
+      if (format != null) {
+        newAnyOf.put(Consts.Fields.FORMAT, format);
+      }
+      // Keep track of examples if examples is enabled
+      if (examplesLimit > 0) {
+        examplesMap.compute(Arrays.asList(type, format), (typeFormatPair, originalExamples) -> {
+          final Set<ValueNode> newExamples =
+              originalExamples == null ? new HashSet<>() : originalExamples;
+          if (newExamples.size() < examplesLimit) {
+            newExamples.add(valueNode);
+          }
+          return newExamples;
+        });
+      }
+      anyOfs.add(newAnyOf);
     }
-    return schema;
+    if (examplesLimit > 0) {
+      for (ObjectNode anyOf : anyOfs) {
+        final String type = anyOf.path(Consts.Fields.TYPE).textValue();
+        final String format = anyOf.path(Consts.Fields.FORMAT).textValue();
+        final Set<ValueNode> examples =
+            examplesMap.getOrDefault(Arrays.asList(type, format), Collections.emptySet());
+        if (!examples.isEmpty()) {
+          anyOf.set(Consts.Fields.EXAMPLES, newArray().addAll(examples));
+        }
+      }
+    }
+    return anyOfs;
   }
 
   @Nonnull
@@ -215,14 +253,14 @@ public final class JsonSchemaInferrer {
     final Collection<ObjectNode> anyOfs = new LinkedList<>();
     final Set<ObjectNode> objectNodes = new HashSet<>();
     final Set<ArrayNode> arrayNodes = new HashSet<>();
+    final Set<ValueNode> valueNodes = new HashSet<>();
     for (JsonNode sample : samples) {
       if (sample instanceof ObjectNode) {
         objectNodes.add((ObjectNode) sample);
       } else if (sample instanceof ArrayNode) {
         arrayNodes.add((ArrayNode) sample);
       } else {
-        // input is null or a ValueNode
-        addAnyOf(anyOfs, processPrimitive((ValueNode) sample));
+        valueNodes.add((ValueNode) sample);
       }
     }
     if (!objectNodes.isEmpty()) {
@@ -230,6 +268,9 @@ public final class JsonSchemaInferrer {
     }
     if (!arrayNodes.isEmpty()) {
       addAnyOf(anyOfs, processArray(combineArraysDistinct(arrayNodes)));
+    }
+    if (!valueNodes.isEmpty()) {
+      processPrimitives(valueNodes).forEach(newAnyOf -> addAnyOf(anyOfs, newAnyOf));
     }
     postProcessAnyOfs(anyOfs);
     return Collections.unmodifiableCollection(anyOfs);
@@ -417,6 +458,7 @@ public final class JsonSchemaInferrer {
 
     private SpecVersion specVersion = SpecVersion.DRAFT_04;
     private boolean includeMetaSchemaUrl = true;
+    private int examplesLimit = -1;
     private AdditionalPropertiesPolicy additionalPropertiesPolicy =
         AdditionalPropertiesPolicies.noOp();
     private RequiredPolicy requiredPolicy = RequiredPolicies.noOp();
@@ -438,6 +480,17 @@ public final class JsonSchemaInferrer {
      */
     public Builder includeMetaSchemaUrl(boolean includeMetaSchemaUrl) {
       this.includeMetaSchemaUrl = includeMetaSchemaUrl;
+      return this;
+    }
+
+    /**
+     * Set the max length for {@code examples}. 0 to disable {@code examples}.
+     */
+    public Builder withExamplesLimit(int examplesLimit) {
+      if (examplesLimit < 0) {
+        throw new IllegalArgumentException("Invalid examplesLimit");
+      }
+      this.examplesLimit = examplesLimit;
       return this;
     }
 
@@ -501,8 +554,12 @@ public final class JsonSchemaInferrer {
      * @throws IllegalArgumentException if the spec version and features don't match up
      */
     public JsonSchemaInferrer build() {
-      return new JsonSchemaInferrer(specVersion, includeMetaSchemaUrl, additionalPropertiesPolicy,
-          requiredPolicy, formatInferrer, titleGenerator);
+      if (specVersion.compareTo(SpecVersion.DRAFT_06) < 0 && examplesLimit > 0) {
+        throw new IllegalArgumentException(
+            format("examples not supported with spec version[%s]", specVersion.getMetaSchemaUrl()));
+      }
+      return new JsonSchemaInferrer(specVersion, includeMetaSchemaUrl, examplesLimit,
+          additionalPropertiesPolicy, requiredPolicy, formatInferrer, titleGenerator);
     }
 
   }
