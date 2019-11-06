@@ -51,7 +51,7 @@ interface JunkDrawer {
    * Combine multiple {@link ArrayNode} with their unique elements
    */
   static ArrayNode combineArraysDistinct(@Nonnull Collection<ArrayNode> arrays) {
-    final ArrayNode result = JsonNodeFactory.instance.arrayNode();
+    final ArrayNode result = newArray();
     arrays.stream().flatMap(JunkDrawer::stream).distinct().forEach(result::add);
     return result;
   }
@@ -60,7 +60,7 @@ interface JunkDrawer {
    * Build an {@link ArrayNode} with distinct strings
    */
   static ArrayNode stringColToArrayDistinct(@Nonnull Collection<String> strings) {
-    final ArrayNode result = JsonNodeFactory.instance.arrayNode();
+    final ArrayNode result = newArray();
     if (strings instanceof Set) {
       strings.forEach(result::add);
     } else {
