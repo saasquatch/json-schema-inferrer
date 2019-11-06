@@ -24,7 +24,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
-import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.POJONode;
 import com.fasterxml.jackson.databind.node.ValueNode;
@@ -132,7 +131,7 @@ public final class JsonSchemaInferrer {
   }
 
   @Nonnull
-  private ObjectNode processPrimitive(@Nullable ValueNode valueNode) {
+  private ObjectNode processPrimitive(@Nonnull ValueNode valueNode) {
     final ObjectNode schema = newObject();
     schema.put(Consts.Fields.TYPE, inferType(valueNode));
     final String format = inferFormat(valueNode);
@@ -302,10 +301,7 @@ public final class JsonSchemaInferrer {
   }
 
   @Nonnull
-  private static String inferType(@Nullable JsonNode value) {
-    if (value == null) {
-      return Consts.Types.NULL;
-    }
+  private static String inferType(@Nonnull JsonNode value) {
     // Marker for whether the error is caused by a known type
     boolean knownType = false;
     final JsonNodeType type = value.getNodeType();
@@ -343,13 +339,12 @@ public final class JsonSchemaInferrer {
   }
 
   @Nullable
-  private String inferFormat(@Nullable JsonNode value) {
-    final JsonNode valueNodeToUse = value == null ? NullNode.getInstance() : value;
+  private String inferFormat(@Nonnull JsonNode value) {
     return formatInferrer.infer(new FormatInferrerInput() {
 
       @Override
-      public JsonNode getJsonNode() {
-        return valueNodeToUse;
+      public JsonNode getSample() {
+        return value;
       }
 
       @Override

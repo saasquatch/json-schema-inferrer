@@ -14,7 +14,7 @@ public interface FormatInferrerInput {
    * @return The input text value for inference
    */
   @Nonnull
-  JsonNode getJsonNode();
+  JsonNode getSample();
 
   @Nonnull
   SpecVersion getSpecVersion();

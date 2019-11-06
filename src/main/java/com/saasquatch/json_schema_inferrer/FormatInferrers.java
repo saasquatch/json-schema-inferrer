@@ -23,7 +23,7 @@ public final class FormatInferrers {
    */
   static FormatInferrer defaultImpl() {
     return input -> {
-      final String textValue = input.getJsonNode().textValue();
+      final String textValue = input.getSample().textValue();
       if (textValue != null) {
         try {
           ZonedDateTime.parse(textValue);
