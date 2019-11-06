@@ -387,7 +387,7 @@ public final class JsonSchemaInferrer {
           }
 
           @Override
-          public SpecVersion specVersion() {
+          public SpecVersion getSpecVersion() {
             return specVersion;
           }
 

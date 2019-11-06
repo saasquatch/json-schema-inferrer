@@ -17,6 +17,6 @@ public interface AdditionalPropertiesPolicyInput {
   ObjectNode getSchema();
 
   @Nonnull
-  SpecVersion specVersion();
+  SpecVersion getSpecVersion();
 
 }
