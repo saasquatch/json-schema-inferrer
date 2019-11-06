@@ -3,11 +3,11 @@ package com.saasquatch.json_schema_inferrer;
 import static com.saasquatch.json_schema_inferrer.JunkDrawer.stream;
 import static com.saasquatch.json_schema_inferrer.JunkDrawer.stringColToArrayDistinct;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import com.fasterxml.jackson.databind.JsonNode;
 
 /**
@@ -29,11 +29,7 @@ public final class RequiredPolicies {
    *         the given samples.
    */
   public static RequiredPolicy commonFieldNames() {
-    return input -> {
-      final Collection<JsonNode> samples = input.getSamples();
-      final Set<String> commonFieldNames = getCommonFieldNames(samples, false);
-      return stringColToArrayDistinct(commonFieldNames);
-    };
+    return input -> handleCommonFieldNames(input, false);
   }
 
   /**
@@ -41,11 +37,18 @@ public final class RequiredPolicies {
    *         the given samples that are not null.
    */
   public static RequiredPolicy nonNullCommonFieldNames() {
-    return input -> {
-      final Collection<JsonNode> samples = input.getSamples();
-      final Set<String> commonFieldNames = getCommonFieldNames(samples, true);
-      return stringColToArrayDistinct(commonFieldNames);
-    };
+    return input -> handleCommonFieldNames(input, true);
+  }
+
+  @Nullable
+  private static JsonNode handleCommonFieldNames(@Nonnull RequiredPolicyInput input,
+      boolean nonNull) {
+    final Collection<JsonNode> samples = input.getSamples();
+    final Set<String> commonFieldNames = getCommonFieldNames(samples, nonNull);
+    if (commonFieldNames == null || commonFieldNames.isEmpty()) {
+      return null;
+    }
+    return stringColToArrayDistinct(commonFieldNames);
   }
 
   private static Set<String> getCommonFieldNames(@Nonnull Collection<? extends JsonNode> samples,
@@ -61,7 +64,7 @@ public final class RequiredPolicies {
         commonFieldNames.retainAll(fieldNames);
       }
     }
-    return Collections.unmodifiableSet(commonFieldNames);
+    return commonFieldNames;
   }
 
 }
