@@ -54,7 +54,7 @@ interface JunkDrawer {
    */
   static ArrayNode combineArraysDistinct(@Nonnull Collection<ArrayNode> arrays) {
     final ArrayNode result = newArray();
-    arrays.stream().flatMap(JunkDrawer::stream).distinct().forEach(result::add);
+    arrays.stream().flatMap(j -> stream(j)).distinct().forEach(result::add);
     return result;
   }
 
@@ -92,7 +92,7 @@ interface JunkDrawer {
   }
 
   @Nonnull
-  static Set<String> getCommonFieldNames(@Nonnull Collection<? extends JsonNode> samples,
+  static Set<String> getCommonFieldNames(@Nonnull Iterable<? extends JsonNode> samples,
       boolean requireNonNull) {
     Set<String> commonFieldNames = null;
     for (JsonNode sample : samples) {
