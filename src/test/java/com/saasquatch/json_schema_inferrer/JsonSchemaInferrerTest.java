@@ -40,8 +40,7 @@ public class JsonSchemaInferrerTest {
     assertDoesNotThrow(() -> inferrer.inferForSample(null));
     assertThrows(IllegalArgumentException.class,
         () -> inferrer.inferForSamples(Collections.emptyList()));
-    assertThrows(IllegalArgumentException.class,
-        () -> inferrer.inferForSamples(Collections.singleton(jnf.missingNode())));
+    assertDoesNotThrow(() -> inferrer.inferForSamples(Collections.singleton(jnf.missingNode())));
     assertDoesNotThrow(() -> inferrer.inferForSamples(Collections.singleton(null)));
     assertDoesNotThrow(() -> inferrer.inferForSamples(Collections.singleton(jnf.nullNode())));
     assertThrows(IllegalArgumentException.class, () -> inferrer.inferForSample(jnf.pojoNode("")));

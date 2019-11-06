@@ -113,9 +113,6 @@ public final class JsonSchemaInferrer {
     if (value == null) {
       // Treat null as NullNode
       return JsonNodeFactory.instance.nullNode();
-    } else if (value.isMissingNode()) {
-      // Treat MissingNode as non-existent
-      return null;
     } else if (value.isPojo()) {
       throw new IllegalArgumentException(POJONode.class.getSimpleName() + " not supported");
     }
@@ -313,8 +310,7 @@ public final class JsonSchemaInferrer {
       case BOOLEAN:
         return Consts.Types.BOOLEAN;
       case MISSING:
-        knownType = true;
-        break;
+        return Consts.Types.NULL;
       case NULL:
         return Consts.Types.NULL;
       case NUMBER:
