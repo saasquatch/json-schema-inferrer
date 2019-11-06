@@ -80,7 +80,7 @@ public final class JsonSchemaInferrer {
    * @return the inferred JSON schema
    */
   @Nonnull
-  public ObjectNode inferForSamples(@Nonnull Collection<JsonNode> samples) {
+  public ObjectNode inferForSamples(@Nonnull Collection<? extends JsonNode> samples) {
     final Set<JsonNode> processedSamples = preProcessJsonNodes(samples);
     if (processedSamples.isEmpty()) {
       throw new IllegalArgumentException("Unable to process empty Collection");
@@ -123,7 +123,7 @@ public final class JsonSchemaInferrer {
   }
 
   @Nonnull
-  private Set<JsonNode> preProcessJsonNodes(@Nonnull Iterable<JsonNode> values) {
+  private Set<JsonNode> preProcessJsonNodes(@Nonnull Iterable<? extends JsonNode> values) {
     return stream(values)
         .map(this::preProcessJsonNode)
         .filter(Objects::nonNull)
