@@ -13,20 +13,28 @@ import java.util.Arrays;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.saasquatch.json_schema_inferrer.AdditionalPropertiesPolicies;
 import com.saasquatch.json_schema_inferrer.JsonSchemaInferrer;
+import com.saasquatch.json_schema_inferrer.RequiredPolicies;
 import com.saasquatch.json_schema_inferrer.SpecVersion;
+import com.saasquatch.json_schema_inferrer.TitleGenerators;
 
 public class Example {
 
   private static final ObjectMapper mapper = new ObjectMapper();
   private static final JsonSchemaInferrer inferrer =
-      JsonSchemaInferrer.newBuilder().withSpecVersion(SpecVersion.DRAFT_06).build();
+      JsonSchemaInferrer.newBuilder()
+          .withSpecVersion(SpecVersion.DRAFT_06)
+          .withAdditionalPropertiesPolicy(AdditionalPropertiesPolicies.notAllowed())
+          .withRequiredPolicy(RequiredPolicies.nonNullCommonFieldNames())
+          .withTitleGenerator(TitleGenerators.useFieldNames())
+          .build();
 
   public static void main(String[] args) throws Exception {
     final JsonNode sample1 = mapper.readTree(
-        "{\"one\":1,\"two\":\"https://saasquatch.com\",\"three\":[-1.5,\"127.0.0.1\",false]}");
+        "{\"one\":\"https://saasquatch.com\",\"two\":[-1.5,\"hello@saasquat.ch\",false],\"three\":3}");
     final JsonNode sample2 = mapper.readTree(
-        "{\"one\":\"1\",\"two\":\"hello@saasquat.ch\",\"three\":[{\"true\":true},[\"1234:abcd::1234\"]]}");
+        "{\"one\":1,\"two\":{\"three\":true,\"four\":[2,\"2\"],\"five\":null},\"three\":null}");
     final ObjectNode resultForSample1 = inferrer.inferForSample(sample1);
     final ObjectNode resultForSample1And2 =
         inferrer.inferForSamples(Arrays.asList(sample1, sample2));
@@ -42,9 +50,9 @@ In the code above, `sample1` is:
 
 ```json
 {
-  "one": 1,
-  "two": "https://saasquatch.com",
-  "three": [-1.5, "127.0.0.1", false]
+  "one": "https://saasquatch.com",
+  "two": [-1.5, "hello@saasquat.ch", false],
+  "three": 3
 }
 ```
 
@@ -52,9 +60,13 @@ In the code above, `sample1` is:
 
 ```json
 {
-  "one": "1",
-  "two": "hello@saasquat.ch",
-  "three": [{ "true": true }, ["1234:abcd::1234"]]
+  "one": 1,
+  "two": {
+    "three": true,
+    "four": [2, "2"],
+    "five": null
+  },
+  "three": null
 }
 ```
 
@@ -65,18 +77,16 @@ In the code above, `sample1` is:
   "$schema": "http://json-schema.org/draft-06/schema#",
   "type": "object",
   "properties": {
-    "one": { "type": "integer" },
-    "two": { "type": "string", "format": "uri" },
-    "three": {
+    "one": { "title": "one", "type": "string" },
+    "two": {
+      "title": "two",
       "type": "array",
-      "items": {
-        "anyOf": [
-          { "type": "string", "format": "ipv4" },
-          { "type": ["number", "boolean"] }
-        ]
-      }
-    }
-  }
+      "items": { "type": ["number", "boolean", "string"] }
+    },
+    "three": { "title": "three", "type": "integer" }
+  },
+  "additionalProperties": false,
+  "required": ["one", "two", "three"]
 }
 ```
 
@@ -87,25 +97,34 @@ And `resultForSample1And2` is:
   "$schema": "http://json-schema.org/draft-06/schema#",
   "type": "object",
   "properties": {
-    "one": { "type": ["string", "integer"] },
+    "one": { "title": "one", "type": ["string", "integer"] },
     "two": {
+      "title": "two",
       "anyOf": [
-        { "type": "string", "format": "email" },
-        { "type": "string", "format": "uri" }
+        {
+          "type": "object",
+          "properties": {
+            "four": {
+              "title": "four",
+              "type": "array",
+              "items": { "type": ["string", "integer"] }
+            },
+            "three": { "title": "three", "type": "boolean" },
+            "five": { "title": "five", "type": "null" }
+          },
+          "additionalProperties": false,
+          "required": ["four", "three"]
+        },
+        {
+          "type": "array",
+          "items": { "type": ["number", "boolean", "string"] }
+        }
       ]
     },
-    "three": {
-      "type": "array",
-      "items": {
-        "anyOf": [
-          { "type": "string", "format": "ipv4" },
-          { "type": "object", "properties": { "true": { "type": "boolean" } } },
-          { "type": "array", "items": { "type": "string", "format": "ipv6" } },
-          { "type": ["number", "boolean"] }
-        ]
-      }
-    }
-  }
+    "three": { "title": "three", "type": ["null", "integer"] }
+  },
+  "additionalProperties": false,
+  "required": ["one", "two"]
 }
 ```
 
