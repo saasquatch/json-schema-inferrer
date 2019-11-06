@@ -218,7 +218,7 @@ public class JsonSchemaInferrerExamplesTest {
   private static Collection<JsonSchemaInferrer> getTestInferrers() {
     final List<JsonSchemaInferrer> inferrers = new ArrayList<>();
     for (SpecVersion specVersion : EnumSet.of(SpecVersion.DRAFT_06, SpecVersion.DRAFT_07)) {
-      for (int examplesLimit : Arrays.asList(-1, 3)) {
+      for (int examplesLimit : Arrays.asList(0, 3)) {
         for (AdditionalPropertiesPolicy additionalPropertiesPolicy : Arrays.asList(
             AdditionalPropertiesPolicies.noOp(), AdditionalPropertiesPolicies.existingTypes())) {
           for (RequiredPolicy requiredPolicy : Arrays.asList(RequiredPolicies.noOp(),

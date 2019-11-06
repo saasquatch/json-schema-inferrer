@@ -127,9 +127,7 @@ public final class JsonSchemaInferrer {
 
   @Nonnull
   private Set<JsonNode> preProcessJsonNodes(@Nonnull Iterable<? extends JsonNode> values) {
-    return stream(values)
-        .map(this::preProcessJsonNode)
-        .filter(Objects::nonNull)
+    return stream(values).map(this::preProcessJsonNode).filter(Objects::nonNull)
         .collect(Collectors.toSet());
   }
 
@@ -140,7 +138,8 @@ public final class JsonSchemaInferrer {
      * Map to keep track of examples. The keys are pairs of [type, format] stored in Lists, and the
      * vales are examples for that type/format combo.
      */
-    final Map<List<String>, Set<ValueNode>> examplesMap = new HashMap<>();
+    final Map<List<String>, Set<ValueNode>> examplesMap =
+        examplesLimit > 0 ? new HashMap<>() : null;
     for (ValueNode valueNode : valueNodes) {
       final ObjectNode newAnyOf = newObject();
       final String type = inferType(valueNode);
@@ -150,7 +149,7 @@ public final class JsonSchemaInferrer {
         newAnyOf.put(Consts.Fields.FORMAT, format);
       }
       // Keep track of examples if examples is enabled
-      if (examplesLimit > 0) {
+      if (examplesMap != null) {
         examplesMap.compute(Arrays.asList(type, format), (typeFormatPair, originalExamples) -> {
           final Set<ValueNode> newExamples =
               originalExamples == null ? new HashSet<>() : originalExamples;
@@ -160,15 +159,15 @@ public final class JsonSchemaInferrer {
           return newExamples;
         });
       }
-      anyOfs.add(newAnyOf);
+      addAnyOf(anyOfs, newAnyOf);
     }
-    if (examplesLimit > 0) {
+    // Put the combined examples back into the result schema
+    if (examplesMap != null) {
       for (ObjectNode anyOf : anyOfs) {
         final String type = anyOf.path(Consts.Fields.TYPE).textValue();
         final String format = anyOf.path(Consts.Fields.FORMAT).textValue();
-        final Set<ValueNode> examples =
-            examplesMap.getOrDefault(Arrays.asList(type, format), Collections.emptySet());
-        if (!examples.isEmpty()) {
+        final Set<ValueNode> examples = examplesMap.get(Arrays.asList(type, format));
+        if (examples != null && !examples.isEmpty()) {
           anyOf.set(Consts.Fields.EXAMPLES, newArray().addAll(examples));
         }
       }
@@ -270,7 +269,8 @@ public final class JsonSchemaInferrer {
       addAnyOf(anyOfs, processArray(combineArraysDistinct(arrayNodes)));
     }
     if (!valueNodes.isEmpty()) {
-      processPrimitives(valueNodes).forEach(newAnyOf -> addAnyOf(anyOfs, newAnyOf));
+      // Not using addAnyOf on purpose
+      anyOfs.addAll(processPrimitives(valueNodes));
     }
     postProcessAnyOfs(anyOfs);
     return Collections.unmodifiableCollection(anyOfs);
@@ -298,10 +298,8 @@ public final class JsonSchemaInferrer {
           }
         }
       }
-      final Set<String> ops = stream(diffs)
-          .map(j -> j.path(Consts.Diff.OP).textValue())
-          .filter(Objects::nonNull)
-          .collect(Collectors.toSet());
+      final Set<String> ops = stream(diffs).map(j -> j.path(Consts.Diff.OP).textValue())
+          .filter(Objects::nonNull).collect(Collectors.toSet());
       if (ops.equals(Consts.Diff.SINGLETON_ADD)) {
         /*
          * The new anyOf is a superset of one of the existing anyOfs. Discard the existing one and
