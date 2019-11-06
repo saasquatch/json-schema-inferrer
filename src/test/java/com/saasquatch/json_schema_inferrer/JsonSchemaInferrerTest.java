@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.IOException;
@@ -52,6 +53,12 @@ public class JsonSchemaInferrerTest {
           jnf.arrayNode().add(jnf.arrayNode().add(jnf.arrayNode().add(jnf.pojoNode("")))));
       inferrer.inferForSample(sampleObj);
     });
+    assertThrows(IllegalArgumentException.class, () -> FormatInferrers.chained());
+    assertThrows(IllegalArgumentException.class,
+        () -> FormatInferrers.chained(Collections.emptyList()));
+    assertThrows(NullPointerException.class,
+        () -> FormatInferrers.chained(FormatInferrers.dateTime(), null));
+    assertSame(FormatInferrers.dateTime(), FormatInferrers.chained(FormatInferrers.dateTime()));
   }
 
   @Test
