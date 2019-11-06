@@ -14,8 +14,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -31,7 +29,6 @@ import com.fasterxml.jackson.databind.node.JsonNodeType;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.POJONode;
 import com.fasterxml.jackson.databind.node.ValueNode;
-import com.flipkart.zjsonpatch.JsonDiff;
 
 /**
  * Infer JSON schema based on sample JSONs
@@ -133,7 +130,7 @@ public final class JsonSchemaInferrer {
 
   @Nonnull
   private Collection<ObjectNode> processPrimitives(@Nonnull Collection<ValueNode> valueNodes) {
-    final Collection<ObjectNode> anyOfs = new LinkedList<>();
+    final Collection<ObjectNode> anyOfs = new HashSet<>();
     /*
      * Map to keep track of examples. The keys are pairs of [type, format] stored in Lists, and the
      * vales are examples for that type/format combo.
@@ -159,7 +156,7 @@ public final class JsonSchemaInferrer {
           return newExamples;
         });
       }
-      addAnyOf(anyOfs, newAnyOf);
+      anyOfs.add(newAnyOf);
     }
     // Put the combined examples back into the result schema
     if (examplesMap != null) {
@@ -248,8 +245,7 @@ public final class JsonSchemaInferrer {
    */
   @Nonnull
   private Collection<ObjectNode> getAnyOfsFromSamples(@Nonnull Set<JsonNode> samples) {
-    // Using LinkedList on purpose here since we do a lot of add and remove
-    final Collection<ObjectNode> anyOfs = new LinkedList<>();
+    final Collection<ObjectNode> anyOfs = new HashSet<>();
     final Set<ObjectNode> objectNodes = new HashSet<>();
     final Set<ArrayNode> arrayNodes = new HashSet<>();
     final Set<ValueNode> valueNodes = new HashSet<>();
@@ -263,10 +259,10 @@ public final class JsonSchemaInferrer {
       }
     }
     if (!objectNodes.isEmpty()) {
-      addAnyOf(anyOfs, processObjects(objectNodes));
+      anyOfs.add(processObjects(objectNodes));
     }
     if (!arrayNodes.isEmpty()) {
-      addAnyOf(anyOfs, processArray(combineArraysDistinct(arrayNodes)));
+      anyOfs.add(processArray(combineArraysDistinct(arrayNodes)));
     }
     if (!valueNodes.isEmpty()) {
       // Not using addAnyOf on purpose
@@ -274,45 +270,6 @@ public final class JsonSchemaInferrer {
     }
     postProcessAnyOfs(anyOfs);
     return Collections.unmodifiableCollection(anyOfs);
-  }
-
-  private void addAnyOf(@Nonnull Collection<ObjectNode> anyOfs, @Nonnull ObjectNode newAnyOf) {
-    if (anyOfs.isEmpty()) {
-      anyOfs.add(newAnyOf);
-      return;
-    }
-    final Iterator<ObjectNode> anyOfsIterator = anyOfs.iterator();
-    anyOfsLoop: while (anyOfsIterator.hasNext()) {
-      final ObjectNode anyOf = anyOfsIterator.next();
-      if (anyOf.equals(newAnyOf)) {
-        return; // Low hanging fruit
-      }
-      final JsonNode diffs = JsonDiff.asJson(anyOf, newAnyOf);
-      for (JsonNode diff : diffs) {
-        final String path = diff.path(Consts.Diff.PATH).textValue();
-        if (path != null && path.endsWith('/' + Consts.Fields.FORMAT)) {
-          if (newAnyOf.at(path.substring(0, path.lastIndexOf('/'))).path(Consts.Fields.TYPE)
-              .isTextual()) {
-            // If any of the diffs is caused by a format change, we'll want to add it
-            break anyOfsLoop;
-          }
-        }
-      }
-      final Set<String> ops = stream(diffs).map(j -> j.path(Consts.Diff.OP).textValue())
-          .filter(Objects::nonNull).collect(Collectors.toSet());
-      if (ops.equals(Consts.Diff.SINGLETON_ADD)) {
-        /*
-         * The new anyOf is a superset of one of the existing anyOfs. Discard the existing one and
-         * add the new one.
-         */
-        anyOfsIterator.remove();
-        break;
-      } else if (ops.isEmpty() || ops.equals(Consts.Diff.SINGLETON_REMOVE)) {
-        // The new anyOf is the same or a subset of one of the existing anyOfs. Do nothing.
-        return;
-      }
-    }
-    anyOfs.add(newAnyOf);
   }
 
   private void postProcessAnyOfs(@Nonnull Collection<ObjectNode> anyOfs) {
