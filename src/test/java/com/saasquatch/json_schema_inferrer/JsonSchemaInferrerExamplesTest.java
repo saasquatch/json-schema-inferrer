@@ -10,7 +10,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -31,7 +30,6 @@ import org.json.JSONObject;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -98,14 +96,14 @@ public class JsonSchemaInferrerExamplesTest {
       assertNotNull(schemaJson, format("Inferred schema for url[%s] is null", jsonUrl));
       final Schema schema;
       try {
-        schema = SchemaLoader.load(new JSONObject(toMap(schemaJson)));
+        schema = SchemaLoader.load(new JSONObject(schemaJson.toString()));
       } catch (RuntimeException e) {
         fail(format("Unable to parse the inferred schema for url[%s]", jsonUrl), e);
         throw e;
       }
       try {
         if (sampleJson.isObject()) {
-          schema.validate(new JSONObject(toMap(sampleJson)));
+          schema.validate(new JSONObject(sampleJson.toString()));
         } else if (sampleJson.isArray()) {
           schema.validate(new JSONArray(sampleJson.toString()));
         } else {
@@ -139,7 +137,7 @@ public class JsonSchemaInferrerExamplesTest {
       assertNotNull(schemaJson, format("Inferred schema for urls%s is null", jsonUrls));
       final Schema schema;
       try {
-        schema = SchemaLoader.load(new JSONObject(toMap(schemaJson)));
+        schema = SchemaLoader.load(new JSONObject(schemaJson.toString()));
       } catch (RuntimeException e) {
         fail(format("Unable to parse the inferred schema for urls%s", jsonUrls), e);
         throw e;
@@ -147,7 +145,7 @@ public class JsonSchemaInferrerExamplesTest {
       for (JsonNode sampleJson : sampleJsons) {
         try {
           if (sampleJson.isObject()) {
-            schema.validate(new JSONObject(toMap(sampleJson)));
+            schema.validate(new JSONObject(sampleJson.toString()));
           } else if (sampleJson.isArray()) {
             schema.validate(new JSONArray(sampleJson.toString()));
           } else {
@@ -222,7 +220,7 @@ public class JsonSchemaInferrerExamplesTest {
       for (AdditionalPropertiesPolicy additionalPropertiesPolicy : Arrays.asList(
           AdditionalPropertiesPolicies.noOp(), AdditionalPropertiesPolicies.existingTypes())) {
         for (RequiredPolicy requiredPolicy : Arrays.asList(RequiredPolicies.noOp(),
-            RequiredPolicies.nonNullCommonFieldNames())) {
+            RequiredPolicies.commonFieldNames())) {
           for (boolean inferFormat : Arrays.asList(true, false)) {
             for (TitleGenerator titleGenerator : Arrays.asList(TitleGenerators.noOp(),
                 TitleGenerators.useFieldNames())) {
@@ -274,10 +272,6 @@ public class JsonSchemaInferrerExamplesTest {
         return mapper.readTree(byteArray);
       }
     });
-  }
-
-  private static Map<String, Object> toMap(Object o) {
-    return mapper.convertValue(o, new TypeReference<Map<String, Object>>() {});
   }
 
 }
