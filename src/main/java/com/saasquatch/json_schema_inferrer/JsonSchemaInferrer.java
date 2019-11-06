@@ -485,6 +485,8 @@ public final class JsonSchemaInferrer {
 
     /**
      * Set the max length for {@code examples}. 0 to disable {@code examples}.
+     *
+     * @throws IllegalArgumentException if the input is negative
      */
     public Builder withExamplesLimit(int examplesLimit) {
       if (examplesLimit < 0) {
