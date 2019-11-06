@@ -25,7 +25,7 @@ public class Example {
     final JsonNode sample1 = mapper.readTree(
         "{\"one\":\"https://saasquatch.com\",\"two\":[-1.5,\"hello@saasquat.ch\",false],\"three\":3}");
     final JsonNode sample2 = mapper.readTree(
-        "{\"one\":1,\"two\":{\"three\":true,\"four\":[2,\"2\"],\"five\":null},\"three\":null}");
+        "{\"one\":1,\"two\":{\"four\":true,\"five\":[2,\"2\"],\"six\":null},\"three\":null}");
     final ObjectNode resultForSample1 = inferrer.inferForSample(sample1);
     final ObjectNode resultForSample1And2 =
         inferrer.inferForSamples(Arrays.asList(sample1, sample2));

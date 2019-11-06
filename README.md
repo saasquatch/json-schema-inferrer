@@ -34,7 +34,7 @@ public class Example {
     final JsonNode sample1 = mapper.readTree(
         "{\"one\":\"https://saasquatch.com\",\"two\":[-1.5,\"hello@saasquat.ch\",false],\"three\":3}");
     final JsonNode sample2 = mapper.readTree(
-        "{\"one\":1,\"two\":{\"three\":true,\"four\":[2,\"2\"],\"five\":null},\"three\":null}");
+        "{\"one\":1,\"two\":{\"four\":true,\"five\":[2,\"2\"],\"six\":null},\"three\":null}");
     final ObjectNode resultForSample1 = inferrer.inferForSample(sample1);
     final ObjectNode resultForSample1And2 =
         inferrer.inferForSamples(Arrays.asList(sample1, sample2));
@@ -61,11 +61,7 @@ In the code above, `sample1` is:
 ```json
 {
   "one": 1,
-  "two": {
-    "three": true,
-    "four": [2, "2"],
-    "five": null
-  },
+  "two": { "four": true, "five": [2, "2"], "six": null },
   "three": null
 }
 ```
@@ -104,16 +100,16 @@ And `resultForSample1And2` is:
         {
           "type": "object",
           "properties": {
-            "four": {
-              "title": "four",
+            "six": { "title": "six", "type": "null" },
+            "four": { "title": "four", "type": "boolean" },
+            "five": {
+              "title": "five",
               "type": "array",
               "items": { "type": ["string", "integer"] }
-            },
-            "three": { "title": "three", "type": "boolean" },
-            "five": { "title": "five", "type": "null" }
+            }
           },
           "additionalProperties": false,
-          "required": ["four", "three"]
+          "required": ["four", "five"]
         },
         {
           "type": "array",
