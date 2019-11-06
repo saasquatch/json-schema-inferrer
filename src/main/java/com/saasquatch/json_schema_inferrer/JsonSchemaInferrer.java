@@ -401,47 +401,14 @@ public final class JsonSchemaInferrer {
       @Nonnull Collection<ObjectNode> objectNodes) {
     final JsonNode required = requiredPolicy.getRequired(new RequiredPolicyInput() {
 
-      private Set<String> commonFieldNames;
-      private Set<String> nonNullCommonFieldNames;
-
       @Override
       public ObjectNode getSchema() {
         return schema;
       }
 
       @Override
-      public Set<String> getCommonFieldNames() {
-        Set<String> result = commonFieldNames;
-        if (result == null) {
-          commonFieldNames = result = _getCommonFieldNames(false);
-        }
-        return result;
-      }
-
-      @Override
-      public Set<String> getNonNullCommonFieldNames() {
-        Set<String> result = nonNullCommonFieldNames;
-        if (result == null) {
-          nonNullCommonFieldNames = result = _getCommonFieldNames(true);
-        }
-        return result;
-      }
-
-      private Set<String> _getCommonFieldNames(boolean nonNull) {
-        Set<String> commonFieldNames = null;
-        for (ObjectNode objectNode : objectNodes) {
-          final Set<String> fieldNames = stream(objectNode.fieldNames())
-              .filter(nonNull
-                  ? fieldName -> !objectNode.path(fieldName).isNull()
-                  : fieldName -> true)
-              .collect(Collectors.toSet());
-          if (commonFieldNames == null) {
-            commonFieldNames = new HashSet<>(fieldNames);
-          } else {
-            commonFieldNames.retainAll(fieldNames);
-          }
-        }
-        return Collections.unmodifiableSet(commonFieldNames);
+      public Collection<JsonNode> getSamples() {
+        return Collections.unmodifiableCollection(objectNodes);
       }
 
       @Override
