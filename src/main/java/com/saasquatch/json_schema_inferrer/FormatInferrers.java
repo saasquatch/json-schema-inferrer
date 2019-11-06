@@ -78,10 +78,9 @@ public final class FormatInferrers {
       case 1:
         return formatInferrers.iterator().next();
       default:
-        break;
+        // Create a defensive copy on purpose
+        return new ChainedFormatInferrer(formatInferrers.toArray(new FormatInferrer[0]));
     }
-    // Create a defensive copy on purpose
-    return new ChainedFormatInferrer(formatInferrers.toArray(new FormatInferrer[0]));
   }
 
 }
