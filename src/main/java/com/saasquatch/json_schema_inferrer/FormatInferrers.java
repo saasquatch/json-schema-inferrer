@@ -3,7 +3,6 @@ package com.saasquatch.json_schema_inferrer;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
-import java.util.Collection;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 
@@ -62,17 +61,6 @@ public final class FormatInferrers {
    * @throws NullPointerException if the input has null elements
    */
   public static FormatInferrer chained(@Nonnull FormatInferrer... formatInferrers) {
-    return _chained(formatInferrers.clone());
-  }
-
-  /**
-   * @see #chained(FormatInferrer...)
-   */
-  public static FormatInferrer chained(@Nonnull Collection<FormatInferrer> formatInferrers) {
-    return _chained(formatInferrers.toArray(new FormatInferrer[0]));
-  }
-
-  private static FormatInferrer _chained(@Nonnull FormatInferrer[] formatInferrers) {
     for (FormatInferrer formatInferrer : formatInferrers) {
       Objects.requireNonNull(formatInferrer);
     }

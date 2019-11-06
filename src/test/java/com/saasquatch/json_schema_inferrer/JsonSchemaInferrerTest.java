@@ -54,8 +54,6 @@ public class JsonSchemaInferrerTest {
       inferrer.inferForSample(sampleObj);
     });
     assertThrows(IllegalArgumentException.class, () -> FormatInferrers.chained());
-    assertThrows(IllegalArgumentException.class,
-        () -> FormatInferrers.chained(Collections.emptyList()));
     assertThrows(NullPointerException.class,
         () -> FormatInferrers.chained(FormatInferrers.dateTime(), null));
     assertSame(FormatInferrers.dateTime(), FormatInferrers.chained(FormatInferrers.dateTime()));
