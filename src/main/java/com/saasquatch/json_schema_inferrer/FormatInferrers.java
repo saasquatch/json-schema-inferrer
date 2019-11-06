@@ -3,7 +3,6 @@ package com.saasquatch.json_schema_inferrer;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Objects;
 import javax.annotation.Nonnull;
@@ -57,30 +56,43 @@ public final class FormatInferrers {
   }
 
   /**
-   * Convenience method for {@link #chained(Collection)}
+   * @return A {@link FormatInferrer} that uses the given {@link FormatInferrer}s in the original
+   *         order, and uses the first non-null result available.
+   * @throws IllegalArgumentException if the input is empty
+   * @throws NullPointerException if the input has null elements
    */
   public static FormatInferrer chained(@Nonnull FormatInferrer... formatInferrers) {
-    // Default to the other method to create a defensive copy on purpose
-    return chained(Arrays.asList(formatInferrers));
+    return _chained(formatInferrers.clone());
   }
 
   /**
-   * @return A {@link FormatInferrer} that uses the given {@link FormatInferrer}s in the original
-   *         order, and uses the first non-null result available.
+   * @see #chained(FormatInferrer...)
    */
   public static FormatInferrer chained(@Nonnull Collection<FormatInferrer> formatInferrers) {
+    return _chained(formatInferrers.toArray(new FormatInferrer[0]));
+  }
+
+  private static FormatInferrer _chained(@Nonnull FormatInferrer[] formatInferrers) {
     for (FormatInferrer formatInferrer : formatInferrers) {
       Objects.requireNonNull(formatInferrer);
     }
-    switch (formatInferrers.size()) {
+    switch (formatInferrers.length) {
       case 0:
         throw new IllegalArgumentException("Empty formatInferrers");
       case 1:
-        return formatInferrers.iterator().next();
+        return formatInferrers[0];
       default:
-        // Create a defensive copy on purpose
-        return new ChainedFormatInferrer(formatInferrers.toArray(new FormatInferrer[0]));
+        break;
     }
+    return input -> {
+      for (FormatInferrer formatInferrer : formatInferrers) {
+        final String result = formatInferrer.infer(input);
+        if (result != null) {
+          return result;
+        }
+      }
+      return null;
+    };
   }
 
 }
