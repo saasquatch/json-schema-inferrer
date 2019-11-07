@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -20,6 +19,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.collect.ImmutableSet;
 
 public class JsonSchemaInferrerTest {
 
@@ -130,9 +130,8 @@ public class JsonSchemaInferrerTest {
           .path("body").path("type").textValue());
       assertEquals("array", schema.path("properties").path("comments").path("type").textValue());
       assertTrue(schema.path("properties").path("comments").path("items").isObject());
-      assertEquals(new HashSet<>(Arrays.asList("string", "null")),
-          toStringSet(schema.path("properties").path("comments").path("items").path("properties")
-              .path("body").path("type")));
+      assertEquals(ImmutableSet.of("string", "null"), toStringSet(schema.path("properties")
+          .path("comments").path("items").path("properties").path("body").path("type")));
     }
   }
 
@@ -147,9 +146,8 @@ public class JsonSchemaInferrerTest {
           schema.path("items").path("properties").path("id").path("type").textValue());
       assertEquals("number",
           schema.path("items").path("properties").path("price").path("type").textValue());
-      assertEquals(new HashSet<>(Arrays.asList("integer", "number")),
-          toStringSet(schema.path("items").path("properties").path("dimensions").path("properties")
-              .path("length").path("type")));
+      assertEquals("number", schema.path("items").path("properties").path("dimensions")
+          .path("properties").path("length").path("type").textValue());
     }
   }
 

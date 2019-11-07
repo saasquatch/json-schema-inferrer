@@ -131,6 +131,9 @@ public final class JsonSchemaInferrer {
   @Nonnull
   private Collection<ObjectNode> processPrimitives(@Nonnull Collection<ValueNode> valueNodes) {
     final Collection<ObjectNode> anyOfs = new HashSet<>();
+    // Whether all the numbers in the samples are integers. Used for inferring number types.
+    final boolean allNumbersAreIntegers =
+        valueNodes.stream().filter(JsonNode::isNumber).allMatch(JsonNode::isIntegralNumber);
     /*
      * Map to keep track of examples. The keys are pairs of [type, format] stored in Lists, and the
      * vales are examples for that type/format combo.
@@ -139,7 +142,7 @@ public final class JsonSchemaInferrer {
         examplesLimit > 0 ? new HashMap<>() : null;
     for (ValueNode valueNode : valueNodes) {
       final ObjectNode newAnyOf = newObject();
-      final String type = inferType(valueNode);
+      final String type = inferPrimitiveType(valueNode, allNumbersAreIntegers);
       newAnyOf.put(Consts.Fields.TYPE, type);
       final String format = inferFormat(valueNode);
       if (format != null) {
@@ -294,13 +297,16 @@ public final class JsonSchemaInferrer {
   }
 
   @Nonnull
-  private static String inferType(@Nonnull JsonNode value) {
+  private static String inferPrimitiveType(@Nonnull JsonNode value, boolean allNumbersAreIntegers) {
     // Marker for whether the error is caused by a known type
     boolean knownType = false;
     final JsonNodeType type = value.getNodeType();
     switch (type) {
       case ARRAY:
-        return Consts.Types.ARRAY;
+      case POJO:
+      case OBJECT:
+        knownType = true;
+        break;
       case BINARY:
         return Consts.Types.STRING;
       case BOOLEAN:
@@ -310,24 +316,15 @@ public final class JsonSchemaInferrer {
       case NULL:
         return Consts.Types.NULL;
       case NUMBER:
-        return value.isIntegralNumber() ? Consts.Types.INTEGER : Consts.Types.NUMBER;
-      case OBJECT:
-        return Consts.Types.OBJECT;
-      case POJO:
-        knownType = true;
-        break;
+        return allNumbersAreIntegers ? Consts.Types.INTEGER : Consts.Types.NUMBER;
       case STRING:
         return Consts.Types.STRING;
       default:
         break;
     }
-    if (knownType) {
-      throw new IllegalArgumentException(
-          format("Unexpected %s: %s encountered", type.getClass().getSimpleName(), type));
-    } else {
-      throw new IllegalArgumentException(
-          format("Unrecognized %s: %s", type.getClass().getSimpleName(), type));
-    }
+    final String adj = knownType ? "Unexpected" : "Unrecognized";
+    throw new IllegalArgumentException(format("%s %s[%s] encountered with value[%s]", adj,
+        type.getClass().getSimpleName(), type, value));
   }
 
   @Nullable

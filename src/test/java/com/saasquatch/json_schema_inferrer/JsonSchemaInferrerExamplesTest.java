@@ -45,8 +45,8 @@ public class JsonSchemaInferrerExamplesTest {
       "https://cdn.jsdelivr.net/gh/quicktype/quicktype@f75f66bff3d1f812b61c481637c12173778a29b8";
   private static CloseableHttpClient httpClient;
   private static final ObjectMapper mapper = new ObjectMapper();
-  private static Collection<JsonSchemaInferrer> testInferrers = getTestInferrers();
-  private static LoadingCache<String, JsonNode> testJsonCache =
+  private static final Collection<JsonSchemaInferrer> testInferrers = getTestInferrers();
+  private static final LoadingCache<String, JsonNode> testJsonCache =
       CacheBuilder.newBuilder().softValues().build(new CacheLoader<String, JsonNode>() {
         @Override
         public JsonNode load(String url) throws Exception {
