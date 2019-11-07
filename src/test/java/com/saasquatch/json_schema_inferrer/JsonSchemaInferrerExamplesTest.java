@@ -11,7 +11,6 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
@@ -82,8 +81,7 @@ public class JsonSchemaInferrerExamplesTest {
   }
 
   private static boolean allSamples() {
-    return Optional.ofNullable(System.getProperty(CONST_BASE + "allSamples"))
-        .map(Boolean::parseBoolean).orElse(false);
+    return Boolean.parseBoolean(System.getProperty(CONST_BASE + "allSamples"));
   }
 
   private static void doTestForJsonUrl(String jsonUrl) {
