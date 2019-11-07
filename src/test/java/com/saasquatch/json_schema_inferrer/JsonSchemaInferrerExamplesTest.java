@@ -177,7 +177,7 @@ public class JsonSchemaInferrerExamplesTest {
       System.out.println("Running tests for all samples");
       return urls;
     }
-    final int limit = 32;
+    final int limit = 20;
     System.out.printf(Locale.ROOT, "Running tests for %d samples\n", limit);
     return urls.subList(0, Math.min(urls.size(), limit));
   }
