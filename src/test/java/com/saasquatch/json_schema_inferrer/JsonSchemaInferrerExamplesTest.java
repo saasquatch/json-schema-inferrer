@@ -249,7 +249,7 @@ public class JsonSchemaInferrerExamplesTest {
                   continue;
                 }
                 final JsonSchemaInferrer.Builder builder = JsonSchemaInferrer.newBuilder()
-                    .setSpecVersion(specVersion).setExamplesMaxSize(examplesLimit)
+                    .setSpecVersion(specVersion).setExamplesLimit(examplesLimit)
                     .setAdditionalPropertiesPolicy(additionalPropertiesPolicy)
                     .setRequiredPolicy(requiredPolicy).setTitleGenerator(titleGenerator);
                 if (inferFormat) {

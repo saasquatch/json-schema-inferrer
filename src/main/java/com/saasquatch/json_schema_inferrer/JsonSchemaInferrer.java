@@ -42,18 +42,18 @@ import com.fasterxml.jackson.databind.node.ValueNode;
 public final class JsonSchemaInferrer {
 
   private final SpecVersion specVersion;
-  private final int examplesMaxSize;
+  private final int examplesLimit;
   private final AdditionalPropertiesPolicy additionalPropertiesPolicy;
   private final RequiredPolicy requiredPolicy;
   private final FormatInferrer formatInferrer;
   private final TitleGenerator titleGenerator;
 
-  private JsonSchemaInferrer(@Nonnull SpecVersion specVersion, @Nonnegative int examplesMaxSize,
+  private JsonSchemaInferrer(@Nonnull SpecVersion specVersion, @Nonnegative int examplesLimit,
       @Nonnull AdditionalPropertiesPolicy additionalPropertiesPolicy,
       @Nonnull RequiredPolicy requiredPolicy, @Nonnull FormatInferrer formatInferrer,
       @Nonnull TitleGenerator titleGenerator) {
     this.specVersion = specVersion;
-    this.examplesMaxSize = examplesMaxSize;
+    this.examplesLimit = examplesLimit;
     this.additionalPropertiesPolicy = additionalPropertiesPolicy;
     this.requiredPolicy = requiredPolicy;
     this.formatInferrer = formatInferrer;
@@ -136,7 +136,7 @@ public final class JsonSchemaInferrer {
      * vales are examples for that type/format combo.
      */
     final Map<List<String>, Set<ValueNode>> examplesMap =
-        examplesMaxSize > 0 ? new HashMap<>() : null;
+        examplesLimit > 0 ? new HashMap<>() : null;
     for (ValueNode valueNode : valueNodes) {
       final ObjectNode newAnyOf = newObject();
       final String type = inferPrimitiveType(valueNode, allNumbersAreIntegers);
@@ -150,7 +150,7 @@ public final class JsonSchemaInferrer {
         examplesMap.compute(Arrays.asList(type, format), (typeFormatPair, originalExamples) -> {
           final Set<ValueNode> newExamples =
               originalExamples == null ? new HashSet<>() : originalExamples;
-          if (newExamples.size() < examplesMaxSize) {
+          if (newExamples.size() < examplesLimit) {
             newExamples.add(valueNode);
           }
           return newExamples;
@@ -406,7 +406,7 @@ public final class JsonSchemaInferrer {
   public static final class Builder {
 
     private SpecVersion specVersion = SpecVersion.DRAFT_04;
-    private int examplesMaxSize = 0;
+    private int examplesLimit = 0;
     private AdditionalPropertiesPolicy additionalPropertiesPolicy =
         AdditionalPropertiesPolicies.noOp();
     private RequiredPolicy requiredPolicy = RequiredPolicies.noOp();
@@ -424,15 +424,15 @@ public final class JsonSchemaInferrer {
     }
 
     /**
-     * Set the max size for {@code examples}. 0 to disable {@code examples}.
+     * Set the max size for {@code examples}. 0 to disable {@code examples}. By default it is 0.
      *
      * @throws IllegalArgumentException if the input is negative
      */
-    public Builder setExamplesMaxSize(@Nonnegative int examplesMaxSize) {
-      if (examplesMaxSize < 0) {
-        throw new IllegalArgumentException("Invalid examplesMaxSize");
+    public Builder setExamplesLimit(@Nonnegative int examplesLimit) {
+      if (examplesLimit < 0) {
+        throw new IllegalArgumentException("Invalid examplesLimit");
       }
-      this.examplesMaxSize = examplesMaxSize;
+      this.examplesLimit = examplesLimit;
       return this;
     }
 
@@ -496,11 +496,11 @@ public final class JsonSchemaInferrer {
      * @throws IllegalArgumentException if the spec version and features don't match up
      */
     public JsonSchemaInferrer build() {
-      if (specVersion.compareTo(SpecVersion.DRAFT_06) < 0 && examplesMaxSize > 0) {
+      if (specVersion.compareTo(SpecVersion.DRAFT_06) < 0 && examplesLimit > 0) {
         throw new IllegalArgumentException(
             "examples not supported with " + specVersion.getMetaSchemaIdentifier());
       }
-      return new JsonSchemaInferrer(specVersion, examplesMaxSize, additionalPropertiesPolicy,
+      return new JsonSchemaInferrer(specVersion, examplesLimit, additionalPropertiesPolicy,
           requiredPolicy, formatInferrer, titleGenerator);
     }
 
