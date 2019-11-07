@@ -37,6 +37,7 @@ import com.fasterxml.jackson.databind.node.ValueNode;
  * @author sli
  * @see #newBuilder()
  * @see #inferForSample(JsonNode)
+ * @see #inferForSamples(Collection)
  */
 @Immutable
 public final class JsonSchemaInferrer {
