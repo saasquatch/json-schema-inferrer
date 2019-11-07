@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
@@ -49,7 +50,8 @@ public final class JsonSchemaInferrer {
   private final TitleGenerator titleGenerator;
 
   private JsonSchemaInferrer(@Nonnull SpecVersion specVersion, boolean includeMetaSchemaUrl,
-      int examplesLimit, @Nonnull AdditionalPropertiesPolicy additionalPropertiesPolicy,
+      @Nonnegative int examplesLimit,
+      @Nonnull AdditionalPropertiesPolicy additionalPropertiesPolicy,
       @Nonnull RequiredPolicy requiredPolicy, @Nonnull FormatInferrer formatInferrer,
       @Nonnull TitleGenerator titleGenerator) {
     this.specVersion = specVersion;
@@ -410,7 +412,7 @@ public final class JsonSchemaInferrer {
 
     private SpecVersion specVersion = SpecVersion.DRAFT_04;
     private boolean includeMetaSchemaUrl = true;
-    private int examplesLimit = -1;
+    private int examplesLimit = 0;
     private AdditionalPropertiesPolicy additionalPropertiesPolicy =
         AdditionalPropertiesPolicies.noOp();
     private RequiredPolicy requiredPolicy = RequiredPolicies.noOp();
@@ -440,7 +442,7 @@ public final class JsonSchemaInferrer {
      *
      * @throws IllegalArgumentException if the input is negative
      */
-    public Builder withExamplesLimit(int examplesLimit) {
+    public Builder withExamplesLimit(@Nonnegative int examplesLimit) {
       if (examplesLimit < 0) {
         throw new IllegalArgumentException("Invalid examplesLimit");
       }
