@@ -74,7 +74,7 @@ public final class FormatInferrers {
     }
     return input -> {
       for (FormatInferrer formatInferrer : formatInferrers) {
-        final String result = formatInferrer.infer(input);
+        final String result = formatInferrer.inferFormat(input);
         if (result != null) {
           return result;
         }

@@ -20,6 +20,6 @@ public interface FormatInferrer {
    * @return the inferred format, or null if no format is inferred
    */
   @Nullable
-  String infer(@Nonnull FormatInferrerInput input);
+  String inferFormat(@Nonnull FormatInferrerInput input);
 
 }

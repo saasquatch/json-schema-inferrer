@@ -331,7 +331,7 @@ public final class JsonSchemaInferrer {
 
   @Nullable
   private String inferFormat(@Nonnull JsonNode value) {
-    return formatInferrer.infer(new FormatInferrerInput() {
+    return formatInferrer.inferFormat(new FormatInferrerInput() {
 
       @Override
       public JsonNode getSample() {
