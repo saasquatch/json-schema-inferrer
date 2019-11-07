@@ -512,7 +512,7 @@ public final class JsonSchemaInferrer {
     public JsonSchemaInferrer build() {
       if (specVersion.compareTo(SpecVersion.DRAFT_06) < 0 && examplesLimit > 0) {
         throw new IllegalArgumentException(
-            format("examples not supported with spec version[%s]", specVersion.getMetaSchemaUrl()));
+            "examples not supported with " + specVersion.getMetaSchemaIdentifier());
       }
       return new JsonSchemaInferrer(specVersion, includeMetaSchemaUrl, examplesLimit,
           additionalPropertiesPolicy, requiredPolicy, formatInferrer, titleGenerator);
