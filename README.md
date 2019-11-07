@@ -168,6 +168,16 @@ Gradle
 compile 'com.saasquatch:json-schema-inferrer:0.1.1-alpha-16'
 ```
 
+## Development
+
+Compile with `mvn compile`. Run tests with `mvn test`. Deploy with `mvn deploy`.
+
+By default `mvn test` will only go through a subset of the test samples, since running the test for all the test samples can be pretty time consuming. To run all the test samples, use:
+
+```bash
+mvn test -D"com.saasquatch.json_schema_inferrer.test.allSamples"=true
+```
+
 ## LICENSE
 
 ```
