@@ -11,6 +11,8 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -43,6 +45,7 @@ public class JsonSchemaInferrerExamplesTest {
 
   private static final String QUICKTYPE_REPO_BASE_URL =
       "https://cdn.jsdelivr.net/gh/quicktype/quicktype@f75f66bff3d1f812b61c481637c12173778a29b8";
+  private static final String CONST_BASE = "com.saasquatch.json_schema_inferrer.test.";
   private static CloseableHttpClient httpClient;
   private static final ObjectMapper mapper = new ObjectMapper();
   private static final Collection<JsonSchemaInferrer> testInferrers = getTestInferrers();
@@ -164,7 +167,18 @@ public class JsonSchemaInferrerExamplesTest {
   }
 
   private static Iterable<String> getSampleJsonUrls() {
-    return () -> getQuicktypeSampleJsonUrls().iterator();
+    final List<String> urls =
+        getQuicktypeSampleJsonUrls().collect(Collectors.toCollection(ArrayList::new));
+    Collections.shuffle(urls, ThreadLocalRandom.current());
+    final boolean allSamples = Optional.ofNullable(System.getProperty(CONST_BASE + "allSamples"))
+        .map(Boolean::parseBoolean).orElse(false);
+    if (allSamples) {
+      System.out.println("Running tests for all samples");
+      return urls;
+    }
+    final int limit = 32;
+    System.out.printf(Locale.ROOT, "Running tests for %d samples\n", limit);
+    return urls.subList(0, Math.min(urls.size(), limit));
   }
 
   private static Stream<String> getQuicktypeSampleJsonUrls() {
