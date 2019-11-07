@@ -23,7 +23,7 @@ public class Example {
 
   public static void main(String[] args) throws Exception {
     final JsonNode sample1 = mapper.readTree(
-        "{\"one\":\"https://saasquatch.com\",\"two\":[-1.5,\"hello@saasquat.ch\",false],\"three\":3}");
+        "{\"one\":\"https://saasquatch.com\",\"two\":[-1.5,2,\"hello@saasquat.ch\",false],\"three\":3}");
     final JsonNode sample2 = mapper.readTree(
         "{\"one\":1,\"two\":{\"four\":true,\"five\":[2,\"2\"],\"six\":null},\"three\":null}");
     final ObjectNode resultForSample1 = inferrer.inferForSample(sample1);
