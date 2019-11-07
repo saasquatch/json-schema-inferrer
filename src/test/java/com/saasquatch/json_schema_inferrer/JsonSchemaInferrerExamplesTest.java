@@ -249,11 +249,11 @@ public class JsonSchemaInferrerExamplesTest {
                   continue;
                 }
                 final JsonSchemaInferrer.Builder builder = JsonSchemaInferrer.newBuilder()
-                    .withSpecVersion(specVersion).withExamplesLimit(examplesLimit)
-                    .withAdditionalPropertiesPolicy(additionalPropertiesPolicy)
-                    .withRequiredPolicy(requiredPolicy).withTitleGenerator(titleGenerator);
+                    .setSpecVersion(specVersion).setExamplesMaxSize(examplesLimit)
+                    .setAdditionalPropertiesPolicy(additionalPropertiesPolicy)
+                    .setRequiredPolicy(requiredPolicy).setTitleGenerator(titleGenerator);
                 if (inferFormat) {
-                  builder.withFormatInferrer(FormatInferrers.dateTime());
+                  builder.setFormatInferrer(FormatInferrers.dateTime());
                 }
                 try {
                   inferrers.add(builder.build());

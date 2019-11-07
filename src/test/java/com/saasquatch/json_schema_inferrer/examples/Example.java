@@ -15,10 +15,10 @@ public class Example {
   private static final ObjectMapper mapper = new ObjectMapper();
   private static final JsonSchemaInferrer inferrer =
       JsonSchemaInferrer.newBuilder()
-          .withSpecVersion(SpecVersion.DRAFT_06)
-          .withAdditionalPropertiesPolicy(AdditionalPropertiesPolicies.notAllowed())
-          .withRequiredPolicy(RequiredPolicies.nonNullCommonFields())
-          .withTitleGenerator(TitleGenerators.useFieldNames())
+          .setSpecVersion(SpecVersion.DRAFT_06)
+          .setAdditionalPropertiesPolicy(AdditionalPropertiesPolicies.notAllowed())
+          .setRequiredPolicy(RequiredPolicies.nonNullCommonFields())
+          .setTitleGenerator(TitleGenerators.useFieldNames())
           .build();
 
   public static void main(String[] args) throws Exception {

@@ -42,21 +42,18 @@ import com.fasterxml.jackson.databind.node.ValueNode;
 public final class JsonSchemaInferrer {
 
   private final SpecVersion specVersion;
-  private final boolean includeMetaSchemaUrl;
-  private final int examplesLimit;
+  private final int examplesMaxSize;
   private final AdditionalPropertiesPolicy additionalPropertiesPolicy;
   private final RequiredPolicy requiredPolicy;
   private final FormatInferrer formatInferrer;
   private final TitleGenerator titleGenerator;
 
-  private JsonSchemaInferrer(@Nonnull SpecVersion specVersion, boolean includeMetaSchemaUrl,
-      @Nonnegative int examplesLimit,
+  private JsonSchemaInferrer(@Nonnull SpecVersion specVersion, @Nonnegative int examplesMaxSize,
       @Nonnull AdditionalPropertiesPolicy additionalPropertiesPolicy,
       @Nonnull RequiredPolicy requiredPolicy, @Nonnull FormatInferrer formatInferrer,
       @Nonnull TitleGenerator titleGenerator) {
     this.specVersion = specVersion;
-    this.includeMetaSchemaUrl = includeMetaSchemaUrl;
-    this.examplesLimit = examplesLimit;
+    this.examplesMaxSize = examplesMaxSize;
     this.additionalPropertiesPolicy = additionalPropertiesPolicy;
     this.requiredPolicy = requiredPolicy;
     this.formatInferrer = formatInferrer;
@@ -91,9 +88,7 @@ public final class JsonSchemaInferrer {
       throw new IllegalArgumentException("Unable to process empty Collection");
     }
     final ObjectNode schema = newObject();
-    if (includeMetaSchemaUrl) {
-      schema.put(Consts.Fields.DOLLAR_SCHEMA, specVersion.getMetaSchemaUrl());
-    }
+    schema.put(Consts.Fields.DOLLAR_SCHEMA, specVersion.getMetaSchemaUrl());
     final Collection<ObjectNode> anyOfs = getAnyOfsFromSamples(processedSamples);
     switch (anyOfs.size()) {
       case 0:
@@ -141,7 +136,7 @@ public final class JsonSchemaInferrer {
      * vales are examples for that type/format combo.
      */
     final Map<List<String>, Set<ValueNode>> examplesMap =
-        examplesLimit > 0 ? new HashMap<>() : null;
+        examplesMaxSize > 0 ? new HashMap<>() : null;
     for (ValueNode valueNode : valueNodes) {
       final ObjectNode newAnyOf = newObject();
       final String type = inferPrimitiveType(valueNode, allNumbersAreIntegers);
@@ -155,7 +150,7 @@ public final class JsonSchemaInferrer {
         examplesMap.compute(Arrays.asList(type, format), (typeFormatPair, originalExamples) -> {
           final Set<ValueNode> newExamples =
               originalExamples == null ? new HashSet<>() : originalExamples;
-          if (newExamples.size() < examplesLimit) {
+          if (newExamples.size() < examplesMaxSize) {
             newExamples.add(valueNode);
           }
           return newExamples;
@@ -411,8 +406,7 @@ public final class JsonSchemaInferrer {
   public static final class Builder {
 
     private SpecVersion specVersion = SpecVersion.DRAFT_04;
-    private boolean includeMetaSchemaUrl = true;
-    private int examplesLimit = 0;
+    private int examplesMaxSize = 0;
     private AdditionalPropertiesPolicy additionalPropertiesPolicy =
         AdditionalPropertiesPolicies.noOp();
     private RequiredPolicy requiredPolicy = RequiredPolicies.noOp();
@@ -424,29 +418,21 @@ public final class JsonSchemaInferrer {
     /**
      * Set the specification version. The default is draft-04.
      */
-    public Builder withSpecVersion(@Nonnull SpecVersion specVersion) {
+    public Builder setSpecVersion(@Nonnull SpecVersion specVersion) {
       this.specVersion = Objects.requireNonNull(specVersion);
       return this;
     }
 
     /**
-     * Set whether {@code $schema} should be included in the output. It is true by default.
-     */
-    public Builder includeMetaSchemaUrl(boolean includeMetaSchemaUrl) {
-      this.includeMetaSchemaUrl = includeMetaSchemaUrl;
-      return this;
-    }
-
-    /**
-     * Set the max length for {@code examples}. 0 to disable {@code examples}.
+     * Set the max size for {@code examples}. 0 to disable {@code examples}.
      *
      * @throws IllegalArgumentException if the input is negative
      */
-    public Builder withExamplesLimit(@Nonnegative int examplesLimit) {
-      if (examplesLimit < 0) {
-        throw new IllegalArgumentException("Invalid examplesLimit");
+    public Builder setExamplesMaxSize(@Nonnegative int examplesMaxSize) {
+      if (examplesMaxSize < 0) {
+        throw new IllegalArgumentException("Invalid examplesMaxSize");
       }
-      this.examplesLimit = examplesLimit;
+      this.examplesMaxSize = examplesMaxSize;
       return this;
     }
 
@@ -457,7 +443,7 @@ public final class JsonSchemaInferrer {
      * @see AdditionalPropertiesPolicy
      * @see AdditionalPropertiesPolicies
      */
-    public Builder withAdditionalPropertiesPolicy(
+    public Builder setAdditionalPropertiesPolicy(
         @Nonnull AdditionalPropertiesPolicy additionalPropertiesPolicy) {
       this.additionalPropertiesPolicy = Objects.requireNonNull(additionalPropertiesPolicy);
       return this;
@@ -469,7 +455,7 @@ public final class JsonSchemaInferrer {
      * @see RequiredPolicy
      * @see RequiredPolicies
      */
-    public Builder withRequiredPolicy(@Nonnull RequiredPolicy requiredPolicy) {
+    public Builder setRequiredPolicy(@Nonnull RequiredPolicy requiredPolicy) {
       this.requiredPolicy = Objects.requireNonNull(requiredPolicy);
       return this;
     }
@@ -487,7 +473,7 @@ public final class JsonSchemaInferrer {
      * @see FormatInferrer
      * @see FormatInferrers
      */
-    public Builder withFormatInferrer(@Nonnull FormatInferrer formatInferrer) {
+    public Builder setFormatInferrer(@Nonnull FormatInferrer formatInferrer) {
       this.formatInferrer = Objects.requireNonNull(formatInferrer);
       return this;
     }
@@ -500,7 +486,7 @@ public final class JsonSchemaInferrer {
      * @see TitleGenerator
      * @see TitleGenerators
      */
-    public Builder withTitleGenerator(@Nonnull TitleGenerator titleGenerator) {
+    public Builder setTitleGenerator(@Nonnull TitleGenerator titleGenerator) {
       this.titleGenerator = Objects.requireNonNull(titleGenerator);
       return this;
     }
@@ -510,12 +496,12 @@ public final class JsonSchemaInferrer {
      * @throws IllegalArgumentException if the spec version and features don't match up
      */
     public JsonSchemaInferrer build() {
-      if (specVersion.compareTo(SpecVersion.DRAFT_06) < 0 && examplesLimit > 0) {
+      if (specVersion.compareTo(SpecVersion.DRAFT_06) < 0 && examplesMaxSize > 0) {
         throw new IllegalArgumentException(
             "examples not supported with " + specVersion.getMetaSchemaIdentifier());
       }
-      return new JsonSchemaInferrer(specVersion, includeMetaSchemaUrl, examplesLimit,
-          additionalPropertiesPolicy, requiredPolicy, formatInferrer, titleGenerator);
+      return new JsonSchemaInferrer(specVersion, examplesMaxSize, additionalPropertiesPolicy,
+          requiredPolicy, formatInferrer, titleGenerator);
     }
 
   }

@@ -2,7 +2,6 @@ package com.saasquatch.json_schema_inferrer;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -53,9 +52,9 @@ public class JsonSchemaInferrerTest {
       inferrer.inferForSample(sampleObj);
     });
     assertThrows(IllegalArgumentException.class,
-        () -> JsonSchemaInferrer.newBuilder().withExamplesLimit(-1));
+        () -> JsonSchemaInferrer.newBuilder().setExamplesMaxSize(-1));
     assertThrows(IllegalArgumentException.class, () -> JsonSchemaInferrer.newBuilder()
-        .withSpecVersion(SpecVersion.DRAFT_04).withExamplesLimit(1).build());
+        .setSpecVersion(SpecVersion.DRAFT_04).setExamplesMaxSize(1).build());
     assertThrows(IllegalArgumentException.class, () -> FormatInferrers.chained());
     assertThrows(NullPointerException.class,
         () -> FormatInferrers.chained(FormatInferrers.dateTime(), null));
@@ -64,25 +63,25 @@ public class JsonSchemaInferrerTest {
 
   @Test
   public void testFormatInference() {
-    assertNull(JsonSchemaInferrer.newBuilder().withFormatInferrer(FormatInferrers.dateTime())
-        .withSpecVersion(SpecVersion.DRAFT_07).build().inferForSample(jnf.textNode("aaaaaaaaa"))
+    assertNull(JsonSchemaInferrer.newBuilder().setFormatInferrer(FormatInferrers.dateTime())
+        .setSpecVersion(SpecVersion.DRAFT_07).build().inferForSample(jnf.textNode("aaaaaaaaa"))
         .path("format").textValue());
     assertEquals("date-time",
-        JsonSchemaInferrer.newBuilder().withFormatInferrer(FormatInferrers.dateTime()).build()
+        JsonSchemaInferrer.newBuilder().setFormatInferrer(FormatInferrers.dateTime()).build()
             .inferForSample(jnf.textNode(Instant.now().toString())).path("format").textValue());
-    assertNull(JsonSchemaInferrer.newBuilder().withFormatInferrer(FormatInferrers.dateTime())
-        .withSpecVersion(SpecVersion.DRAFT_06).build().inferForSample(jnf.textNode("1900-01-01"))
+    assertNull(JsonSchemaInferrer.newBuilder().setFormatInferrer(FormatInferrers.dateTime())
+        .setSpecVersion(SpecVersion.DRAFT_06).build().inferForSample(jnf.textNode("1900-01-01"))
         .path("format").textValue());
     assertEquals("date",
-        JsonSchemaInferrer.newBuilder().withFormatInferrer(FormatInferrers.dateTime())
-            .withSpecVersion(SpecVersion.DRAFT_07).build()
-            .inferForSample(jnf.textNode("1900-01-01")).path("format").textValue());
-    assertNull(JsonSchemaInferrer.newBuilder().withFormatInferrer(FormatInferrers.dateTime())
-        .withSpecVersion(SpecVersion.DRAFT_06).build().inferForSample(jnf.textNode("20:20:39"))
+        JsonSchemaInferrer.newBuilder().setFormatInferrer(FormatInferrers.dateTime())
+            .setSpecVersion(SpecVersion.DRAFT_07).build().inferForSample(jnf.textNode("1900-01-01"))
+            .path("format").textValue());
+    assertNull(JsonSchemaInferrer.newBuilder().setFormatInferrer(FormatInferrers.dateTime())
+        .setSpecVersion(SpecVersion.DRAFT_06).build().inferForSample(jnf.textNode("20:20:39"))
         .path("format").textValue());
     assertEquals("time",
-        JsonSchemaInferrer.newBuilder().withFormatInferrer(FormatInferrers.dateTime())
-            .withSpecVersion(SpecVersion.DRAFT_07).build().inferForSample(jnf.textNode("20:20:39"))
+        JsonSchemaInferrer.newBuilder().setFormatInferrer(FormatInferrers.dateTime())
+            .setSpecVersion(SpecVersion.DRAFT_07).build().inferForSample(jnf.textNode("20:20:39"))
             .path("format").textValue());
   }
 
@@ -96,22 +95,15 @@ public class JsonSchemaInferrerTest {
       assertTrue(schema.hasNonNull("type"));
     }
     {
-      final ObjectNode schema = JsonSchemaInferrer.newBuilder()
-          .withSpecVersion(SpecVersion.DRAFT_06).build().inferForSample(simple);
+      final ObjectNode schema = JsonSchemaInferrer.newBuilder().setSpecVersion(SpecVersion.DRAFT_06)
+          .build().inferForSample(simple);
       assertTrue(schema.hasNonNull("$schema"));
       assertTrue(schema.path("$schema").textValue().contains("-06"));
       assertTrue(schema.hasNonNull("type"));
     }
     {
-      final ObjectNode schema =
-          JsonSchemaInferrer.newBuilder().withSpecVersion(SpecVersion.DRAFT_06)
-              .includeMetaSchemaUrl(false).build().inferForSample(simple);
-      assertFalse(schema.hasNonNull("$schema"));
-      assertTrue(schema.hasNonNull("type"));
-    }
-    {
       final ObjectNode schema = JsonSchemaInferrer.newBuilder()
-          .withFormatInferrer(FormatInferrers.dateTime()).build().inferForSample(simple);
+          .setFormatInferrer(FormatInferrers.dateTime()).build().inferForSample(simple);
       assertTrue(schema.hasNonNull("properties"));
       assertTrue(schema.path("properties").isObject());
       assertEquals("integer", schema.path("properties").path("id").path("type").textValue());
