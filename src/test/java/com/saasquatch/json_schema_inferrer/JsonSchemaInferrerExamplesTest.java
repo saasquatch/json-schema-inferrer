@@ -81,6 +81,11 @@ public class JsonSchemaInferrerExamplesTest {
     }
   }
 
+  private static boolean allSamples() {
+    return Optional.ofNullable(System.getProperty(CONST_BASE + "allSamples"))
+        .map(Boolean::parseBoolean).orElse(false);
+  }
+
   private static void doTestForJsonUrl(String jsonUrl) {
     final JsonNode sampleJson;
     // Not being able to load the sample JSON should not be considered a failure
@@ -170,9 +175,7 @@ public class JsonSchemaInferrerExamplesTest {
     final List<String> urls =
         getQuicktypeSampleJsonUrls().collect(Collectors.toCollection(ArrayList::new));
     Collections.shuffle(urls, ThreadLocalRandom.current());
-    final boolean allSamples = Optional.ofNullable(System.getProperty(CONST_BASE + "allSamples"))
-        .map(Boolean::parseBoolean).orElse(false);
-    if (allSamples) {
+    if (allSamples()) {
       System.out.println("Running tests for all samples");
       return urls;
     }
