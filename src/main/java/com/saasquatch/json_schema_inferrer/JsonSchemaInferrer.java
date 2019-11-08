@@ -111,8 +111,12 @@ public final class JsonSchemaInferrer {
    */
   @Nullable
   private JsonNode preProcessJsonNode(@Nullable JsonNode value) {
-    if (value == null) {
-      // Treat null as NullNode
+    if (value == null || value.isNull() || value.isMissingNode()) {
+      /*
+       * Treat null as NullNode for obvious reasons. Treat NullNode as the singleton NullNode
+       * because NullNode is not a final class. Treat MissingNode as NullNode so we don't end up
+       * with duplicate nulls in examples.
+       */
       return JsonNodeFactory.instance.nullNode();
     } else if (value.isPojo()) {
       throw new IllegalArgumentException(POJONode.class.getSimpleName() + " not supported");
