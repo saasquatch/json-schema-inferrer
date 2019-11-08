@@ -123,6 +123,9 @@ public final class JsonSchemaInferrer {
 
   @Nonnull
   private Collection<ObjectNode> processPrimitives(@Nonnull Collection<ValueNode> valueNodes) {
+    if (valueNodes.isEmpty()) {
+      throw new IllegalStateException("Unable to process empty Collection of primitive");
+    }
     final Collection<ObjectNode> anyOfs = new HashSet<>();
     // Whether all the numbers in the samples are integers. Used for inferring number types.
     final boolean allNumbersAreIntegers =
@@ -171,7 +174,7 @@ public final class JsonSchemaInferrer {
   @Nonnull
   private ObjectNode processObjects(@Nonnull Collection<ObjectNode> objectNodes) {
     if (objectNodes.isEmpty()) {
-      throw new IllegalArgumentException("Unable to process empty Collection");
+      throw new IllegalStateException("Unable to process empty Collection of objects");
     }
     // All the field names across all samples combined
     final Set<String> allFieldNames = getAllFieldNames(objectNodes);
@@ -209,7 +212,10 @@ public final class JsonSchemaInferrer {
 
   @Nonnull
   private ObjectNode processArrays(@Nonnull Collection<ArrayNode> arrayNodes) {
-    // samples can be empty here
+    if (arrayNodes.isEmpty()) {
+      throw new IllegalStateException("Unable to process empty Collection of arrays");
+    }
+    // Note that samples can be empty here if the sample arrays are empty
     final Set<JsonNode> samples =
         arrayNodes.stream().flatMap(j -> stream(j)).collect(Collectors.toSet());
     final ObjectNode items;
@@ -316,7 +322,7 @@ public final class JsonSchemaInferrer {
         break;
     }
     final String adj = knownType ? "Unexpected" : "Unrecognized";
-    throw new IllegalArgumentException(format("%s %s[%s] encountered with value[%s]", adj,
+    throw new IllegalStateException(format("%s %s[%s] encountered with value[%s]", adj,
         type.getClass().getSimpleName(), type, value));
   }
 
