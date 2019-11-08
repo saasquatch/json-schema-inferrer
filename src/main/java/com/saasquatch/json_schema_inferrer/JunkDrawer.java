@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Set;
 import java.util.Spliterators;
 import java.util.stream.Collectors;
@@ -86,8 +87,8 @@ final class JunkDrawer {
   static Set<JsonNode> getAllValuesForFieldName(@Nonnull Iterable<? extends JsonNode> objectNodes,
       @Nonnull String fieldName) {
     return stream(objectNodes)
-        .map(j -> j.path(fieldName))
-        .filter(j -> !j.isMissingNode())
+        .map(j -> j.get(fieldName))
+        .filter(Objects::nonNull)
         .collect(Collectors.toSet());
   }
 
