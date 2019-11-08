@@ -1,6 +1,5 @@
 package com.saasquatch.json_schema_inferrer;
 
-import static com.saasquatch.json_schema_inferrer.JunkDrawer.combineArraysDistinct;
 import static com.saasquatch.json_schema_inferrer.JunkDrawer.format;
 import static com.saasquatch.json_schema_inferrer.JunkDrawer.getAllFieldNames;
 import static com.saasquatch.json_schema_inferrer.JunkDrawer.getAllValuesForFieldName;
@@ -84,13 +83,12 @@ public final class JsonSchemaInferrer {
    */
   @Nonnull
   public ObjectNode inferForSamples(@Nonnull Collection<? extends JsonNode> samples) {
-    final Set<JsonNode> processedSamples = preProcessJsonNodes(samples);
-    if (processedSamples.isEmpty()) {
+    if (samples.isEmpty()) {
       throw new IllegalArgumentException("Unable to process empty Collection");
     }
     final ObjectNode schema = newObject();
     schema.put(Consts.Fields.DOLLAR_SCHEMA, specVersion.getMetaSchemaUrl());
-    final Collection<ObjectNode> anyOfs = getAnyOfsFromSamples(processedSamples);
+    final Collection<ObjectNode> anyOfs = getAnyOfsFromSamples(samples);
     switch (anyOfs.size()) {
       case 0:
         // anyOfs cannot be empty here, since we force inputs to be non empty
@@ -106,28 +104,21 @@ public final class JsonSchemaInferrer {
   }
 
   /**
-   * Pre-process a {@link JsonNode} input. Note that {@code null}s produced by this method should be
-   * discarded.
+   * Pre-process a {@link JsonNode} input.
    */
-  @Nullable
+  @Nonnull
   private JsonNode preProcessJsonNode(@Nullable JsonNode value) {
     if (value == null || value.isNull() || value.isMissingNode()) {
       /*
        * Treat null as NullNode for obvious reasons. Treat NullNode as the singleton NullNode
-       * because NullNode is not a final class. Treat MissingNode as NullNode so we don't end up
-       * with duplicate nulls in examples.
+       * because NullNode is not a final class and may break equals in the future. Treat MissingNode
+       * as NullNode so we don't end up with duplicate nulls in examples.
        */
       return JsonNodeFactory.instance.nullNode();
     } else if (value.isPojo()) {
       throw new IllegalArgumentException(POJONode.class.getSimpleName() + " not supported");
     }
     return value;
-  }
-
-  @Nonnull
-  private Set<JsonNode> preProcessJsonNodes(@Nonnull Iterable<? extends JsonNode> values) {
-    return stream(values).map(this::preProcessJsonNode).filter(Objects::nonNull)
-        .collect(Collectors.toSet());
   }
 
   @Nonnull
@@ -187,8 +178,7 @@ public final class JsonSchemaInferrer {
     final ObjectNode properties = newObject();
     for (String fieldName : allFieldNames) {
       // Get the vals from samples that have the field name. vals cannot be empty.
-      final Set<JsonNode> samples =
-          preProcessJsonNodes(getAllValuesForFieldName(objectNodes, fieldName));
+      final Set<JsonNode> samples = getAllValuesForFieldName(objectNodes, fieldName);
       final ObjectNode newProperty = newObject();
       final String title = generateTitle(fieldName);
       if (title != null) {
@@ -218,8 +208,10 @@ public final class JsonSchemaInferrer {
   }
 
   @Nonnull
-  private ObjectNode processArray(@Nonnull ArrayNode arrayNode) {
-    final Set<JsonNode> samples = preProcessJsonNodes(arrayNode);
+  private ObjectNode processArrays(@Nonnull Collection<ArrayNode> arrayNodes) {
+    // samples can be empty here
+    final Set<JsonNode> samples =
+        arrayNodes.stream().flatMap(j -> stream(j)).collect(Collectors.toSet());
     final ObjectNode items;
     final Collection<ObjectNode> anyOfs = getAnyOfsFromSamples(samples);
     switch (anyOfs.size()) {
@@ -244,12 +236,12 @@ public final class JsonSchemaInferrer {
 
   /**
    * Build {@code anyOf} from sample JSONs. Note that all the arrays and objects will be combined.
-   *
-   * @param samples the <em>processed</em> samples that have gone through
-   *        {@link #preProcessJsonNode(JsonNode)}
    */
   @Nonnull
-  private Collection<ObjectNode> getAnyOfsFromSamples(@Nonnull Set<JsonNode> samples) {
+  private Collection<ObjectNode> getAnyOfsFromSamples(
+      @Nonnull Collection<? extends JsonNode> samplesInput) {
+    final Set<JsonNode> samples =
+        samplesInput.stream().map(this::preProcessJsonNode).collect(Collectors.toSet());
     final Collection<ObjectNode> anyOfs = new HashSet<>();
     final Set<ObjectNode> objectNodes = new HashSet<>();
     final Set<ArrayNode> arrayNodes = new HashSet<>();
@@ -267,10 +259,9 @@ public final class JsonSchemaInferrer {
       anyOfs.add(processObjects(objectNodes));
     }
     if (!arrayNodes.isEmpty()) {
-      anyOfs.add(processArray(combineArraysDistinct(arrayNodes)));
+      anyOfs.add(processArrays(arrayNodes));
     }
     if (!valueNodes.isEmpty()) {
-      // Not using addAnyOf on purpose
       anyOfs.addAll(processPrimitives(valueNodes));
     }
     postProcessAnyOfs(anyOfs);

@@ -51,15 +51,6 @@ final class JunkDrawer {
   }
 
   /**
-   * Combine multiple {@link ArrayNode} with their unique elements
-   */
-  static ArrayNode combineArraysDistinct(@Nonnull Collection<ArrayNode> arrays) {
-    final ArrayNode result = newArray();
-    arrays.stream().flatMap(j -> stream(j)).distinct().forEach(result::add);
-    return result;
-  }
-
-  /**
    * Build an {@link ArrayNode} with distinct strings
    */
   static ArrayNode stringColToArrayDistinct(@Nonnull Collection<String> strings) {
