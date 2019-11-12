@@ -170,4 +170,25 @@ public class JsonSchemaInferrerOptionsTest {
     }
   }
 
+  @Test
+  public void testDefault() {
+    final List<JsonNode> samples =
+        ImmutableList.of(jnf.textNode("a"), jnf.textNode("b"), jnf.textNode("c"));
+    {
+      final JsonSchemaInferrer inferrer =
+          JsonSchemaInferrer.newBuilder().setDefaultPolicy(DefaultPolicies.noOp()).build();
+      assertNull(inferrer.inferForSamples(samples).get("default"));
+    }
+    {
+      final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
+          .setDefaultPolicy(DefaultPolicies.useFirstSamples()).build();
+      assertEquals("a", inferrer.inferForSamples(samples).path("default").textValue());
+    }
+    {
+      final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
+          .setDefaultPolicy(DefaultPolicies.useLastSamples()).build();
+      assertEquals("c", inferrer.inferForSamples(samples).path("default").textValue());
+    }
+  }
+
 }
