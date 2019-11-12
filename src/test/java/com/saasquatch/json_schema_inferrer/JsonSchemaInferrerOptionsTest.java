@@ -145,4 +145,20 @@ public class JsonSchemaInferrerOptionsTest {
     }
   }
 
+  @Test
+  public void testTitleGenerator() {
+    final JsonNode sample = jnf.objectNode().put("fieldName", "value");
+    {
+      final JsonSchemaInferrer inferrer =
+          JsonSchemaInferrer.newBuilder().setTitleGenerator(TitleGenerators.noOp()).build();
+      assertNull(inferrer.inferForSample(sample).path("properties").path("fieldName").get("title"));
+    }
+    {
+      final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
+          .setTitleGenerator(TitleGenerators.useFieldNames()).build();
+      assertEquals("fieldName", inferrer.inferForSample(sample).path("properties").path("fieldName")
+          .get("title").textValue());
+    }
+  }
+
 }
