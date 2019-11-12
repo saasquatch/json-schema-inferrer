@@ -54,6 +54,14 @@ public final class FormatInferrers {
     };
   }
 
+  public static FormatInferrer email() {
+    return CommonsValidatorFormatInferrer.EMAIL;
+  }
+
+  public static FormatInferrer ip() {
+    return CommonsValidatorFormatInferrer.IP;
+  }
+
   /**
    * @return A {@link FormatInferrer} that uses the given {@link FormatInferrer}s in the original
    *         order, and uses the first non-null result available.
