@@ -14,7 +14,7 @@ import javax.annotation.Nonnull;
 public final class FormatInferrers {
 
   /**
-   * @return a singleton {@link FormatInferrer} that not infer formats.
+   * @return a singleton {@link FormatInferrer} that does not infer formats.
    */
   public static FormatInferrer noOp() {
     return input -> null;
