@@ -43,17 +43,23 @@ public final class JsonSchemaInferrer {
 
   private final SpecVersion specVersion;
   private final int examplesLimit;
+  private final IntegerTypePreference integerTypePreference;
+  private final SimpleUnionTypePreference simpleUnionTypePreference;
   private final AdditionalPropertiesPolicy additionalPropertiesPolicy;
   private final RequiredPolicy requiredPolicy;
   private final FormatInferrer formatInferrer;
   private final TitleGenerator titleGenerator;
 
   private JsonSchemaInferrer(@Nonnull SpecVersion specVersion, @Nonnegative int examplesLimit,
+      @Nonnull IntegerTypePreference integerTypePreference,
+      @Nonnull SimpleUnionTypePreference simpleUnionTypePreference,
       @Nonnull AdditionalPropertiesPolicy additionalPropertiesPolicy,
       @Nonnull RequiredPolicy requiredPolicy, @Nonnull FormatInferrer formatInferrer,
       @Nonnull TitleGenerator titleGenerator) {
     this.specVersion = specVersion;
     this.examplesLimit = examplesLimit;
+    this.integerTypePreference = integerTypePreference;
+    this.simpleUnionTypePreference = simpleUnionTypePreference;
     this.additionalPropertiesPolicy = additionalPropertiesPolicy;
     this.requiredPolicy = requiredPolicy;
     this.formatInferrer = formatInferrer;
@@ -92,7 +98,7 @@ public final class JsonSchemaInferrer {
     switch (anyOfs.size()) {
       case 0:
         // anyOfs cannot be empty here, since we force inputs to be non empty
-        throw new AssertionError();
+        throw new IllegalStateException("empty anyOfs encountered in inferForSamples");
       case 1:
         schema.setAll(anyOfs.iterator().next());
         break;
@@ -191,7 +197,7 @@ public final class JsonSchemaInferrer {
       switch (anyOfs.size()) {
         case 0:
           // anyOfs cannot be empty here, since we should have at least one match of the fieldName
-          throw new AssertionError();
+          throw new IllegalStateException("empty anyOfs encountered");
         case 1:
           newProperty.setAll(anyOfs.iterator().next());
           break;
@@ -275,55 +281,72 @@ public final class JsonSchemaInferrer {
   }
 
   private void postProcessAnyOfs(@Nonnull Collection<ObjectNode> anyOfs) {
-    // Combine all the "simple" anyOfs, i.e. anyOfs that only have the "type" field
-    final Set<String> simpleTypes = new HashSet<>();
-    final Collection<ObjectNode> simpleAnyOfs = new ArrayList<>();
-    for (ObjectNode anyOf : anyOfs) {
-      final Set<String> fieldNames = stream(anyOf.fieldNames()).collect(Collectors.toSet());
-      if (fieldNames.equals(Consts.Fields.SINGLETON_TYPE)) {
-        simpleAnyOfs.add(anyOf);
-        simpleTypes.add(anyOf.path(Consts.Fields.TYPE).textValue());
+    mergeSimpleUnionTypes: if (simpleUnionTypePreference == SimpleUnionTypePreference.TYPE_AS_ARRAY) {
+      // Combine all the "simple" anyOfs, i.e. anyOfs that only have the "type" field
+      final Set<String> simpleTypes = new HashSet<>();
+      final Collection<ObjectNode> simpleAnyOfs = new ArrayList<>();
+      for (ObjectNode anyOf : anyOfs) {
+        final Set<String> fieldNames = stream(anyOf.fieldNames()).collect(Collectors.toSet());
+        if (fieldNames.equals(Consts.Fields.SINGLETON_TYPE)) {
+          simpleAnyOfs.add(anyOf);
+          simpleTypes.add(anyOf.path(Consts.Fields.TYPE).textValue());
+        }
       }
+      if (simpleAnyOfs.size() <= 1) {
+        break mergeSimpleUnionTypes;
+      }
+      // Combine all the simple types into an array
+      anyOfs.removeAll(simpleAnyOfs);
+      final ObjectNode combinedSimpleAnyOf = newObject();
+      combinedSimpleAnyOf.set(Consts.Fields.TYPE, stringColToArrayDistinct(simpleTypes));
+      anyOfs.add(combinedSimpleAnyOf);
     }
-    if (simpleAnyOfs.size() <= 1) {
-      return;
-    }
-    // Combine all the simple types into an array
-    anyOfs.removeAll(simpleAnyOfs);
-    final ObjectNode combinedSimpleAnyOf = newObject();
-    combinedSimpleAnyOf.set(Consts.Fields.TYPE, stringColToArrayDistinct(simpleTypes));
-    anyOfs.add(combinedSimpleAnyOf);
   }
 
   @Nonnull
-  private static String inferPrimitiveType(@Nonnull JsonNode value, boolean allNumbersAreIntegers) {
+  private String inferPrimitiveType(@Nonnull JsonNode value, boolean allNumbersAreIntegers) {
     // Marker for whether the error is caused by a known type
     boolean knownType = false;
     final JsonNodeType type = value.getNodeType();
     switch (type) {
+      // We shouldn't encounter these types here
       case ARRAY:
       case POJO:
       case OBJECT:
+      case MISSING:
         knownType = true;
         break;
       case BINARY:
         return Consts.Types.STRING;
       case BOOLEAN:
         return Consts.Types.BOOLEAN;
-      case MISSING:
-        return Consts.Types.NULL;
       case NULL:
         return Consts.Types.NULL;
-      case NUMBER:
-        return allNumbersAreIntegers ? Consts.Types.INTEGER : Consts.Types.NUMBER;
+      case NUMBER: {
+        final boolean useInteger;
+        switch (integerTypePreference) {
+          case IF_ALL:
+            useInteger = allNumbersAreIntegers;
+            break;
+          case IF_ANY:
+            useInteger = value.isIntegralNumber();
+            break;
+          case NEVER:
+            useInteger = false;
+            break;
+          default:
+            throw new IllegalStateException(format("Unrecognized %s[%s] encountered",
+                IntegerTypePreference.class.getSimpleName(), integerTypePreference));
+        }
+        return useInteger ? Consts.Types.INTEGER : Consts.Types.NUMBER;
+      }
       case STRING:
         return Consts.Types.STRING;
       default:
         break;
     }
-    final String adj = knownType ? "Unexpected" : "Unrecognized";
-    throw new IllegalStateException(format("%s %s[%s] encountered with value[%s]", adj,
-        type.getClass().getSimpleName(), type, value));
+    throw new IllegalStateException(format("%s %s[%s] encountered with value[%s]",
+        knownType ? "Unexpected" : "Unrecognized", type.getClass().getSimpleName(), type, value));
   }
 
   @Nullable
@@ -409,6 +432,9 @@ public final class JsonSchemaInferrer {
 
     private SpecVersion specVersion = SpecVersion.DRAFT_04;
     private int examplesLimit = 0;
+    private IntegerTypePreference integerTypePreference = IntegerTypePreference.IF_ALL;
+    private SimpleUnionTypePreference simpleUnionTypePreference =
+        SimpleUnionTypePreference.TYPE_AS_ARRAY;
     private AdditionalPropertiesPolicy additionalPropertiesPolicy =
         AdditionalPropertiesPolicies.noOp();
     private RequiredPolicy requiredPolicy = RequiredPolicies.noOp();
@@ -435,6 +461,23 @@ public final class JsonSchemaInferrer {
         throw new IllegalArgumentException("Invalid examplesLimit");
       }
       this.examplesLimit = examplesLimit;
+      return this;
+    }
+
+    /**
+     * Set the {@link IntegerTypePreference}
+     */
+    public Builder setIntegerTypePreference(@Nonnull IntegerTypePreference integerTypePreference) {
+      this.integerTypePreference = Objects.requireNonNull(integerTypePreference);
+      return this;
+    }
+
+    /**
+     * Set the {@link SimpleUnionTypePreference}
+     */
+    public Builder setSimpleUnionTypePreference(
+        @Nonnull SimpleUnionTypePreference simpleUnionTypePreference) {
+      this.simpleUnionTypePreference = Objects.requireNonNull(simpleUnionTypePreference);
       return this;
     }
 
@@ -502,8 +545,9 @@ public final class JsonSchemaInferrer {
         throw new IllegalArgumentException(
             "examples not supported with " + specVersion.getMetaSchemaIdentifier());
       }
-      return new JsonSchemaInferrer(specVersion, examplesLimit, additionalPropertiesPolicy,
-          requiredPolicy, formatInferrer, titleGenerator);
+      return new JsonSchemaInferrer(specVersion, examplesLimit, integerTypePreference,
+          simpleUnionTypePreference, additionalPropertiesPolicy, requiredPolicy, formatInferrer,
+          titleGenerator);
     }
 
   }
