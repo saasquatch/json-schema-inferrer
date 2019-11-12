@@ -13,6 +13,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -46,6 +47,7 @@ public final class JsonSchemaInferrer {
   private final SimpleUnionTypePreference simpleUnionTypePreference;
   private final AdditionalPropertiesPolicy additionalPropertiesPolicy;
   private final RequiredPolicy requiredPolicy;
+  private final DefaultPolicy defaultPolicy;
   private final FormatInferrer formatInferrer;
   private final TitleGenerator titleGenerator;
 
@@ -53,14 +55,15 @@ public final class JsonSchemaInferrer {
       @Nonnull IntegerTypePreference integerTypePreference,
       @Nonnull SimpleUnionTypePreference simpleUnionTypePreference,
       @Nonnull AdditionalPropertiesPolicy additionalPropertiesPolicy,
-      @Nonnull RequiredPolicy requiredPolicy, @Nonnull FormatInferrer formatInferrer,
-      @Nonnull TitleGenerator titleGenerator) {
+      @Nonnull RequiredPolicy requiredPolicy, @Nonnull DefaultPolicy defaultPolicy,
+      @Nonnull FormatInferrer formatInferrer, @Nonnull TitleGenerator titleGenerator) {
     this.specVersion = specVersion;
     this.examplesLimit = examplesLimit;
     this.integerTypePreference = integerTypePreference;
     this.simpleUnionTypePreference = simpleUnionTypePreference;
     this.additionalPropertiesPolicy = additionalPropertiesPolicy;
     this.requiredPolicy = requiredPolicy;
+    this.defaultPolicy = defaultPolicy;
     this.formatInferrer = formatInferrer;
     this.titleGenerator = titleGenerator;
   }
@@ -139,8 +142,7 @@ public final class JsonSchemaInferrer {
      * Map to keep track of examples. The keys are pairs of [type, format] stored in Lists, and the
      * vales are examples for that type/format combo.
      */
-    final Map<List<String>, Set<ValueNode>> examplesMap =
-        examplesLimit > 0 ? new HashMap<>() : null;
+    final Map<List<String>, ExamplesSummary> examplesSummaryMap = new HashMap<>();
     for (ValueNode valueNode : valueNodes) {
       final ObjectNode newAnyOf = newObject();
       final String type = inferPrimitiveType(valueNode, allNumbersAreIntegers);
@@ -149,28 +151,26 @@ public final class JsonSchemaInferrer {
       if (format != null) {
         newAnyOf.put(Consts.Fields.FORMAT, format);
       }
-      // Keep track of examples if examples is enabled
-      if (examplesMap != null) {
-        examplesMap.compute(Arrays.asList(type, format), (typeFormatPair, originalExamples) -> {
-          final Set<ValueNode> newExamples =
-              originalExamples == null ? new HashSet<>() : originalExamples;
-          if (newExamples.size() < examplesLimit) {
-            newExamples.add(valueNode);
-          }
-          return newExamples;
-        });
-      }
+      // Keep track of examples even if examples is disabled
+      examplesSummaryMap.compute(Arrays.asList(type, format), (typeFormatPair, examplesSummary) -> {
+        if (examplesSummary == null) {
+          examplesSummary = new ExamplesSummary(examplesLimit);
+        }
+        examplesSummary.addExample(valueNode);
+        return examplesSummary;
+      });
       anyOfs.add(newAnyOf);
     }
     // Put the combined examples back into the result schema
-    if (examplesMap != null) {
-      for (ObjectNode anyOf : anyOfs) {
-        final String type = anyOf.path(Consts.Fields.TYPE).textValue();
-        final String format = anyOf.path(Consts.Fields.FORMAT).textValue();
-        final Set<ValueNode> examples = examplesMap.get(Arrays.asList(type, format));
-        if (examples != null && !examples.isEmpty()) {
-          anyOf.set(Consts.Fields.EXAMPLES, newArray().addAll(examples));
-        }
+    for (ObjectNode anyOf : anyOfs) {
+      final String type = anyOf.path(Consts.Fields.TYPE).textValue();
+      final String format = anyOf.path(Consts.Fields.FORMAT).textValue();
+      @Nonnull
+      final ExamplesSummary examplesSummary = examplesSummaryMap.get(Arrays.asList(type, format));
+      processDefault(anyOf, examplesSummary);
+      final Set<JsonNode> examples = examplesSummary.getExamples();
+      if (!examples.isEmpty()) {
+        anyOf.set(Consts.Fields.EXAMPLES, newArray().addAll(examples));
       }
     }
     return anyOfs;
@@ -256,7 +256,7 @@ public final class JsonSchemaInferrer {
     final Collection<ObjectNode> anyOfs = new HashSet<>();
     final Set<ObjectNode> objectNodes = new HashSet<>();
     final Set<ArrayNode> arrayNodes = new HashSet<>();
-    final Set<ValueNode> valueNodes = new HashSet<>();
+    final Set<ValueNode> valueNodes = new LinkedHashSet<>();
     for (JsonNode sample : samples) {
       if (sample instanceof ObjectNode) {
         objectNodes.add((ObjectNode) sample);
@@ -435,6 +435,31 @@ public final class JsonSchemaInferrer {
     }
   }
 
+  private void processDefault(@Nonnull ObjectNode schema,
+      @Nonnull ExamplesSummary examplesSummary) {
+    final JsonNode defaultNode = defaultPolicy.getDefault(new DefaultPolicyInput() {
+
+      @Override
+      public JsonNode getFirstSample() {
+        return examplesSummary.getFirstSample();
+      }
+
+      @Override
+      public JsonNode getLastSample() {
+        return examplesSummary.getLastSample();
+      }
+
+      @Override
+      public SpecVersion getSpecVersion() {
+        return specVersion;
+      }
+
+    });
+    if (defaultNode != null) {
+      schema.set(Consts.Fields.DEFAULT, defaultNode);
+    }
+  }
+
   public static final class Builder {
 
     private SpecVersion specVersion = SpecVersion.DRAFT_04;
@@ -445,6 +470,7 @@ public final class JsonSchemaInferrer {
     private AdditionalPropertiesPolicy additionalPropertiesPolicy =
         AdditionalPropertiesPolicies.noOp();
     private RequiredPolicy requiredPolicy = RequiredPolicies.noOp();
+    private DefaultPolicy defaultPolicy = DefaultPolicies.noOp();
     private FormatInferrer formatInferrer = FormatInferrers.noOp();
     private TitleGenerator titleGenerator = TitleGenerators.noOp();
 
@@ -514,6 +540,17 @@ public final class JsonSchemaInferrer {
     }
 
     /**
+     * Set the {@link DefaultPolicy}. By default it is {@link DefaultPolicies#noOp()}.
+     *
+     * @see DefaultPolicy
+     * @see DefaultPolicies
+     */
+    public Builder setDefaultPolicy(@Nonnull DefaultPolicy defaultPolicy) {
+      this.defaultPolicy = Objects.requireNonNull(defaultPolicy);
+      return this;
+    }
+
+    /**
      * Set the {@link FormatInferrer} for inferring the <a href=
      * "https://json-schema.org/understanding-json-schema/reference/string.html#format">format</a>
      * of strings. By default it uses {@link FormatInferrers#noOp()}. An example of a possible
@@ -554,8 +591,8 @@ public final class JsonSchemaInferrer {
             "examples not supported with " + specVersion.getMetaSchemaIdentifier());
       }
       return new JsonSchemaInferrer(specVersion, examplesLimit, integerTypePreference,
-          simpleUnionTypePreference, additionalPropertiesPolicy, requiredPolicy, formatInferrer,
-          titleGenerator);
+          simpleUnionTypePreference, additionalPropertiesPolicy, requiredPolicy, defaultPolicy,
+          formatInferrer, titleGenerator);
     }
 
   }
