@@ -374,7 +374,7 @@ public final class JsonSchemaInferrer {
   }
 
   @Nullable
-  private String generateTitle(@Nonnull String fieldName) {
+  private String generateTitle(@Nullable String fieldName) {
     return titleGenerator.generate(new TitleGeneratorInput() {
 
       @Override

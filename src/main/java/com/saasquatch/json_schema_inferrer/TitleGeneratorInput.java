@@ -1,6 +1,7 @@
 package com.saasquatch.json_schema_inferrer;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * The input for {@link TitleGenerator}
@@ -9,7 +10,10 @@ import javax.annotation.Nonnull;
  */
 public interface TitleGeneratorInput {
 
-  @Nonnull
+  /**
+   * @return The current field name, or null if it's not in an object.
+   */
+  @Nullable
   String getFieldName();
 
   @Nonnull

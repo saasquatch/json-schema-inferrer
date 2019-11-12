@@ -11,6 +11,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -157,6 +158,14 @@ public class JsonSchemaInferrerOptionsTest {
       final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
           .setTitleGenerator(TitleGenerators.useFieldNames()).build();
       assertEquals("fieldName", inferrer.inferForSample(sample).path("properties").path("fieldName")
+          .get("title").textValue());
+    }
+    {
+      final JsonSchemaInferrer inferrer =
+          JsonSchemaInferrer.newBuilder().setTitleGenerator(input -> {
+            return Optional.ofNullable(input.getFieldName()).map(String::toUpperCase).orElse(null);
+          }).build();
+      assertEquals("FIELDNAME", inferrer.inferForSample(sample).path("properties").path("fieldName")
           .get("title").textValue());
     }
   }
