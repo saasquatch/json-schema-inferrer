@@ -292,10 +292,11 @@ public final class JsonSchemaInferrer {
             simpleTypes.add(anyOf.path(Consts.Fields.TYPE).textValue());
           }
         }
+        // Combine all the simple types into an array
         if (simpleAnyOfs.size() <= 1) {
+          // If we only have 1 simple anyOf, there's nothing to do.
           break;
         }
-        // Combine all the simple types into an array
         anyOfs.removeAll(simpleAnyOfs);
         final ObjectNode combinedSimpleAnyOf = newObject();
         combinedSimpleAnyOf.set(Consts.Fields.TYPE, stringColToArrayDistinct(simpleTypes));
@@ -471,7 +472,7 @@ public final class JsonSchemaInferrer {
     }
 
     /**
-     * Set the {@link IntegerTypePreference}
+     * Set the {@link IntegerTypePreference}. The default is {@link IntegerTypePreference#IF_ALL}.
      */
     public Builder setIntegerTypePreference(@Nonnull IntegerTypePreference integerTypePreference) {
       this.integerTypePreference = Objects.requireNonNull(integerTypePreference);
@@ -479,7 +480,8 @@ public final class JsonSchemaInferrer {
     }
 
     /**
-     * Set the {@link SimpleUnionTypePreference}
+     * Set the {@link SimpleUnionTypePreference}. The default is
+     * {@link SimpleUnionTypePreference#TYPE_AS_ARRAY}.
      */
     public Builder setSimpleUnionTypePreference(
         @Nonnull SimpleUnionTypePreference simpleUnionTypePreference) {
