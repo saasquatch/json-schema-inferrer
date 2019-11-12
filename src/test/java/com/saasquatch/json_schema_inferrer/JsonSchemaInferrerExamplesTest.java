@@ -1,6 +1,7 @@
 package com.saasquatch.json_schema_inferrer;
 
 import static com.saasquatch.json_schema_inferrer.JunkDrawer.format;
+import static com.saasquatch.json_schema_inferrer.TestJunkDrawer.mapper;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
 import java.io.IOException;
@@ -33,7 +34,6 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
@@ -46,7 +46,6 @@ public class JsonSchemaInferrerExamplesTest {
       "https://cdn.jsdelivr.net/gh/quicktype/quicktype@f75f66bff3d1f812b61c481637c12173778a29b8";
   private static final String CONST_BASE = "com.saasquatch.json_schema_inferrer.test.";
   private static CloseableHttpClient httpClient;
-  private static final ObjectMapper mapper = new ObjectMapper();
   private static final Collection<JsonSchemaInferrer> testInferrers = getTestInferrers();
   private static final LoadingCache<String, JsonNode> testJsonCache =
       CacheBuilder.newBuilder().softValues().build(new CacheLoader<String, JsonNode>() {
