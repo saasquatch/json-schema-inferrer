@@ -1,5 +1,8 @@
 package com.saasquatch.json_schema_inferrer;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.ZonedDateTime;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 
@@ -21,25 +24,32 @@ public final class FormatInferrers {
    * @return a singleton {@link FormatInferrer} that infers date time formats.
    */
   public static FormatInferrer dateTime() {
-    return BuiltInFormatInferrer.DATE_TIME;
-  }
-
-  /**
-   * Note that this {@link FormatInferrer} requires commons-validator dependency.
-   *
-   * @return a singleton {@link FormatInferrer} that infers email formats.
-   */
-  public static FormatInferrer email() {
-    return BuiltInFormatInferrer.EMAIL;
-  }
-
-  /**
-   * Note that this {@link FormatInferrer} requires commons-validator dependency.
-   *
-   * @return a singleton {@link FormatInferrer} that infers IP formats.
-   */
-  public static FormatInferrer ip() {
-    return BuiltInFormatInferrer.IP;
+    return input -> {
+      final String textValue = input.getSample().textValue();
+      if (textValue != null) {
+        try {
+          ZonedDateTime.parse(textValue);
+          return "date-time";
+        } catch (Exception e) {
+          // Ignore
+        }
+        if (input.getSpecVersion().compareTo(SpecVersion.DRAFT_07) >= 0) {
+          try {
+            LocalTime.parse(textValue);
+            return "time";
+          } catch (Exception e) {
+            // Ignore
+          }
+          try {
+            LocalDate.parse(textValue);
+            return "date";
+          } catch (Exception e) {
+            // Ignore
+          }
+        }
+      }
+      return null;
+    };
   }
 
   /**

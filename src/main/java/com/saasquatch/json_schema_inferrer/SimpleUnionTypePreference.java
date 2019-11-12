@@ -8,11 +8,11 @@ package com.saasquatch.json_schema_inferrer;
 public enum SimpleUnionTypePreference {
 
   /**
-   * {@code type} as an array is preferred
+   * {@code type} as an array is preferred when possible.
    */
   TYPE_AS_ARRAY,
   /**
-   * Always use {@code anyOf}
+   * Always use {@code anyOf}.
    */
   ANY_OF,;
 

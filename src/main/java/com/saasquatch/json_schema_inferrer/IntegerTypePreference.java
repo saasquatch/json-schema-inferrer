@@ -8,7 +8,8 @@ package com.saasquatch.json_schema_inferrer;
 public enum IntegerTypePreference {
 
   /**
-   * Use {@code integer} if all the samples are integral numbers. Use {@code number} otherwise.
+   * Use {@code integer} if and only if all the samples are integral numbers. Use {@code number}
+   * otherwise.
    */
   IF_ALL,
   /**
@@ -17,7 +18,7 @@ public enum IntegerTypePreference {
    */
   IF_ANY,
   /**
-   * Never use {@code integer}. Always use {@code number}.
+   * Never use {@code integer}. Always use {@code number} instead.
    */
   NEVER,;
 

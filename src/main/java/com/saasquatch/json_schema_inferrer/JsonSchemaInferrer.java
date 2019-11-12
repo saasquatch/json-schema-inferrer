@@ -323,6 +323,7 @@ public final class JsonSchemaInferrer {
       case MISSING:
         knownType = true;
         break;
+      case STRING:
       case BINARY:
         return Consts.Types.STRING;
       case BOOLEAN:
@@ -347,8 +348,6 @@ public final class JsonSchemaInferrer {
         }
         return useInteger ? Consts.Types.INTEGER : Consts.Types.NUMBER;
       }
-      case STRING:
-        return Consts.Types.STRING;
       default:
         break;
     }
