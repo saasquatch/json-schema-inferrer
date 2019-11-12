@@ -1,14 +1,17 @@
 package com.saasquatch.json_schema_inferrer;
 
+import static com.saasquatch.json_schema_inferrer.JunkDrawer.stream;
 import static com.saasquatch.json_schema_inferrer.TestJunkDrawer.jnf;
 import static com.saasquatch.json_schema_inferrer.TestJunkDrawer.toStringSet;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.Instant;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -120,6 +123,25 @@ public class JsonSchemaInferrerOptionsTest {
           .setRequiredPolicy(RequiredPolicies.nonNullCommonFields()).build();
       assertEquals(ImmutableSet.of("1"),
           toStringSet(inferrer.inferForSamples(samples).get("required")));
+    }
+  }
+
+  @Test
+  public void testSimpleUnionTypePreference() {
+    final List<JsonNode> samples = ImmutableList.of(jnf.textNode("foo"), jnf.numberNode(1),
+        jnf.numberNode(BigDecimal.valueOf(1.5)));
+    {
+      final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
+          .setSimpleUnionTypePreference(SimpleUnionTypePreference.TYPE_AS_ARRAY).build();
+      assertEquals(ImmutableSet.of("string", "number"),
+          toStringSet(inferrer.inferForSamples(samples).path("type")));
+    }
+    {
+      final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
+          .setSimpleUnionTypePreference(SimpleUnionTypePreference.ANY_OF).build();
+      assertEquals(ImmutableSet.of("string", "number"),
+          stream(inferrer.inferForSamples(samples).path("anyOf"))
+              .map(j -> j.path("type").textValue()).collect(Collectors.toSet()));
     }
   }
 
