@@ -1,12 +1,15 @@
 package com.saasquatch.json_schema_inferrer;
 
-import static com.saasquatch.json_schema_inferrer.JsonSchemaInferrerTest.jnf;
+import static com.saasquatch.json_schema_inferrer.TestJunkDrawer.jnf;
+import static com.saasquatch.json_schema_inferrer.TestJunkDrawer.toStringSet;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.time.Instant;
 import org.junit.jupiter.api.Test;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.collect.ImmutableSet;
 
 public class JsonSchemaInferrerOptionsTest {
 
@@ -36,6 +39,29 @@ public class JsonSchemaInferrerOptionsTest {
         JsonSchemaInferrer.newBuilder().setFormatInferrer(FormatInferrers.dateTime())
             .setSpecVersion(SpecVersion.DRAFT_07).build().inferForSample(jnf.textNode("20:20:39"))
             .path("format").textValue());
+  }
+
+  @Test
+  public void testAdditionalProperties() {
+    {
+      final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
+          .setAdditionalPropertiesPolicy(AdditionalPropertiesPolicies.allowed()).build();
+      final ObjectNode schema = inferrer.inferForSample(jnf.objectNode());
+      assertEquals(jnf.booleanNode(true), schema.path("additionalProperties"));
+    }
+    {
+      final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
+          .setAdditionalPropertiesPolicy(AdditionalPropertiesPolicies.notAllowed()).build();
+      final ObjectNode schema = inferrer.inferForSample(jnf.objectNode());
+      assertEquals(jnf.booleanNode(false), schema.path("additionalProperties"));
+    }
+    {
+      final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
+          .setAdditionalPropertiesPolicy(AdditionalPropertiesPolicies.existingTypes()).build();
+      final ObjectNode schema = inferrer.inferForSample(jnf.objectNode().put("1", 1).put("2", "2"));
+      assertEquals(ImmutableSet.of("string", "integer"),
+          toStringSet(schema.path("additionalProperties").path("type")));
+    }
   }
 
 }

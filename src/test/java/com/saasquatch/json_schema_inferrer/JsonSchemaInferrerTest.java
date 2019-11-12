@@ -1,5 +1,8 @@
 package com.saasquatch.json_schema_inferrer;
 
+import static com.saasquatch.json_schema_inferrer.TestJunkDrawer.jnf;
+import static com.saasquatch.json_schema_inferrer.TestJunkDrawer.mapper;
+import static com.saasquatch.json_schema_inferrer.TestJunkDrawer.toStringSet;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -8,19 +11,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.ImmutableSet;
 
 public class JsonSchemaInferrerTest {
-
-  static final JsonNodeFactory jnf = JsonNodeFactory.instance;
-  private final ObjectMapper mapper = new ObjectMapper();
 
   private JsonNode loadJson(String fileName) {
     try (InputStream in = this.getClass().getResourceAsStream(fileName)) {
@@ -110,12 +106,6 @@ public class JsonSchemaInferrerTest {
       assertEquals("number", schema.path("items").path("properties").path("dimensions")
           .path("properties").path("length").path("type").textValue());
     }
-  }
-
-  private static Set<String> toStringSet(JsonNode arrayNode) {
-    final Set<String> result = new HashSet<>();
-    arrayNode.forEach(j -> result.add(j.textValue()));
-    return result;
   }
 
 }
