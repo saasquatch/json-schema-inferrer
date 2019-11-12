@@ -27,7 +27,6 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.POJONode;
 import com.fasterxml.jackson.databind.node.ValueNode;
 
 /**
@@ -122,7 +121,7 @@ public final class JsonSchemaInferrer {
        */
       return JsonNodeFactory.instance.nullNode();
     } else if (value.isPojo()) {
-      throw new IllegalArgumentException(POJONode.class.getSimpleName() + " not supported");
+      throw new IllegalArgumentException(value.getClass().getSimpleName() + " not supported");
     }
     return value;
   }
@@ -281,25 +280,33 @@ public final class JsonSchemaInferrer {
   }
 
   private void postProcessAnyOfs(@Nonnull Collection<ObjectNode> anyOfs) {
-    mergeSimpleUnionTypes: if (simpleUnionTypePreference == SimpleUnionTypePreference.TYPE_AS_ARRAY) {
-      // Combine all the "simple" anyOfs, i.e. anyOfs that only have the "type" field
-      final Set<String> simpleTypes = new HashSet<>();
-      final Collection<ObjectNode> simpleAnyOfs = new ArrayList<>();
-      for (ObjectNode anyOf : anyOfs) {
-        final Set<String> fieldNames = stream(anyOf.fieldNames()).collect(Collectors.toSet());
-        if (fieldNames.equals(Consts.Fields.SINGLETON_TYPE)) {
-          simpleAnyOfs.add(anyOf);
-          simpleTypes.add(anyOf.path(Consts.Fields.TYPE).textValue());
+    switch (simpleUnionTypePreference) {
+      case TYPE_AS_ARRAY: {
+        // Combine all the "simple" anyOfs, i.e. anyOfs that only have the "type" field
+        final Set<String> simpleTypes = new HashSet<>();
+        final Collection<ObjectNode> simpleAnyOfs = new ArrayList<>();
+        for (ObjectNode anyOf : anyOfs) {
+          final Set<String> fieldNames = stream(anyOf.fieldNames()).collect(Collectors.toSet());
+          if (fieldNames.equals(Consts.Fields.SINGLETON_TYPE)) {
+            simpleAnyOfs.add(anyOf);
+            simpleTypes.add(anyOf.path(Consts.Fields.TYPE).textValue());
+          }
         }
+        if (simpleAnyOfs.size() <= 1) {
+          break;
+        }
+        // Combine all the simple types into an array
+        anyOfs.removeAll(simpleAnyOfs);
+        final ObjectNode combinedSimpleAnyOf = newObject();
+        combinedSimpleAnyOf.set(Consts.Fields.TYPE, stringColToArrayDistinct(simpleTypes));
+        anyOfs.add(combinedSimpleAnyOf);
+        break;
       }
-      if (simpleAnyOfs.size() <= 1) {
-        break mergeSimpleUnionTypes;
-      }
-      // Combine all the simple types into an array
-      anyOfs.removeAll(simpleAnyOfs);
-      final ObjectNode combinedSimpleAnyOf = newObject();
-      combinedSimpleAnyOf.set(Consts.Fields.TYPE, stringColToArrayDistinct(simpleTypes));
-      anyOfs.add(combinedSimpleAnyOf);
+      case ANY_OF:
+        break;
+      default:
+        throw new IllegalStateException(format("Unrecognized %s[%s] encountered",
+            simpleUnionTypePreference.getClass().getSimpleName(), simpleUnionTypePreference));
     }
   }
 
@@ -336,7 +343,7 @@ public final class JsonSchemaInferrer {
             break;
           default:
             throw new IllegalStateException(format("Unrecognized %s[%s] encountered",
-                IntegerTypePreference.class.getSimpleName(), integerTypePreference));
+                integerTypePreference.getClass().getSimpleName(), integerTypePreference));
         }
         return useInteger ? Consts.Types.INTEGER : Consts.Types.NUMBER;
       }
