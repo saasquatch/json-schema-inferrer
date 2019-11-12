@@ -100,4 +100,27 @@ public class JsonSchemaInferrerOptionsTest {
     }
   }
 
+  @Test
+  public void testRequired() {
+    final List<ObjectNode> samples = ImmutableList.of(jnf.objectNode().put("1", 1).put("2", 2),
+        jnf.objectNode().put("1", "1").put("2", (String) null));
+    {
+      final JsonSchemaInferrer inferrer =
+          JsonSchemaInferrer.newBuilder().setRequiredPolicy(RequiredPolicies.noOp()).build();
+      assertNull(inferrer.inferForSamples(samples).get("required"));
+    }
+    {
+      final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
+          .setRequiredPolicy(RequiredPolicies.commonFields()).build();
+      assertEquals(ImmutableSet.of("1", "2"),
+          toStringSet(inferrer.inferForSamples(samples).get("required")));
+    }
+    {
+      final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
+          .setRequiredPolicy(RequiredPolicies.nonNullCommonFields()).build();
+      assertEquals(ImmutableSet.of("1"),
+          toStringSet(inferrer.inferForSamples(samples).get("required")));
+    }
+  }
+
 }
