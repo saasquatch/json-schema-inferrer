@@ -57,16 +57,19 @@ public final class FormatInferrers {
   /**
    * @return A {@link FormatInferrer} that uses the given {@link FormatInferrer}s in the original
    *         order, and uses the first non-null result available.
-   * @throws IllegalArgumentException if the input is empty
    * @throws NullPointerException if the input has null elements
    */
   public static FormatInferrer chained(@Nonnull FormatInferrer... formatInferrers) {
+    return _chained(formatInferrers.clone());
+  }
+
+  private static FormatInferrer _chained(@Nonnull FormatInferrer[] formatInferrers) {
     for (FormatInferrer formatInferrer : formatInferrers) {
       Objects.requireNonNull(formatInferrer);
     }
     switch (formatInferrers.length) {
       case 0:
-        throw new IllegalArgumentException("Empty formatInferrers");
+        return noOp();
       case 1:
         return formatInferrers[0];
       default:

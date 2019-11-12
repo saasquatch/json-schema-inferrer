@@ -2,14 +2,11 @@ package com.saasquatch.json_schema_inferrer;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
-import java.time.Instant;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -22,7 +19,7 @@ import com.google.common.collect.ImmutableSet;
 
 public class JsonSchemaInferrerTest {
 
-  private static final JsonNodeFactory jnf = JsonNodeFactory.instance;
+  static final JsonNodeFactory jnf = JsonNodeFactory.instance;
   private final ObjectMapper mapper = new ObjectMapper();
 
   private JsonNode loadJson(String fileName) {
@@ -55,34 +52,6 @@ public class JsonSchemaInferrerTest {
         () -> JsonSchemaInferrer.newBuilder().setExamplesLimit(-1));
     assertThrows(IllegalArgumentException.class, () -> JsonSchemaInferrer.newBuilder()
         .setSpecVersion(SpecVersion.DRAFT_04).setExamplesLimit(1).build());
-    assertThrows(IllegalArgumentException.class, () -> FormatInferrers.chained());
-    assertThrows(NullPointerException.class,
-        () -> FormatInferrers.chained(FormatInferrers.dateTime(), null));
-    assertSame(FormatInferrers.dateTime(), FormatInferrers.chained(FormatInferrers.dateTime()));
-  }
-
-  @Test
-  public void testFormatInference() {
-    assertNull(JsonSchemaInferrer.newBuilder().setFormatInferrer(FormatInferrers.dateTime())
-        .setSpecVersion(SpecVersion.DRAFT_07).build().inferForSample(jnf.textNode("aaaaaaaaa"))
-        .path("format").textValue());
-    assertEquals("date-time",
-        JsonSchemaInferrer.newBuilder().setFormatInferrer(FormatInferrers.dateTime()).build()
-            .inferForSample(jnf.textNode(Instant.now().toString())).path("format").textValue());
-    assertNull(JsonSchemaInferrer.newBuilder().setFormatInferrer(FormatInferrers.dateTime())
-        .setSpecVersion(SpecVersion.DRAFT_06).build().inferForSample(jnf.textNode("1900-01-01"))
-        .path("format").textValue());
-    assertEquals("date",
-        JsonSchemaInferrer.newBuilder().setFormatInferrer(FormatInferrers.dateTime())
-            .setSpecVersion(SpecVersion.DRAFT_07).build().inferForSample(jnf.textNode("1900-01-01"))
-            .path("format").textValue());
-    assertNull(JsonSchemaInferrer.newBuilder().setFormatInferrer(FormatInferrers.dateTime())
-        .setSpecVersion(SpecVersion.DRAFT_06).build().inferForSample(jnf.textNode("20:20:39"))
-        .path("format").textValue());
-    assertEquals("time",
-        JsonSchemaInferrer.newBuilder().setFormatInferrer(FormatInferrers.dateTime())
-            .setSpecVersion(SpecVersion.DRAFT_07).build().inferForSample(jnf.textNode("20:20:39"))
-            .path("format").textValue());
   }
 
   @Test
