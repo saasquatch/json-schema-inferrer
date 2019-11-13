@@ -13,6 +13,8 @@ import javax.annotation.Nonnull;
  */
 public final class FormatInferrers {
 
+  private FormatInferrers() {}
+
   /**
    * @return a singleton {@link FormatInferrer} that does not infer formats.
    */
