@@ -124,6 +124,8 @@ And `resultForSample1And2` is:
 }
 ```
 
+For more examples, see package [`com.saasquatch.json_schema_inferrer.examples`](https://github.com/saasquatch/json-schema-inferrer/tree/master/src/test/java/com/saasquatch/json_schema_inferrer/examples).
+
 ## Adding it to your project
 
 ### Add the repository
