@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ThreadLocalRandom;
@@ -126,17 +125,15 @@ public class JsonSchemaInferrerExamplesTest {
   }
 
   private static void doTestForJsonUrls(Collection<String> jsonUrls) {
-    final List<JsonNode> sampleJsons = jsonUrls.stream()
-        .map(jsonUrl -> {
-          try {
-            return testJsonCache.get(jsonUrl);
-          } catch (Exception e) {
-            System.out.printf(Locale.ROOT, "Exception encountered loading JSON from url[%s]. "
-                + "Error message: [%s]. Skipping tests.\n", jsonUrl, e.getMessage());
-            return null;
-          }
-        })
-        .collect(Collectors.toList());
+    final List<JsonNode> sampleJsons = jsonUrls.stream().map(jsonUrl -> {
+      try {
+        return testJsonCache.get(jsonUrl);
+      } catch (Exception e) {
+        System.out.printf(Locale.ROOT, "Exception encountered loading JSON from url[%s]. "
+            + "Error message: [%s]. Skipping tests.\n", jsonUrl, e.getMessage());
+        return null;
+      }
+    }).collect(Collectors.toList());
     System.out.printf(Locale.ROOT, "Got valid JSONs from urls%s\n", jsonUrls);
     for (JsonSchemaInferrer inferrer : testInferrers) {
       final ObjectNode schemaJson = inferrer.inferForSamples(sampleJsons);
@@ -176,7 +173,7 @@ public class JsonSchemaInferrerExamplesTest {
       System.out.println("Running tests for all samples");
       return urls;
     }
-    final int limit = 20;
+    final int limit = 64;
     System.out.printf(Locale.ROOT, "Running tests for %d samples\n", limit);
     return urls.subList(0, Math.min(urls.size(), limit));
   }
@@ -230,42 +227,33 @@ public class JsonSchemaInferrerExamplesTest {
   }
 
   private static Collection<JsonSchemaInferrer> getTestInferrers() {
+    final ThreadLocalRandom random = ThreadLocalRandom.current();
     final List<JsonSchemaInferrer> inferrers = new ArrayList<>();
-    for (SpecVersion specVersion : EnumSet.of(SpecVersion.DRAFT_06, SpecVersion.DRAFT_07)) {
-      for (int examplesLimit : Arrays.asList(0, 3)) {
-        for (AdditionalPropertiesPolicy additionalPropertiesPolicy : Arrays.asList(
-            AdditionalPropertiesPolicies.noOp(), AdditionalPropertiesPolicies.existingTypes())) {
-          for (RequiredPolicy requiredPolicy : Arrays.asList(RequiredPolicies.noOp(),
-              RequiredPolicies.commonFields())) {
-            for (DefaultPolicy defaultPolicy : Arrays.asList(DefaultPolicies.noOp(),
-                DefaultPolicies.useFirstSamples())) {
-              for (boolean inferFormat : Arrays.asList(true, false)) {
-                for (TitleGenerator titleGenerator : Arrays.asList(TitleGenerators.noOp(),
-                    TitleGenerators.useFieldNames())) {
-                  if (specVersion == SpecVersion.DRAFT_07 && inferFormat) {
-                    /*
-                     * Skip tests for inferring format with draft-07 due to a disagreement between
-                     * Java time and the schema library on what a valid time string is.
-                     */
-                    continue;
-                  }
-                  final JsonSchemaInferrer.Builder builder = JsonSchemaInferrer.newBuilder()
-                      .setSpecVersion(specVersion).setExamplesLimit(examplesLimit)
-                      .setAdditionalPropertiesPolicy(additionalPropertiesPolicy)
-                      .setRequiredPolicy(requiredPolicy).setDefaultPolicy(defaultPolicy)
-                      .setTitleGenerator(titleGenerator);
-                  if (inferFormat) {
-                    builder.setFormatInferrer(FormatInferrers.dateTime());
-                  }
-                  try {
-                    inferrers.add(builder.build());
-                  } catch (IllegalArgumentException e) {
-                    // Ignore
-                  }
-                }
-              }
-            }
+    for (SpecVersion specVersion : SpecVersion.values()) {
+      for (boolean extraFeatures : Arrays.asList(true, false)) {
+        final JsonSchemaInferrer.Builder builder =
+            JsonSchemaInferrer.newBuilder().setSpecVersion(specVersion);
+        if (extraFeatures) {
+          if (specVersion != SpecVersion.DRAFT_07) {
+            /*
+             * Skip tests for inferring format with draft-07 due to a disagreement between Java time
+             * and the schema library on what a valid time string is.
+             */
+            builder.setFormatInferrer(FormatInferrers.dateTime());
           }
+          builder.enable(ArrayLengthFeature.values()).enable(ObjectSizeFeature.values())
+              .enable(StringLengthFeature.values()).setExamplesLimit(10)
+              .setDefaultPolicy(random.nextBoolean() ? DefaultPolicies.useFirstSamples()
+                  : DefaultPolicies.useLastSamples())
+              .setTitleGenerator(TitleGenerators.useFieldNames())
+              .setAdditionalPropertiesPolicy(AdditionalPropertiesPolicies.existingTypes())
+              .setRequiredPolicy(random.nextBoolean() ? RequiredPolicies.commonFields()
+                  : RequiredPolicies.nonNullCommonFields());
+        }
+        try {
+          inferrers.add(builder.build());
+        } catch (IllegalArgumentException e) {
+          // Ignore
         }
       }
     }
@@ -275,10 +263,8 @@ public class JsonSchemaInferrerExamplesTest {
   @Nullable
   private static JsonNode loadJsonFromUrl(String jsonUrl) throws IOException {
     final HttpGet request = new HttpGet(jsonUrl);
-    request.setConfig(RequestConfig.custom()
-        .setConnectTimeout(1, TimeUnit.SECONDS)
-        .setConnectionRequestTimeout(1, TimeUnit.SECONDS)
-        .setResponseTimeout(5, TimeUnit.SECONDS)
+    request.setConfig(RequestConfig.custom().setConnectTimeout(1, TimeUnit.SECONDS)
+        .setConnectionRequestTimeout(1, TimeUnit.SECONDS).setResponseTimeout(5, TimeUnit.SECONDS)
         .build());
     return httpClient.execute(request, new AbstractHttpClientResponseHandler<JsonNode>() {
       @Override

@@ -36,7 +36,8 @@ final class PrimitivesSummary {
     lastSample = example;
     final String textValue = example.textValue();
     if (textValue != null) {
-      final int stringLength = textValue.length();
+      // DO NOT use String.length()
+      final int stringLength = textValue.codePointCount(0, textValue.length());
       if (minStringLength < 0 || stringLength < minStringLength) {
         minStringLength = stringLength;
       }
