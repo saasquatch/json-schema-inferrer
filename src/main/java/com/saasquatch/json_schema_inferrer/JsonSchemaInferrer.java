@@ -7,19 +7,16 @@ import static com.saasquatch.json_schema_inferrer.JunkDrawer.newArray;
 import static com.saasquatch.json_schema_inferrer.JunkDrawer.newObject;
 import static com.saasquatch.json_schema_inferrer.JunkDrawer.stream;
 import static com.saasquatch.json_schema_inferrer.JunkDrawer.stringColToArrayDistinct;
-import static com.saasquatch.json_schema_inferrer.JunkDrawer.unmodifiableEnumSet;
 import static com.saasquatch.json_schema_inferrer.JunkDrawer.unrecognizedEnumError;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnegative;
@@ -57,7 +54,7 @@ public final class JsonSchemaInferrer {
   private final Set<ArrayLengthFeature> arrayLengthFeatures;
   private final Set<StringLengthFeature> stringLengthFeatures;
 
-  private JsonSchemaInferrer(@Nonnull SpecVersion specVersion, @Nonnegative int examplesLimit,
+  JsonSchemaInferrer(@Nonnull SpecVersion specVersion, @Nonnegative int examplesLimit,
       @Nonnull IntegerTypePreference integerTypePreference,
       @Nonnull SimpleUnionTypePreference simpleUnionTypePreference,
       @Nonnull AdditionalPropertiesPolicy additionalPropertiesPolicy,
@@ -80,8 +77,8 @@ public final class JsonSchemaInferrer {
     this.stringLengthFeatures = stringLengthFeatures;
   }
 
-  public static Builder newBuilder() {
-    return new Builder();
+  public static JsonSchemaInferrerBuilder newBuilder() {
+    return new JsonSchemaInferrerBuilder();
   }
 
   /**
@@ -534,210 +531,6 @@ public final class JsonSchemaInferrer {
           unrecognizedEnumError(stringLengthFeature);
       }
     }
-  }
-
-  public static final class Builder {
-
-    private SpecVersion specVersion = SpecVersion.DRAFT_04;
-    private int examplesLimit = 0;
-    private IntegerTypePreference integerTypePreference = IntegerTypePreference.IF_ALL;
-    private SimpleUnionTypePreference simpleUnionTypePreference =
-        SimpleUnionTypePreference.TYPE_AS_ARRAY;
-    private AdditionalPropertiesPolicy additionalPropertiesPolicy =
-        AdditionalPropertiesPolicies.noOp();
-    private RequiredPolicy requiredPolicy = RequiredPolicies.noOp();
-    private DefaultPolicy defaultPolicy = DefaultPolicies.noOp();
-    private FormatInferrer formatInferrer = FormatInferrers.noOp();
-    private TitleGenerator titleGenerator = TitleGenerators.noOp();
-    private final EnumSet<ObjectSizeFeature> objectSizeFeatures =
-        EnumSet.noneOf(ObjectSizeFeature.class);
-    private final EnumSet<ArrayLengthFeature> arrayLengthFeatures =
-        EnumSet.noneOf(ArrayLengthFeature.class);
-    private final EnumSet<StringLengthFeature> stringLengthFeatures =
-        EnumSet.noneOf(StringLengthFeature.class);
-
-    private Builder() {}
-
-    /**
-     * Set the specification version. The default is draft-04.
-     */
-    public Builder setSpecVersion(@Nonnull SpecVersion specVersion) {
-      this.specVersion = Objects.requireNonNull(specVersion);
-      return this;
-    }
-
-    /**
-     * Set the max size for {@code examples}. 0 to disable {@code examples}. By default it is 0.
-     *
-     * @throws IllegalArgumentException if the input is negative
-     */
-    public Builder setExamplesLimit(@Nonnegative int examplesLimit) {
-      if (examplesLimit < 0) {
-        throw new IllegalArgumentException("Invalid examplesLimit");
-      }
-      this.examplesLimit = examplesLimit;
-      return this;
-    }
-
-    /**
-     * Set the {@link IntegerTypePreference}. The default is {@link IntegerTypePreference#IF_ALL}.
-     */
-    public Builder setIntegerTypePreference(@Nonnull IntegerTypePreference integerTypePreference) {
-      this.integerTypePreference = Objects.requireNonNull(integerTypePreference);
-      return this;
-    }
-
-    /**
-     * Set the {@link SimpleUnionTypePreference}. The default is
-     * {@link SimpleUnionTypePreference#TYPE_AS_ARRAY}.
-     */
-    public Builder setSimpleUnionTypePreference(
-        @Nonnull SimpleUnionTypePreference simpleUnionTypePreference) {
-      this.simpleUnionTypePreference = Objects.requireNonNull(simpleUnionTypePreference);
-      return this;
-    }
-
-    /**
-     * Set the {@link AdditionalPropertiesPolicy}. By default it is
-     * {@link AdditionalPropertiesPolicies#noOp()}.
-     *
-     * @see AdditionalPropertiesPolicy
-     * @see AdditionalPropertiesPolicies
-     */
-    public Builder setAdditionalPropertiesPolicy(
-        @Nonnull AdditionalPropertiesPolicy additionalPropertiesPolicy) {
-      this.additionalPropertiesPolicy = Objects.requireNonNull(additionalPropertiesPolicy);
-      return this;
-    }
-
-    /**
-     * Set the {@link RequiredPolicy}. By default it is {@link RequiredPolicies#noOp()}.
-     *
-     * @see RequiredPolicy
-     * @see RequiredPolicies
-     */
-    public Builder setRequiredPolicy(@Nonnull RequiredPolicy requiredPolicy) {
-      this.requiredPolicy = Objects.requireNonNull(requiredPolicy);
-      return this;
-    }
-
-    /**
-     * Set the {@link DefaultPolicy}. By default it is {@link DefaultPolicies#noOp()}.
-     *
-     * @see DefaultPolicy
-     * @see DefaultPolicies
-     */
-    public Builder setDefaultPolicy(@Nonnull DefaultPolicy defaultPolicy) {
-      this.defaultPolicy = Objects.requireNonNull(defaultPolicy);
-      return this;
-    }
-
-    /**
-     * Set the {@link FormatInferrer} for inferring the <a href=
-     * "https://json-schema.org/understanding-json-schema/reference/string.html#format">format</a>
-     * of strings. By default it uses {@link FormatInferrers#noOp()}. An example of a possible
-     * custom implementation is available at {@link FormatInferrers#dateTime()}, which you can
-     * potentially use or use it combined with your own implementations with
-     * {@link FormatInferrers#chained(FormatInferrer...)}.<br>
-     * Note that if your JSON samples have large nested arrays, it's recommended to set this to
-     * false to prevent confusing outputs.
-     *
-     * @see FormatInferrer
-     * @see FormatInferrers
-     */
-    public Builder setFormatInferrer(@Nonnull FormatInferrer formatInferrer) {
-      this.formatInferrer = Objects.requireNonNull(formatInferrer);
-      return this;
-    }
-
-    /**
-     * Set the {@link TitleGenerator} for this inferrer. By default it is
-     * {@link TitleGenerators#noOp()}. You can provide your custom implementations and transform the
-     * field names however you see fit.
-     *
-     * @see TitleGenerator
-     * @see TitleGenerators
-     */
-    public Builder setTitleGenerator(@Nonnull TitleGenerator titleGenerator) {
-      this.titleGenerator = Objects.requireNonNull(titleGenerator);
-      return this;
-    }
-
-    /**
-     * Enable {@link ArrayLengthFeature}s
-     */
-    public Builder enable(@Nonnull ArrayLengthFeature... features) {
-      for (ArrayLengthFeature feature : features) {
-        this.arrayLengthFeatures.add(Objects.requireNonNull(feature));
-      }
-      return this;
-    }
-
-    /**
-     * Disable {@link ArrayLengthFeature}s
-     */
-    public Builder disable(@Nonnull ArrayLengthFeature... features) {
-      for (ArrayLengthFeature feature : features) {
-        this.arrayLengthFeatures.remove(Objects.requireNonNull(feature));
-      }
-      return this;
-    }
-
-    /**
-     * Enable {@link ObjectSizeFeature}s
-     */
-    public Builder enable(@Nonnull ObjectSizeFeature... features) {
-      for (ObjectSizeFeature feature : features) {
-        this.objectSizeFeatures.add(Objects.requireNonNull(feature));
-      }
-      return this;
-    }
-
-    /**
-     * Disable {@link ObjectSizeFeature}s.
-     */
-    public Builder disable(@Nonnull ObjectSizeFeature... features) {
-      for (ObjectSizeFeature feature : features) {
-        this.objectSizeFeatures.remove(Objects.requireNonNull(feature));
-      }
-      return this;
-    }
-
-    /**
-     * Enable {@link StringLengthFeature}s
-     */
-    public Builder enable(@Nonnull StringLengthFeature... features) {
-      for (StringLengthFeature feature : features) {
-        this.stringLengthFeatures.add(Objects.requireNonNull(feature));
-      }
-      return this;
-    }
-
-    /**
-     * Disable {@link StringLengthFeature}s.
-     */
-    public Builder disable(@Nonnull StringLengthFeature... features) {
-      for (StringLengthFeature feature : features) {
-        this.stringLengthFeatures.remove(Objects.requireNonNull(feature));
-      }
-      return this;
-    }
-
-    /**
-     * @return the {@link JsonSchemaInferrer} built
-     * @throws IllegalArgumentException if the spec version and features don't match up
-     */
-    public JsonSchemaInferrer build() {
-      if (specVersion.compareTo(SpecVersion.DRAFT_06) < 0 && examplesLimit > 0) {
-        throw new IllegalArgumentException(
-            "examples not supported with " + specVersion.getMetaSchemaIdentifier());
-      }
-      return new JsonSchemaInferrer(specVersion, examplesLimit, integerTypePreference,
-          simpleUnionTypePreference, additionalPropertiesPolicy, requiredPolicy, defaultPolicy,
-          formatInferrer, titleGenerator, unmodifiableEnumSet(objectSizeFeatures),
-          unmodifiableEnumSet(arrayLengthFeatures), unmodifiableEnumSet(stringLengthFeatures));
-    }
-
   }
 
 }
