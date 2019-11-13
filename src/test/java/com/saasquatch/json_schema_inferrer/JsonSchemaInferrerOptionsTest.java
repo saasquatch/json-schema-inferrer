@@ -10,6 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -106,7 +107,8 @@ public class JsonSchemaInferrerOptionsTest {
     {
       final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
           .setAdditionalPropertiesPolicy(AdditionalPropertiesPolicies.existingTypes()).build();
-      final ObjectNode schema = inferrer.inferForSample(jnf.objectNode().put("1", 1).put("2", "2"));
+      final ObjectNode schema = inferrer.inferForSamples(Arrays
+          .asList(jnf.objectNode().put("1", 1).put("2", "2"), jnf.objectNode().put("1", "1")));
       assertEquals(ImmutableSet.of("string", "integer"),
           toStringSet(schema.path("additionalProperties").path("type")));
     }
