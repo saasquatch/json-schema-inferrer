@@ -77,6 +77,9 @@ public final class JsonSchemaInferrer {
     this.stringLengthFeatures = stringLengthFeatures;
   }
 
+  /**
+   * @return A new instance of {@link JsonSchemaInferrerBuilder} with default options.
+   */
   public static JsonSchemaInferrerBuilder newBuilder() {
     return new JsonSchemaInferrerBuilder();
   }

@@ -6,6 +6,12 @@ import java.util.Objects;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
+/**
+ * Builder for {@link JsonSchemaInferrer}.
+ *
+ * @author sli
+ * @see JsonSchemaInferrer#newBuilder()
+ */
 public final class JsonSchemaInferrerBuilder {
 
   private SpecVersion specVersion = SpecVersion.DRAFT_04;
