@@ -18,6 +18,6 @@ public interface TitleGenerator {
    * @return The generated title, or null if no title is generated
    */
   @Nullable
-  String generate(@Nonnull TitleGeneratorInput input);
+  String generateTitle(@Nonnull TitleGeneratorInput input);
 
 }

@@ -12,7 +12,7 @@ interface Consts {
 
   interface Fields {
     String TYPE = "type", ITEMS = "items", ANY_OF = "anyOf", PROPERTIES = "properties",
-        FORMAT = "format", DOLLAR_SCHEMA = "$schema", TITLE = "title",
+        FORMAT = "format", DOLLAR_SCHEMA = "$schema", TITLE = "title", DESCRIPTION = "description",
         ADDITIONAL_PROPERTIES = "additionalProperties", REQUIRED = "required",
         EXAMPLES = "examples", DEFAULT = "default", MIN_ITEMS = "minItems", MAX_ITEMS = "maxItems",
         MIN_PROPERTIES = "minProperties", MAX_PROPERTIES = "maxProperties",

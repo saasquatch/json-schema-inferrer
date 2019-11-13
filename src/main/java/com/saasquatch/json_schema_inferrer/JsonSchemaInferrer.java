@@ -50,6 +50,7 @@ public final class JsonSchemaInferrer {
   private final DefaultPolicy defaultPolicy;
   private final FormatInferrer formatInferrer;
   private final TitleGenerator titleGenerator;
+  private final DescriptionGenerator descriptionGenerator;
   private final Set<ObjectSizeFeature> objectSizeFeatures;
   private final Set<ArrayLengthFeature> arrayLengthFeatures;
   private final Set<StringLengthFeature> stringLengthFeatures;
@@ -60,6 +61,7 @@ public final class JsonSchemaInferrer {
       @Nonnull AdditionalPropertiesPolicy additionalPropertiesPolicy,
       @Nonnull RequiredPolicy requiredPolicy, @Nonnull DefaultPolicy defaultPolicy,
       @Nonnull FormatInferrer formatInferrer, @Nonnull TitleGenerator titleGenerator,
+      @Nonnull DescriptionGenerator descriptionGenerator,
       @Nonnull Set<ObjectSizeFeature> objectSizeFeatures,
       @Nonnull Set<ArrayLengthFeature> arrayLengthFeatures,
       @Nonnull Set<StringLengthFeature> stringLengthFeatures) {
@@ -72,6 +74,7 @@ public final class JsonSchemaInferrer {
     this.defaultPolicy = defaultPolicy;
     this.formatInferrer = formatInferrer;
     this.titleGenerator = titleGenerator;
+    this.descriptionGenerator = descriptionGenerator;
     this.objectSizeFeatures = objectSizeFeatures;
     this.arrayLengthFeatures = arrayLengthFeatures;
     this.stringLengthFeatures = stringLengthFeatures;
@@ -153,10 +156,8 @@ public final class JsonSchemaInferrer {
       // Get the vals from samples that have the field name. vals cannot be empty.
       final Collection<JsonNode> samples = getAllValuesForFieldName(objectNodes, fieldName);
       final ObjectNode newProperty = newObject();
-      final String title = generateTitle(fieldName);
-      if (title != null) {
-        newProperty.put(Consts.Fields.TITLE, title);
-      }
+      handleTitleGeneration(newProperty, fieldName);
+      handleDescriptionGeneration(newProperty, fieldName);
       final Collection<ObjectNode> anyOfs = getAnyOfsFromSamples(samples);
       switch (anyOfs.size()) {
         case 0:
@@ -389,9 +390,8 @@ public final class JsonSchemaInferrer {
     });
   }
 
-  @Nullable
-  private String generateTitle(@Nullable String fieldName) {
-    return titleGenerator.generate(new TitleGeneratorInput() {
+  private void handleTitleGeneration(@Nonnull ObjectNode schema, @Nullable String fieldName) {
+    final String title = titleGenerator.generateTitle(new TitleGeneratorInput() {
 
       @Override
       public String getFieldName() {
@@ -404,6 +404,29 @@ public final class JsonSchemaInferrer {
       }
 
     });
+    if (title != null) {
+      schema.put(Consts.Fields.TITLE, title);
+    }
+  }
+
+  private void handleDescriptionGeneration(@Nonnull ObjectNode schema, @Nullable String fieldName) {
+    final String description =
+        descriptionGenerator.generateDescription(new DescriptionGeneratorInput() {
+
+          @Override
+          public String getFieldName() {
+            return fieldName;
+          }
+
+          @Override
+          public SpecVersion getSpecVersion() {
+            return specVersion;
+          }
+
+        });
+    if (description != null) {
+      schema.put(Consts.Fields.DESCRIPTION, description);
+    }
   }
 
   private void processAdditionalProperties(@Nonnull ObjectNode schema) {
