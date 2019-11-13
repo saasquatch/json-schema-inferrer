@@ -26,15 +26,15 @@ final class PrimitivesSummary {
     this.examples = examplesLimit > 0 ? new HashSet<>() : Collections.emptySet();
   }
 
-  public void addExample(@Nonnull JsonNode example) {
+  public void addSample(@Nonnull JsonNode sample) {
     if (examples.size() < examplesLimit) {
-      examples.add(example);
+      examples.add(sample);
     }
     if (firstSample == null) {
-      firstSample = example;
+      firstSample = sample;
     }
-    lastSample = example;
-    final String textValue = example.textValue();
+    lastSample = sample;
+    final String textValue = sample.textValue();
     if (textValue != null) {
       // DO NOT use String.length()
       final int stringLength = textValue.codePointCount(0, textValue.length());

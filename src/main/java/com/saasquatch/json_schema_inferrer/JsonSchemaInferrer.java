@@ -237,7 +237,7 @@ public final class JsonSchemaInferrer {
             if (primitiveSummary == null) {
               primitiveSummary = new PrimitivesSummary(examplesLimit);
             }
-            primitiveSummary.addExample(valueNode);
+            primitiveSummary.addSample(valueNode);
             return primitiveSummary;
           });
       anyOfs.add(newAnyOf);
