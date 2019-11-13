@@ -18,6 +18,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  */
 public class AdditionalPropertiesPolicies {
 
+  private AdditionalPropertiesPolicies() {}
+
   /**
    * @return A singleton {@link AdditionalPropertiesPolicy} that does nothing
    */

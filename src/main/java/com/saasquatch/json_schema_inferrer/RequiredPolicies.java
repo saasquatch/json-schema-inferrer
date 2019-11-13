@@ -15,6 +15,8 @@ import com.fasterxml.jackson.databind.JsonNode;
  */
 public final class RequiredPolicies {
 
+  private RequiredPolicies() {}
+
   /**
    * @return A singleton {@link RequiredPolicy} that does nothing
    */

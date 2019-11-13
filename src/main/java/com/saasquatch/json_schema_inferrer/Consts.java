@@ -25,10 +25,4 @@ interface Consts {
         INTEGER = "integer", NUMBER = "number", NULL = "null";
   }
 
-  interface Diff {
-    String PATH = "path", OP = "op", ADD = "add", REMOVE = "remove";
-    Set<String> SINGLETON_ADD = Collections.singleton(ADD),
-        SINGLETON_REMOVE = Collections.singleton(REMOVE);
-  }
-
 }

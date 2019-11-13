@@ -7,6 +7,8 @@ package com.saasquatch.json_schema_inferrer;
  */
 public final class TitleGenerators {
 
+  private TitleGenerators() {}
+
   /**
    * @return a singleton {@link TitleGenerator} that does not generate titles
    */

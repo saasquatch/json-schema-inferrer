@@ -25,6 +25,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  */
 final class JunkDrawer {
 
+  private JunkDrawer() {}
+
   /**
    * String.format with {@link Locale#ROOT}
    */
