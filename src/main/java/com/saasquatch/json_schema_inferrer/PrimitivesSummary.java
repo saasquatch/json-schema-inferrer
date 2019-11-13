@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.JsonNode;
  *
  * @author sli
  */
-final class ExamplesSummary {
+final class PrimitivesSummary {
 
   private JsonNode firstSample;
   private JsonNode lastSample;
@@ -21,7 +21,7 @@ final class ExamplesSummary {
   private final int examplesLimit;
   private final Set<JsonNode> examples;
 
-  public ExamplesSummary(int examplesLimit) {
+  public PrimitivesSummary(int examplesLimit) {
     this.examplesLimit = examplesLimit;
     this.examples = examplesLimit > 0 ? new HashSet<>() : Collections.emptySet();
   }

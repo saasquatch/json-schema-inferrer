@@ -224,7 +224,7 @@ public final class JsonSchemaInferrer {
      * Map to keep track of examples. The keys are pairs of [type, format] stored in Lists, and the
      * vales are examples for that type/format combo.
      */
-    final Map<List<String>, ExamplesSummary> examplesSummaryMap = new HashMap<>();
+    final Map<List<String>, PrimitivesSummary> primitivesSummaryMap = new HashMap<>();
     for (ValueNode valueNode : valueNodes) {
       final ObjectNode newAnyOf = newObject();
       final String type = inferPrimitiveType(valueNode, allNumbersAreIntegers);
@@ -234,13 +234,14 @@ public final class JsonSchemaInferrer {
         newAnyOf.put(Consts.Fields.FORMAT, format);
       }
       // Keep track of examples even if examples is disabled
-      examplesSummaryMap.compute(Arrays.asList(type, format), (typeFormatPair, examplesSummary) -> {
-        if (examplesSummary == null) {
-          examplesSummary = new ExamplesSummary(examplesLimit);
-        }
-        examplesSummary.addExample(valueNode);
-        return examplesSummary;
-      });
+      primitivesSummaryMap.compute(Arrays.asList(type, format),
+          (typeFormatPair, primitiveSummary) -> {
+            if (primitiveSummary == null) {
+              primitiveSummary = new PrimitivesSummary(examplesLimit);
+            }
+            primitiveSummary.addExample(valueNode);
+            return primitiveSummary;
+          });
       anyOfs.add(newAnyOf);
     }
     // Put the combined examples and default back into the result schema
@@ -248,13 +249,14 @@ public final class JsonSchemaInferrer {
       final String type = anyOf.path(Consts.Fields.TYPE).textValue();
       final String format = anyOf.path(Consts.Fields.FORMAT).textValue();
       @Nonnull
-      final ExamplesSummary examplesSummary = examplesSummaryMap.get(Arrays.asList(type, format));
-      processDefault(anyOf, examplesSummary);
-      final Collection<JsonNode> examples = examplesSummary.getExamples();
+      final PrimitivesSummary primitivesSummary =
+          primitivesSummaryMap.get(Arrays.asList(type, format));
+      processDefault(anyOf, primitivesSummary);
+      final Collection<JsonNode> examples = primitivesSummary.getExamples();
       if (!examples.isEmpty()) {
         anyOf.set(Consts.Fields.EXAMPLES, newArray().addAll(examples));
       }
-      processStringLengthFeatures(anyOf, examplesSummary);
+      processStringLengthFeatures(anyOf, primitivesSummary);
     }
     return anyOfs;
   }
@@ -493,17 +495,17 @@ public final class JsonSchemaInferrer {
   }
 
   private void processDefault(@Nonnull ObjectNode schema,
-      @Nonnull ExamplesSummary examplesSummary) {
+      @Nonnull PrimitivesSummary primitivesSummary) {
     final JsonNode defaultNode = defaultPolicy.getDefault(new DefaultPolicyInput() {
 
       @Override
       public JsonNode getFirstSample() {
-        return examplesSummary.getFirstSample();
+        return primitivesSummary.getFirstSample();
       }
 
       @Override
       public JsonNode getLastSample() {
-        return examplesSummary.getLastSample();
+        return primitivesSummary.getLastSample();
       }
 
       @Override
@@ -518,16 +520,16 @@ public final class JsonSchemaInferrer {
   }
 
   private void processStringLengthFeatures(@Nonnull ObjectNode schema,
-      @Nonnull ExamplesSummary examplesSummary) {
+      @Nonnull PrimitivesSummary primitivesSummary) {
     for (StringLengthFeature stringLengthFeature : stringLengthFeatures) {
       switch (stringLengthFeature) {
         case MIN_LENGTH: {
-          examplesSummary.getMinStringLength()
+          primitivesSummary.getMinStringLength()
               .ifPresent(minLength -> schema.put(Consts.Fields.MIN_LENGTH, minLength));
           break;
         }
         case MAX_LENGTH: {
-          examplesSummary.getMaxStringLength()
+          primitivesSummary.getMaxStringLength()
               .ifPresent(maxLength -> schema.put(Consts.Fields.MAX_LENGTH, maxLength));
           break;
         }
