@@ -52,6 +52,7 @@ public final class JsonSchemaInferrer {
   private final DefaultPolicy defaultPolicy;
   private final FormatInferrer formatInferrer;
   private final TitleGenerator titleGenerator;
+  private final Set<ObjectSizeFeature> objectSizeFeatures;
   private final Set<ArrayLengthFeature> arrayLengthFeatures;
 
   private JsonSchemaInferrer(@Nonnull SpecVersion specVersion, @Nonnegative int examplesLimit,
@@ -60,6 +61,7 @@ public final class JsonSchemaInferrer {
       @Nonnull AdditionalPropertiesPolicy additionalPropertiesPolicy,
       @Nonnull RequiredPolicy requiredPolicy, @Nonnull DefaultPolicy defaultPolicy,
       @Nonnull FormatInferrer formatInferrer, @Nonnull TitleGenerator titleGenerator,
+      @Nonnull Set<ObjectSizeFeature> objectSizeFeatures,
       @Nonnull Set<ArrayLengthFeature> arrayLengthFeatures) {
     this.specVersion = specVersion;
     this.examplesLimit = examplesLimit;
@@ -70,6 +72,7 @@ public final class JsonSchemaInferrer {
     this.defaultPolicy = defaultPolicy;
     this.formatInferrer = formatInferrer;
     this.titleGenerator = titleGenerator;
+    this.objectSizeFeatures = objectSizeFeatures;
     this.arrayLengthFeatures = arrayLengthFeatures;
   }
 
@@ -217,6 +220,7 @@ public final class JsonSchemaInferrer {
     }
     processAdditionalProperties(schema);
     processRequired(schema, objectNodes);
+    processObjectSizeFeatures(schema, objectNodes);
     return schema;
   }
 
@@ -467,6 +471,27 @@ public final class JsonSchemaInferrer {
     }
   }
 
+  private void processObjectSizeFeatures(@Nonnull ObjectNode schema,
+      @Nonnull Collection<ObjectNode> objectNodes) {
+    for (ObjectSizeFeature objectSizeFeature : objectSizeFeatures) {
+      switch (objectSizeFeature) {
+        case MIN_PROPERTIES: {
+          objectNodes.stream().mapToInt(JsonNode::size).min()
+              .ifPresent(minProps -> schema.put(Consts.Fields.MIN_PROPERTIES, minProps));
+          break;
+        }
+        case MAX_PROPERTIES: {
+          objectNodes.stream().mapToInt(JsonNode::size).max()
+              .ifPresent(maxProps -> schema.put(Consts.Fields.MAX_PROPERTIES, maxProps));
+          break;
+        }
+        default:
+          throw new IllegalStateException(format("Unreconized %s[%s] encountered",
+              objectSizeFeature.getClass().getSimpleName(), objectSizeFeature));
+      }
+    }
+  }
+
   private void processArrayLengthFeatures(@Nonnull ObjectNode schema,
       @Nonnull Collection<ArrayNode> arrayNodes) {
     for (ArrayLengthFeature arrayLengthFeature : arrayLengthFeatures) {
@@ -501,6 +526,8 @@ public final class JsonSchemaInferrer {
     private DefaultPolicy defaultPolicy = DefaultPolicies.noOp();
     private FormatInferrer formatInferrer = FormatInferrers.noOp();
     private TitleGenerator titleGenerator = TitleGenerators.noOp();
+    private final EnumSet<ObjectSizeFeature> objectSizeFeatures =
+        EnumSet.noneOf(ObjectSizeFeature.class);
     private final EnumSet<ArrayLengthFeature> arrayLengthFeatures =
         EnumSet.noneOf(ArrayLengthFeature.class);
 
@@ -616,8 +643,7 @@ public final class JsonSchemaInferrer {
      */
     public Builder enable(@Nonnull ArrayLengthFeature... features) {
       for (ArrayLengthFeature feature : features) {
-        // EnumSet rejects nulls
-        this.arrayLengthFeatures.add(feature);
+        this.arrayLengthFeatures.add(Objects.requireNonNull(feature));
       }
       return this;
     }
@@ -633,6 +659,26 @@ public final class JsonSchemaInferrer {
     }
 
     /**
+     * Enable {@link ObjectSizeFeature}s
+     */
+    public Builder enable(@Nonnull ObjectSizeFeature... features) {
+      for (ObjectSizeFeature feature : features) {
+        this.objectSizeFeatures.add(Objects.requireNonNull(feature));
+      }
+      return this;
+    }
+
+    /**
+     * Disable {@link ObjectSizeFeature}s.
+     */
+    public Builder disable(@Nonnull ObjectSizeFeature... features) {
+      for (ObjectSizeFeature feature : features) {
+        this.objectSizeFeatures.remove(Objects.requireNonNull(feature));
+      }
+      return this;
+    }
+
+    /**
      * @return the {@link JsonSchemaInferrer} built
      * @throws IllegalArgumentException if the spec version and features don't match up
      */
@@ -643,7 +689,8 @@ public final class JsonSchemaInferrer {
       }
       return new JsonSchemaInferrer(specVersion, examplesLimit, integerTypePreference,
           simpleUnionTypePreference, additionalPropertiesPolicy, requiredPolicy, defaultPolicy,
-          formatInferrer, titleGenerator, unmodifiableEnumSet(arrayLengthFeatures));
+          formatInferrer, titleGenerator, unmodifiableEnumSet(objectSizeFeatures),
+          unmodifiableEnumSet(arrayLengthFeatures));
     }
 
   }
