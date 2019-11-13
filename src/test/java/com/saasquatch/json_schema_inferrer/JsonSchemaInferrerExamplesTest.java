@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ThreadLocalRandom;
@@ -38,12 +39,13 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Iterators;
 
 public class JsonSchemaInferrerExamplesTest {
 
   private static final String QUICKTYPE_REPO_BASE_URL =
       "https://cdn.jsdelivr.net/gh/quicktype/quicktype@f75f66bff3d1f812b61c481637c12173778a29b8";
-  private static final String CONST_BASE = "com.saasquatch.json_schema_inferrer.test.";
+//  private static final String CONST_BASE = "com.saasquatch.json_schema_inferrer.test.";
   private static CloseableHttpClient httpClient;
   private static final Collection<JsonSchemaInferrer> testInferrers = getTestInferrers();
   private static final LoadingCache<String, JsonNode> testJsonCache =
@@ -76,10 +78,6 @@ public class JsonSchemaInferrerExamplesTest {
     for (List<String> jsonUrls : Iterables.partition(getSampleJsonUrls(), 4)) {
       doTestForJsonUrls(jsonUrls);
     }
-  }
-
-  private static boolean allSamples() {
-    return Boolean.parseBoolean(System.getProperty(CONST_BASE + "allSamples"));
   }
 
   private static void doTestForJsonUrl(String jsonUrl) {
@@ -169,13 +167,8 @@ public class JsonSchemaInferrerExamplesTest {
     final List<String> urls =
         getQuicktypeSampleJsonUrls().collect(Collectors.toCollection(ArrayList::new));
     Collections.shuffle(urls, ThreadLocalRandom.current());
-    if (allSamples()) {
-      System.out.println("Running tests for all samples");
-      return urls;
-    }
-    final int limit = 64;
-    System.out.printf(Locale.ROOT, "Running tests for %d samples\n", limit);
-    return urls.subList(0, Math.min(urls.size(), limit));
+    System.out.println("Running tests for all samples");
+    return urls;
   }
 
   private static Stream<String> getQuicktypeSampleJsonUrls() {
@@ -227,9 +220,16 @@ public class JsonSchemaInferrerExamplesTest {
   }
 
   private static Collection<JsonSchemaInferrer> getTestInferrers() {
-    final ThreadLocalRandom random = ThreadLocalRandom.current();
     final List<JsonSchemaInferrer> inferrers = new ArrayList<>();
-    for (SpecVersion specVersion : SpecVersion.values()) {
+    final Iterator<DefaultPolicy> defaultPolicyIter =
+        Iterators.cycle(DefaultPolicies.useFirstSamples(), DefaultPolicies.useLastSamples());
+    final Iterator<RequiredPolicy> requiredPolicyIter =
+        Iterators.cycle(RequiredPolicies.commonFields(), RequiredPolicies.nonNullCommonFields());
+    final Iterator<AdditionalPropertiesPolicy> additionalPropPolicyIter = Iterators.cycle(
+        AdditionalPropertiesPolicies.existingTypes(), AdditionalPropertiesPolicies.notAllowed());
+    final List<SpecVersion> specVersions = Arrays.asList(SpecVersion.values());
+    Collections.shuffle(specVersions, ThreadLocalRandom.current());
+    for (SpecVersion specVersion : specVersions) {
       for (boolean extraFeatures : Arrays.asList(true, false)) {
         final JsonSchemaInferrer.Builder builder =
             JsonSchemaInferrer.newBuilder().setSpecVersion(specVersion);
@@ -243,12 +243,10 @@ public class JsonSchemaInferrerExamplesTest {
           }
           builder.enable(ArrayLengthFeature.values()).enable(ObjectSizeFeature.values())
               .enable(StringLengthFeature.values()).setExamplesLimit(10)
-              .setDefaultPolicy(random.nextBoolean() ? DefaultPolicies.useFirstSamples()
-                  : DefaultPolicies.useLastSamples())
+              .setDefaultPolicy(defaultPolicyIter.next())
               .setTitleGenerator(TitleGenerators.useFieldNames())
-              .setAdditionalPropertiesPolicy(AdditionalPropertiesPolicies.existingTypes())
-              .setRequiredPolicy(random.nextBoolean() ? RequiredPolicies.commonFields()
-                  : RequiredPolicies.nonNullCommonFields());
+              .setAdditionalPropertiesPolicy(additionalPropPolicyIter.next())
+              .setRequiredPolicy(requiredPolicyIter.next());
         }
         try {
           inferrers.add(builder.build());
