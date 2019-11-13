@@ -50,6 +50,11 @@ final class JunkDrawer {
         : Collections.unmodifiableSet(enumSet.clone());
   }
 
+  static <E> E unrecognizedEnumError(Object enumVal) {
+    throw new IllegalStateException(
+        format("Unrecognized %s[%s] encountered", enumVal.getClass().getSimpleName(), enumVal));
+  }
+
   static ObjectNode newObject() {
     return JsonNodeFactory.instance.objectNode();
   }

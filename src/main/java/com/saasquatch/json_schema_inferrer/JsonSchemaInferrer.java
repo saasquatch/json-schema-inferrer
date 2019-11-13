@@ -8,6 +8,7 @@ import static com.saasquatch.json_schema_inferrer.JunkDrawer.newObject;
 import static com.saasquatch.json_schema_inferrer.JunkDrawer.stream;
 import static com.saasquatch.json_schema_inferrer.JunkDrawer.stringColToArrayDistinct;
 import static com.saasquatch.json_schema_inferrer.JunkDrawer.unmodifiableEnumSet;
+import static com.saasquatch.json_schema_inferrer.JunkDrawer.unrecognizedEnumError;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -323,8 +324,7 @@ public final class JsonSchemaInferrer {
       case ANY_OF:
         break;
       default:
-        throw new IllegalStateException(format("Unrecognized %s[%s] encountered",
-            simpleUnionTypePreference.getClass().getSimpleName(), simpleUnionTypePreference));
+        unrecognizedEnumError(simpleUnionTypePreference);
     }
   }
 
@@ -361,8 +361,7 @@ public final class JsonSchemaInferrer {
             useInteger = false;
             break;
           default:
-            throw new IllegalStateException(format("Unrecognized %s[%s] encountered",
-                integerTypePreference.getClass().getSimpleName(), integerTypePreference));
+            return unrecognizedEnumError(integerTypePreference);
         }
         return useInteger ? Consts.Types.INTEGER : Consts.Types.NUMBER;
       }
@@ -467,8 +466,7 @@ public final class JsonSchemaInferrer {
           break;
         }
         default:
-          throw new IllegalStateException(format("Unreconized %s[%s] encountered",
-              objectSizeFeature.getClass().getSimpleName(), objectSizeFeature));
+          unrecognizedEnumError(objectSizeFeature);
       }
     }
   }
@@ -488,8 +486,7 @@ public final class JsonSchemaInferrer {
           break;
         }
         default:
-          throw new IllegalStateException(format("Unreconized %s[%s] encountered",
-              arrayLengthFeature.getClass().getSimpleName(), arrayLengthFeature));
+          unrecognizedEnumError(arrayLengthFeature);
       }
     }
   }
@@ -534,8 +531,7 @@ public final class JsonSchemaInferrer {
           break;
         }
         default:
-          throw new IllegalArgumentException(format("Unrecognized %s[%s] encountered",
-              stringLengthFeature.getClass().getSimpleName(), stringLengthFeature));
+          unrecognizedEnumError(stringLengthFeature);
       }
     }
   }
