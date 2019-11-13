@@ -1,6 +1,8 @@
 package com.saasquatch.json_schema_inferrer;
 
+import static com.saasquatch.json_schema_inferrer.JunkDrawer.getCommonFieldNames;
 import static com.saasquatch.json_schema_inferrer.JunkDrawer.stringColToArrayDistinct;
+import static com.saasquatch.json_schema_inferrer.TestJunkDrawer.jnf;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.util.Arrays;
 import java.util.Collections;
@@ -19,7 +21,13 @@ public class JunkDrawerTest {
 
   @Test
   public void testGetCommonFieldNames() {
-    assertEquals(0, JunkDrawer.getCommonFieldNames(Collections.emptyList(), false).size());
+    assertEquals(0, getCommonFieldNames(Collections.emptyList(), false).size());
+    assertEquals(0,
+        getCommonFieldNames(Arrays.asList(jnf.objectNode(), jnf.objectNode().put("a", "a")), false)
+            .size());
+    assertEquals(Collections.singleton("a"),
+        getCommonFieldNames(Arrays.asList(jnf.objectNode().put("a", 1).put("b", 2),
+            jnf.objectNode().put("a", 1).put("b", (String) null)), true));
   }
 
 }
