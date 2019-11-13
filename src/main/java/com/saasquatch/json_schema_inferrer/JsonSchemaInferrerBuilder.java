@@ -141,26 +141,6 @@ public final class JsonSchemaInferrerBuilder {
   }
 
   /**
-   * Enable {@link ArrayLengthFeature}s
-   */
-  public JsonSchemaInferrerBuilder enable(@Nonnull ArrayLengthFeature... features) {
-    for (ArrayLengthFeature feature : features) {
-      this.arrayLengthFeatures.add(Objects.requireNonNull(feature));
-    }
-    return this;
-  }
-
-  /**
-   * Disable {@link ArrayLengthFeature}s
-   */
-  public JsonSchemaInferrerBuilder disable(@Nonnull ArrayLengthFeature... features) {
-    for (ArrayLengthFeature feature : features) {
-      this.arrayLengthFeatures.remove(Objects.requireNonNull(feature));
-    }
-    return this;
-  }
-
-  /**
    * Enable {@link ObjectSizeFeature}s
    */
   public JsonSchemaInferrerBuilder enable(@Nonnull ObjectSizeFeature... features) {
@@ -176,6 +156,26 @@ public final class JsonSchemaInferrerBuilder {
   public JsonSchemaInferrerBuilder disable(@Nonnull ObjectSizeFeature... features) {
     for (ObjectSizeFeature feature : features) {
       this.objectSizeFeatures.remove(Objects.requireNonNull(feature));
+    }
+    return this;
+  }
+
+  /**
+   * Enable {@link ArrayLengthFeature}s
+   */
+  public JsonSchemaInferrerBuilder enable(@Nonnull ArrayLengthFeature... features) {
+    for (ArrayLengthFeature feature : features) {
+      this.arrayLengthFeatures.add(Objects.requireNonNull(feature));
+    }
+    return this;
+  }
+
+  /**
+   * Disable {@link ArrayLengthFeature}s
+   */
+  public JsonSchemaInferrerBuilder disable(@Nonnull ArrayLengthFeature... features) {
+    for (ArrayLengthFeature feature : features) {
+      this.arrayLengthFeatures.remove(Objects.requireNonNull(feature));
     }
     return this;
   }
