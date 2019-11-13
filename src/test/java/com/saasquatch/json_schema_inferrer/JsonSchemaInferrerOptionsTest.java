@@ -62,10 +62,11 @@ public class JsonSchemaInferrerOptionsTest {
       assertEquals("0", inferrer.inferForSample(jnf.textNode("")).path("format").textValue());
     }
     {
+      final String dateTimeString = Instant.now().toString();
       final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder().setFormatInferrer(
           FormatInferrers.chained(testFormatInferrer, FormatInferrers.dateTime())).build();
-      assertEquals("" + Instant.now().toString().length(), inferrer
-          .inferForSample(jnf.textNode(Instant.now().toString())).path("format").textValue());
+      assertEquals("" + dateTimeString.length(),
+          inferrer.inferForSample(jnf.textNode(dateTimeString)).path("format").textValue());
       assertEquals("0", inferrer.inferForSample(jnf.textNode("")).path("format").textValue());
     }
   }
