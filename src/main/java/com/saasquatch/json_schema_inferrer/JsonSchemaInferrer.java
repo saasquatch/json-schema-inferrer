@@ -54,6 +54,7 @@ public final class JsonSchemaInferrer {
   private final TitleGenerator titleGenerator;
   private final Set<ObjectSizeFeature> objectSizeFeatures;
   private final Set<ArrayLengthFeature> arrayLengthFeatures;
+  private final Set<StringLengthFeature> stringLengthFeatures;
 
   private JsonSchemaInferrer(@Nonnull SpecVersion specVersion, @Nonnegative int examplesLimit,
       @Nonnull IntegerTypePreference integerTypePreference,
@@ -62,7 +63,8 @@ public final class JsonSchemaInferrer {
       @Nonnull RequiredPolicy requiredPolicy, @Nonnull DefaultPolicy defaultPolicy,
       @Nonnull FormatInferrer formatInferrer, @Nonnull TitleGenerator titleGenerator,
       @Nonnull Set<ObjectSizeFeature> objectSizeFeatures,
-      @Nonnull Set<ArrayLengthFeature> arrayLengthFeatures) {
+      @Nonnull Set<ArrayLengthFeature> arrayLengthFeatures,
+      @Nonnull Set<StringLengthFeature> stringLengthFeatures) {
     this.specVersion = specVersion;
     this.examplesLimit = examplesLimit;
     this.integerTypePreference = integerTypePreference;
@@ -74,6 +76,7 @@ public final class JsonSchemaInferrer {
     this.titleGenerator = titleGenerator;
     this.objectSizeFeatures = objectSizeFeatures;
     this.arrayLengthFeatures = arrayLengthFeatures;
+    this.stringLengthFeatures = stringLengthFeatures;
   }
 
   public static Builder newBuilder() {
@@ -135,53 +138,6 @@ public final class JsonSchemaInferrer {
       throw new IllegalArgumentException(value.getClass().getSimpleName() + " not supported");
     }
     return value;
-  }
-
-  @Nonnull
-  private Set<ObjectNode> processPrimitives(@Nonnull Set<ValueNode> valueNodes) {
-    if (valueNodes.isEmpty()) {
-      throw new IllegalStateException("Unable to process empty Collection of primitive");
-    }
-    final Set<ObjectNode> anyOfs = new HashSet<>();
-    // Whether all the numbers in the samples are integers. Used for inferring number types.
-    final boolean allNumbersAreIntegers =
-        valueNodes.stream().filter(JsonNode::isNumber).allMatch(JsonNode::isIntegralNumber);
-    /*
-     * Map to keep track of examples. The keys are pairs of [type, format] stored in Lists, and the
-     * vales are examples for that type/format combo.
-     */
-    final Map<List<String>, ExamplesSummary> examplesSummaryMap = new HashMap<>();
-    for (ValueNode valueNode : valueNodes) {
-      final ObjectNode newAnyOf = newObject();
-      final String type = inferPrimitiveType(valueNode, allNumbersAreIntegers);
-      newAnyOf.put(Consts.Fields.TYPE, type);
-      final String format = inferFormat(valueNode);
-      if (format != null) {
-        newAnyOf.put(Consts.Fields.FORMAT, format);
-      }
-      // Keep track of examples even if examples is disabled
-      examplesSummaryMap.compute(Arrays.asList(type, format), (typeFormatPair, examplesSummary) -> {
-        if (examplesSummary == null) {
-          examplesSummary = new ExamplesSummary(examplesLimit);
-        }
-        examplesSummary.addExample(valueNode);
-        return examplesSummary;
-      });
-      anyOfs.add(newAnyOf);
-    }
-    // Put the combined examples and default back into the result schema
-    for (ObjectNode anyOf : anyOfs) {
-      final String type = anyOf.path(Consts.Fields.TYPE).textValue();
-      final String format = anyOf.path(Consts.Fields.FORMAT).textValue();
-      @Nonnull
-      final ExamplesSummary examplesSummary = examplesSummaryMap.get(Arrays.asList(type, format));
-      processDefault(anyOf, examplesSummary);
-      final Collection<JsonNode> examples = examplesSummary.getExamples();
-      if (!examples.isEmpty()) {
-        anyOf.set(Consts.Fields.EXAMPLES, newArray().addAll(examples));
-      }
-    }
-    return anyOfs;
   }
 
   @Nonnull
@@ -253,6 +209,54 @@ public final class JsonSchemaInferrer {
     }
     processArrayLengthFeatures(schema, arrayNodes);
     return schema;
+  }
+
+  @Nonnull
+  private Set<ObjectNode> processPrimitives(@Nonnull Set<ValueNode> valueNodes) {
+    if (valueNodes.isEmpty()) {
+      throw new IllegalStateException("Unable to process empty Collection of primitive");
+    }
+    final Set<ObjectNode> anyOfs = new HashSet<>();
+    // Whether all the numbers in the samples are integers. Used for inferring number types.
+    final boolean allNumbersAreIntegers =
+        valueNodes.stream().filter(JsonNode::isNumber).allMatch(JsonNode::isIntegralNumber);
+    /*
+     * Map to keep track of examples. The keys are pairs of [type, format] stored in Lists, and the
+     * vales are examples for that type/format combo.
+     */
+    final Map<List<String>, ExamplesSummary> examplesSummaryMap = new HashMap<>();
+    for (ValueNode valueNode : valueNodes) {
+      final ObjectNode newAnyOf = newObject();
+      final String type = inferPrimitiveType(valueNode, allNumbersAreIntegers);
+      newAnyOf.put(Consts.Fields.TYPE, type);
+      final String format = inferFormat(valueNode);
+      if (format != null) {
+        newAnyOf.put(Consts.Fields.FORMAT, format);
+      }
+      // Keep track of examples even if examples is disabled
+      examplesSummaryMap.compute(Arrays.asList(type, format), (typeFormatPair, examplesSummary) -> {
+        if (examplesSummary == null) {
+          examplesSummary = new ExamplesSummary(examplesLimit);
+        }
+        examplesSummary.addExample(valueNode);
+        return examplesSummary;
+      });
+      anyOfs.add(newAnyOf);
+    }
+    // Put the combined examples and default back into the result schema
+    for (ObjectNode anyOf : anyOfs) {
+      final String type = anyOf.path(Consts.Fields.TYPE).textValue();
+      final String format = anyOf.path(Consts.Fields.FORMAT).textValue();
+      @Nonnull
+      final ExamplesSummary examplesSummary = examplesSummaryMap.get(Arrays.asList(type, format));
+      processDefault(anyOf, examplesSummary);
+      final Collection<JsonNode> examples = examplesSummary.getExamples();
+      if (!examples.isEmpty()) {
+        anyOf.set(Consts.Fields.EXAMPLES, newArray().addAll(examples));
+      }
+      processStringLengthFeatures(anyOf, examplesSummary);
+    }
+    return anyOfs;
   }
 
   /**
@@ -446,31 +450,6 @@ public final class JsonSchemaInferrer {
     }
   }
 
-  private void processDefault(@Nonnull ObjectNode schema,
-      @Nonnull ExamplesSummary examplesSummary) {
-    final JsonNode defaultNode = defaultPolicy.getDefault(new DefaultPolicyInput() {
-
-      @Override
-      public JsonNode getFirstSample() {
-        return examplesSummary.getFirstSample();
-      }
-
-      @Override
-      public JsonNode getLastSample() {
-        return examplesSummary.getLastSample();
-      }
-
-      @Override
-      public SpecVersion getSpecVersion() {
-        return specVersion;
-      }
-
-    });
-    if (defaultNode != null) {
-      schema.set(Consts.Fields.DEFAULT, defaultNode);
-    }
-  }
-
   private void processObjectSizeFeatures(@Nonnull ObjectNode schema,
       @Nonnull Collection<ObjectNode> objectNodes) {
     for (ObjectSizeFeature objectSizeFeature : objectSizeFeatures) {
@@ -513,6 +492,52 @@ public final class JsonSchemaInferrer {
     }
   }
 
+  private void processDefault(@Nonnull ObjectNode schema,
+      @Nonnull ExamplesSummary examplesSummary) {
+    final JsonNode defaultNode = defaultPolicy.getDefault(new DefaultPolicyInput() {
+
+      @Override
+      public JsonNode getFirstSample() {
+        return examplesSummary.getFirstSample();
+      }
+
+      @Override
+      public JsonNode getLastSample() {
+        return examplesSummary.getLastSample();
+      }
+
+      @Override
+      public SpecVersion getSpecVersion() {
+        return specVersion;
+      }
+
+    });
+    if (defaultNode != null) {
+      schema.set(Consts.Fields.DEFAULT, defaultNode);
+    }
+  }
+
+  private void processStringLengthFeatures(@Nonnull ObjectNode schema,
+      @Nonnull ExamplesSummary examplesSummary) {
+    for (StringLengthFeature stringLengthFeature : stringLengthFeatures) {
+      switch (stringLengthFeature) {
+        case MIN_LENGTH: {
+          examplesSummary.getMinStringLength()
+              .ifPresent(minLength -> schema.put(Consts.Fields.MIN_LENGTH, minLength));
+          break;
+        }
+        case MAX_LENGTH: {
+          examplesSummary.getMaxStringLength()
+              .ifPresent(maxLength -> schema.put(Consts.Fields.MAX_LENGTH, maxLength));
+          break;
+        }
+        default:
+          throw new IllegalArgumentException(format("Unrecognized %s[%s] encountered",
+              stringLengthFeature.getClass().getSimpleName(), stringLengthFeature));
+      }
+    }
+  }
+
   public static final class Builder {
 
     private SpecVersion specVersion = SpecVersion.DRAFT_04;
@@ -530,6 +555,8 @@ public final class JsonSchemaInferrer {
         EnumSet.noneOf(ObjectSizeFeature.class);
     private final EnumSet<ArrayLengthFeature> arrayLengthFeatures =
         EnumSet.noneOf(ArrayLengthFeature.class);
+    private final EnumSet<StringLengthFeature> stringLengthFeatures =
+        EnumSet.noneOf(StringLengthFeature.class);
 
     private Builder() {}
 
@@ -679,6 +706,26 @@ public final class JsonSchemaInferrer {
     }
 
     /**
+     * Enable {@link StringLengthFeature}s
+     */
+    public Builder enable(@Nonnull StringLengthFeature... features) {
+      for (StringLengthFeature feature : features) {
+        this.stringLengthFeatures.add(Objects.requireNonNull(feature));
+      }
+      return this;
+    }
+
+    /**
+     * Disable {@link StringLengthFeature}s.
+     */
+    public Builder disable(@Nonnull StringLengthFeature... features) {
+      for (StringLengthFeature feature : features) {
+        this.stringLengthFeatures.remove(Objects.requireNonNull(feature));
+      }
+      return this;
+    }
+
+    /**
      * @return the {@link JsonSchemaInferrer} built
      * @throws IllegalArgumentException if the spec version and features don't match up
      */
@@ -690,7 +737,7 @@ public final class JsonSchemaInferrer {
       return new JsonSchemaInferrer(specVersion, examplesLimit, integerTypePreference,
           simpleUnionTypePreference, additionalPropertiesPolicy, requiredPolicy, defaultPolicy,
           formatInferrer, titleGenerator, unmodifiableEnumSet(objectSizeFeatures),
-          unmodifiableEnumSet(arrayLengthFeatures));
+          unmodifiableEnumSet(arrayLengthFeatures), unmodifiableEnumSet(stringLengthFeatures));
     }
 
   }

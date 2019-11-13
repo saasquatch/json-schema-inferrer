@@ -15,7 +15,8 @@ interface Consts {
         FORMAT = "format", DOLLAR_SCHEMA = "$schema", TITLE = "title",
         ADDITIONAL_PROPERTIES = "additionalProperties", REQUIRED = "required",
         EXAMPLES = "examples", DEFAULT = "default", MIN_ITEMS = "minItems", MAX_ITEMS = "maxItems",
-        MIN_PROPERTIES = "minProperties", MAX_PROPERTIES = "maxProperties";
+        MIN_PROPERTIES = "minProperties", MAX_PROPERTIES = "maxProperties",
+        MAX_LENGTH = "maxLength", MIN_LENGTH = "minLength";
     Set<String> SINGLETON_TYPE = Collections.singleton(TYPE);
   }
 
