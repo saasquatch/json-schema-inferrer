@@ -23,7 +23,7 @@ public class JsonSchemaInferrerOptionsTest {
 
   @Test
   public void testFormatInferrers() {
-    final FormatInferrer testFormatInferrer = input -> {
+    final FormatInferrer testStrLenFormatInferrer = input -> {
       final String textValue = input.getSample().textValue();
       if (textValue == null) {
         return null;
@@ -55,16 +55,25 @@ public class JsonSchemaInferrerOptionsTest {
             .setSpecVersion(SpecVersion.DRAFT_07).build().inferForSample(jnf.textNode("20:20:39"))
             .path("format").textValue());
     {
-      final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder().setFormatInferrer(
-          FormatInferrers.chained(FormatInferrers.dateTime(), testFormatInferrer)).build();
+      final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
+          .setFormatInferrer(
+              FormatInferrers.chained(FormatInferrers.dateTime(), testStrLenFormatInferrer))
+          .build();
       assertEquals("date-time", inferrer.inferForSample(jnf.textNode(Instant.now().toString()))
           .path("format").textValue());
       assertEquals("0", inferrer.inferForSample(jnf.textNode("")).path("format").textValue());
     }
     {
+      final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
+          .setFormatInferrer(FormatInferrers.chained(FormatInferrers.noOp())).build();
+      assertNull(inferrer.inferForSample(jnf.textNode(Instant.now().toString())).get("format"));
+    }
+    {
       final String dateTimeString = Instant.now().toString();
-      final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder().setFormatInferrer(
-          FormatInferrers.chained(testFormatInferrer, FormatInferrers.dateTime())).build();
+      final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
+          .setFormatInferrer(
+              FormatInferrers.chained(testStrLenFormatInferrer, FormatInferrers.dateTime()))
+          .build();
       assertEquals("" + dateTimeString.length(),
           inferrer.inferForSample(jnf.textNode(dateTimeString)).path("format").textValue());
       assertEquals("0", inferrer.inferForSample(jnf.textNode("")).path("format").textValue());
