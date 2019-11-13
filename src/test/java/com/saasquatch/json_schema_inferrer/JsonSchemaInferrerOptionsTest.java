@@ -191,4 +191,45 @@ public class JsonSchemaInferrerOptionsTest {
     }
   }
 
+  @Test
+  public void testObjectSizeFeatures() {
+    final List<JsonNode> samples = ImmutableList.of(jnf.objectNode(),
+        jnf.objectNode().put("1", 1).put("2", (String) null).put("3", 3),
+        jnf.objectNode().put("4", 4).put("1", "one"));
+    {
+      final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder().build();
+      final ObjectNode schema = inferrer.inferForSamples(samples);
+      assertNull(schema.get("minProperties"));
+      assertNull(schema.get("maxProperties"));
+    }
+    {
+      final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
+          .enable(ObjectSizeFeature.MIN_PROPERTIES, ObjectSizeFeature.MAX_PROPERTIES).build();
+      final ObjectNode schema = inferrer.inferForSamples(samples);
+      assertEquals(0, schema.path("minProperties").intValue());
+      assertEquals(3, schema.path("maxProperties").intValue());
+    }
+  }
+
+  @Test
+  public void testArrayLengthFeatures() {
+    final List<JsonNode> samples =
+        ImmutableList.of(jnf.arrayNode(), jnf.arrayNode().add(1).add("2").add(true),
+            jnf.arrayNode().add(1).add("2").add(true).add(true),
+            jnf.arrayNode().add(1).add("2").add(true).add((String) null).add((String) null));
+    {
+      final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder().build();
+      final ObjectNode schema = inferrer.inferForSamples(samples);
+      assertNull(schema.get("minItems"));
+      assertNull(schema.get("maxItems"));
+    }
+    {
+      final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
+          .enable(ArrayLengthFeature.MIN_ITEMS, ArrayLengthFeature.MAX_ITEMS).build();
+      final ObjectNode schema = inferrer.inferForSamples(samples);
+      assertEquals(0, schema.path("minItems").intValue());
+      assertEquals(5, schema.path("maxItems").intValue());
+    }
+  }
+
 }
