@@ -251,4 +251,16 @@ public class JsonSchemaInferrerOptionsTest {
     }
   }
 
+  @Test
+  public void testStringLengthAndFormat() {
+    final String dateTimeString = Instant.now().toString();
+    final List<JsonNode> samples = ImmutableList.of(jnf.textNode(dateTimeString));
+    final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
+        .enable(StringLengthFeature.values()).setFormatInferrer(FormatInferrers.dateTime()).build();
+    final ObjectNode schema = inferrer.inferForSamples(samples);
+    assertEquals(dateTimeString.length(), schema.path("minLength").intValue());
+    assertEquals(dateTimeString.length(), schema.path("maxLength").intValue());
+    assertEquals("date-time", schema.path("format").textValue());
+  }
+
 }
