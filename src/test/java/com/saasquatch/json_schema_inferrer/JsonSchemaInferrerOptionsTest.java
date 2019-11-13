@@ -23,6 +23,7 @@ public class JsonSchemaInferrerOptionsTest {
 
   @Test
   public void testFormatInferrers() {
+    // Fake format inferrer that always uses the string length as the format
     final FormatInferrer testStrLenFormatInferrer = input -> {
       final String textValue = input.getSample().textValue();
       if (textValue == null) {
@@ -65,7 +66,9 @@ public class JsonSchemaInferrerOptionsTest {
     }
     {
       final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
-          .setFormatInferrer(FormatInferrers.chained(FormatInferrers.noOp())).build();
+          .setFormatInferrer(FormatInferrers.chained(FormatInferrers.noOp(), FormatInferrers.noOp(),
+              FormatInferrers.noOp()))
+          .build();
       assertNull(inferrer.inferForSample(jnf.textNode(Instant.now().toString())).get("format"));
     }
     {

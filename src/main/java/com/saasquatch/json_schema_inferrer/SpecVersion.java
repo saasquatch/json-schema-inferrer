@@ -39,9 +39,4 @@ public enum SpecVersion {
     return metaSchemaIdentifier;
   }
 
-  @Nonnull
-  String getCommonName() {
-    return commonName;
-  }
-
 }
