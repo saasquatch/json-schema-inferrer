@@ -14,7 +14,7 @@ interface Consts {
     String TYPE = "type", ITEMS = "items", ANY_OF = "anyOf", PROPERTIES = "properties",
         FORMAT = "format", DOLLAR_SCHEMA = "$schema", TITLE = "title",
         ADDITIONAL_PROPERTIES = "additionalProperties", REQUIRED = "required",
-        EXAMPLES = "examples", DEFAULT = "default";
+        EXAMPLES = "examples", DEFAULT = "default", MIN_ITEMS = "minItems", MAX_ITEMS = "maxItems";
     Set<String> SINGLETON_TYPE = Collections.singleton(TYPE);
   }
 

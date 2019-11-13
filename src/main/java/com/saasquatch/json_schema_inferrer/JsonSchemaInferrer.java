@@ -7,10 +7,12 @@ import static com.saasquatch.json_schema_inferrer.JunkDrawer.newArray;
 import static com.saasquatch.json_schema_inferrer.JunkDrawer.newObject;
 import static com.saasquatch.json_schema_inferrer.JunkDrawer.stream;
 import static com.saasquatch.json_schema_inferrer.JunkDrawer.stringColToArrayDistinct;
+import static com.saasquatch.json_schema_inferrer.JunkDrawer.unmodifiableEnumSet;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -50,13 +52,15 @@ public final class JsonSchemaInferrer {
   private final DefaultPolicy defaultPolicy;
   private final FormatInferrer formatInferrer;
   private final TitleGenerator titleGenerator;
+  private final Set<ArrayLengthFeature> arrayLengthFeatures;
 
   private JsonSchemaInferrer(@Nonnull SpecVersion specVersion, @Nonnegative int examplesLimit,
       @Nonnull IntegerTypePreference integerTypePreference,
       @Nonnull SimpleUnionTypePreference simpleUnionTypePreference,
       @Nonnull AdditionalPropertiesPolicy additionalPropertiesPolicy,
       @Nonnull RequiredPolicy requiredPolicy, @Nonnull DefaultPolicy defaultPolicy,
-      @Nonnull FormatInferrer formatInferrer, @Nonnull TitleGenerator titleGenerator) {
+      @Nonnull FormatInferrer formatInferrer, @Nonnull TitleGenerator titleGenerator,
+      @Nonnull Set<ArrayLengthFeature> arrayLengthFeatures) {
     this.specVersion = specVersion;
     this.examplesLimit = examplesLimit;
     this.integerTypePreference = integerTypePreference;
@@ -66,6 +70,7 @@ public final class JsonSchemaInferrer {
     this.defaultPolicy = defaultPolicy;
     this.formatInferrer = formatInferrer;
     this.titleGenerator = titleGenerator;
+    this.arrayLengthFeatures = arrayLengthFeatures;
   }
 
   public static Builder newBuilder() {
@@ -242,6 +247,7 @@ public final class JsonSchemaInferrer {
     if (items.size() > 0) {
       schema.set(Consts.Fields.ITEMS, items);
     }
+    processArrayLengthFeatures(schema, arrayNodes);
     return schema;
   }
 
@@ -461,6 +467,27 @@ public final class JsonSchemaInferrer {
     }
   }
 
+  private void processArrayLengthFeatures(@Nonnull ObjectNode schema,
+      @Nonnull Collection<ArrayNode> arrayNodes) {
+    for (ArrayLengthFeature arrayLengthFeature : arrayLengthFeatures) {
+      switch (arrayLengthFeature) {
+        case MIN_ITEMS: {
+          arrayNodes.stream().mapToInt(JsonNode::size).min()
+              .ifPresent(minItems -> schema.put(Consts.Fields.MIN_ITEMS, minItems));
+          break;
+        }
+        case MAX_ITEMS: {
+          arrayNodes.stream().mapToInt(JsonNode::size).max()
+              .ifPresent(maxItems -> schema.put(Consts.Fields.MAX_ITEMS, maxItems));
+          break;
+        }
+        default:
+          throw new IllegalStateException(format("Unreconized %s[%s] encountered",
+              arrayLengthFeature.getClass().getSimpleName(), arrayLengthFeature));
+      }
+    }
+  }
+
   public static final class Builder {
 
     private SpecVersion specVersion = SpecVersion.DRAFT_04;
@@ -474,6 +501,8 @@ public final class JsonSchemaInferrer {
     private DefaultPolicy defaultPolicy = DefaultPolicies.noOp();
     private FormatInferrer formatInferrer = FormatInferrers.noOp();
     private TitleGenerator titleGenerator = TitleGenerators.noOp();
+    private final EnumSet<ArrayLengthFeature> arrayLengthFeatures =
+        EnumSet.noneOf(ArrayLengthFeature.class);
 
     private Builder() {}
 
@@ -583,6 +612,27 @@ public final class JsonSchemaInferrer {
     }
 
     /**
+     * Enable {@link ArrayLengthFeature}s
+     */
+    public Builder enable(@Nonnull ArrayLengthFeature... features) {
+      for (ArrayLengthFeature feature : features) {
+        // EnumSet rejects nulls
+        this.arrayLengthFeatures.add(feature);
+      }
+      return this;
+    }
+
+    /**
+     * Disable {@link ArrayLengthFeature}s
+     */
+    public Builder disable(@Nonnull ArrayLengthFeature... features) {
+      for (ArrayLengthFeature feature : features) {
+        this.arrayLengthFeatures.remove(Objects.requireNonNull(feature));
+      }
+      return this;
+    }
+
+    /**
      * @return the {@link JsonSchemaInferrer} built
      * @throws IllegalArgumentException if the spec version and features don't match up
      */
@@ -593,7 +643,7 @@ public final class JsonSchemaInferrer {
       }
       return new JsonSchemaInferrer(specVersion, examplesLimit, integerTypePreference,
           simpleUnionTypePreference, additionalPropertiesPolicy, requiredPolicy, defaultPolicy,
-          formatInferrer, titleGenerator);
+          formatInferrer, titleGenerator, unmodifiableEnumSet(arrayLengthFeatures));
     }
 
   }
