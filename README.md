@@ -13,11 +13,11 @@ import java.util.Arrays;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.saasquatch.json_schema_inferrer.AdditionalPropertiesPolicies;
-import com.saasquatch.json_schema_inferrer.JsonSchemaInferrer;
-import com.saasquatch.json_schema_inferrer.RequiredPolicies;
-import com.saasquatch.json_schema_inferrer.SpecVersion;
-import com.saasquatch.json_schema_inferrer.TitleGenerators;
+import com.saasquatch.jsonschemainferrer.AdditionalPropertiesPolicies;
+import com.saasquatch.jsonschemainferrer.JsonSchemaInferrer;
+import com.saasquatch.jsonschemainferrer.RequiredPolicies;
+import com.saasquatch.jsonschemainferrer.SpecVersion;
+import com.saasquatch.jsonschemainferrer.TitleGenerators;
 
 public class Example {
 
@@ -124,7 +124,7 @@ And `resultForSample1And2` is:
 }
 ```
 
-For more examples, see package [`com.saasquatch.json_schema_inferrer.examples`](https://github.com/saasquatch/json-schema-inferrer/tree/master/src/test/java/com/saasquatch/json_schema_inferrer/examples).
+For more examples, see package [`com.saasquatch.jsonschemainferrer.examples`](https://github.com/saasquatch/json-schema-inferrer/tree/master/src/test/java/com/saasquatch/jsonschemainferrer/examples).
 
 ## Adding it to your project
 
