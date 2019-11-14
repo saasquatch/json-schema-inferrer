@@ -44,7 +44,6 @@ public final class JsonSchemaInferrer {
   private final SpecVersion specVersion;
   private final int examplesLimit;
   private final IntegerTypePreference integerTypePreference;
-  private final SimpleUnionTypePreference simpleUnionTypePreference;
   private final AdditionalPropertiesPolicy additionalPropertiesPolicy;
   private final RequiredPolicy requiredPolicy;
   private final DefaultPolicy defaultPolicy;
@@ -57,7 +56,6 @@ public final class JsonSchemaInferrer {
 
   JsonSchemaInferrer(@Nonnull SpecVersion specVersion, @Nonnegative int examplesLimit,
       @Nonnull IntegerTypePreference integerTypePreference,
-      @Nonnull SimpleUnionTypePreference simpleUnionTypePreference,
       @Nonnull AdditionalPropertiesPolicy additionalPropertiesPolicy,
       @Nonnull RequiredPolicy requiredPolicy, @Nonnull DefaultPolicy defaultPolicy,
       @Nonnull FormatInferrer formatInferrer, @Nonnull TitleGenerator titleGenerator,
@@ -68,7 +66,6 @@ public final class JsonSchemaInferrer {
     this.specVersion = specVersion;
     this.examplesLimit = examplesLimit;
     this.integerTypePreference = integerTypePreference;
-    this.simpleUnionTypePreference = simpleUnionTypePreference;
     this.additionalPropertiesPolicy = additionalPropertiesPolicy;
     this.requiredPolicy = requiredPolicy;
     this.defaultPolicy = defaultPolicy;
@@ -298,35 +295,26 @@ public final class JsonSchemaInferrer {
   }
 
   private void postProcessAnyOfs(@Nonnull Collection<ObjectNode> anyOfs) {
-    switch (simpleUnionTypePreference) {
-      case TYPE_AS_ARRAY: {
-        // Combine all the "simple" anyOfs, i.e. anyOfs that only have the "type" field
-        final Set<String> simpleTypes = new HashSet<>();
-        final Collection<ObjectNode> simpleAnyOfs = new ArrayList<>();
-        for (ObjectNode anyOf : anyOfs) {
-          final Set<String> anyOfSchemaFieldNames =
-              stream(anyOf.fieldNames()).collect(Collectors.toSet());
-          if (anyOfSchemaFieldNames.equals(Consts.Fields.SINGLETON_TYPE)) {
-            simpleAnyOfs.add(anyOf);
-            simpleTypes.add(anyOf.path(Consts.Fields.TYPE).textValue());
-          }
-        }
-        // Combine all the simple types into an array
-        if (simpleAnyOfs.size() <= 1) {
-          // If we only have 1 simple anyOf, there's nothing to do.
-          break;
-        }
-        anyOfs.removeAll(simpleAnyOfs);
-        final ObjectNode combinedSimpleAnyOf = newObject();
-        combinedSimpleAnyOf.set(Consts.Fields.TYPE, stringColToArrayDistinct(simpleTypes));
-        anyOfs.add(combinedSimpleAnyOf);
-        break;
+    // Combine all the "simple" anyOfs, i.e. anyOfs that only have the "type" field
+    final Set<String> simpleTypes = new HashSet<>();
+    final Collection<ObjectNode> simpleAnyOfs = new ArrayList<>();
+    for (ObjectNode anyOf : anyOfs) {
+      final Set<String> anyOfSchemaFieldNames =
+          stream(anyOf.fieldNames()).collect(Collectors.toSet());
+      if (anyOfSchemaFieldNames.equals(Consts.Fields.SINGLETON_TYPE)) {
+        simpleAnyOfs.add(anyOf);
+        simpleTypes.add(anyOf.path(Consts.Fields.TYPE).textValue());
       }
-      case ANY_OF:
-        break;
-      default:
-        unrecognizedEnumError(simpleUnionTypePreference);
     }
+    // Combine all the simple types into an array
+    if (simpleAnyOfs.size() <= 1) {
+      // If we only have 1 simple anyOf, there's nothing to do.
+      return;
+    }
+    anyOfs.removeAll(simpleAnyOfs);
+    final ObjectNode combinedSimpleAnyOf = newObject();
+    combinedSimpleAnyOf.set(Consts.Fields.TYPE, stringColToArrayDistinct(simpleTypes));
+    anyOfs.add(combinedSimpleAnyOf);
   }
 
   @Nonnull

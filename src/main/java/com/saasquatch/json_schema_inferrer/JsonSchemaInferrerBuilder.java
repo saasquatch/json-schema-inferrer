@@ -17,8 +17,6 @@ public final class JsonSchemaInferrerBuilder {
   private SpecVersion specVersion = SpecVersion.DRAFT_04;
   private int examplesLimit = 0;
   private IntegerTypePreference integerTypePreference = IntegerTypePreference.IF_ALL;
-  private SimpleUnionTypePreference simpleUnionTypePreference =
-      SimpleUnionTypePreference.TYPE_AS_ARRAY;
   private AdditionalPropertiesPolicy additionalPropertiesPolicy =
       AdditionalPropertiesPolicies.noOp();
   private RequiredPolicy requiredPolicy = RequiredPolicies.noOp();
@@ -62,16 +60,6 @@ public final class JsonSchemaInferrerBuilder {
   public JsonSchemaInferrerBuilder setIntegerTypePreference(
       @Nonnull IntegerTypePreference integerTypePreference) {
     this.integerTypePreference = Objects.requireNonNull(integerTypePreference);
-    return this;
-  }
-
-  /**
-   * Set the {@link SimpleUnionTypePreference}. The default is
-   * {@link SimpleUnionTypePreference#TYPE_AS_ARRAY}.
-   */
-  public JsonSchemaInferrerBuilder setSimpleUnionTypePreference(
-      @Nonnull SimpleUnionTypePreference simpleUnionTypePreference) {
-    this.simpleUnionTypePreference = Objects.requireNonNull(simpleUnionTypePreference);
     return this;
   }
 
@@ -222,10 +210,9 @@ public final class JsonSchemaInferrerBuilder {
           "examples not supported with " + specVersion.getMetaSchemaIdentifier());
     }
     return new JsonSchemaInferrer(specVersion, examplesLimit, integerTypePreference,
-        simpleUnionTypePreference, additionalPropertiesPolicy, requiredPolicy, defaultPolicy,
-        formatInferrer, titleGenerator, descriptionGenerator,
-        unmodifiableEnumSet(objectSizeFeatures), unmodifiableEnumSet(arrayLengthFeatures),
-        unmodifiableEnumSet(stringLengthFeatures));
+        additionalPropertiesPolicy, requiredPolicy, defaultPolicy, formatInferrer, titleGenerator,
+        descriptionGenerator, unmodifiableEnumSet(objectSizeFeatures),
+        unmodifiableEnumSet(arrayLengthFeatures), unmodifiableEnumSet(stringLengthFeatures));
   }
 
 }
