@@ -7,7 +7,6 @@ import static com.saasquatch.jsonschemainferrer.JunkDrawer.newArray;
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.newObject;
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.stream;
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.stringColToArrayDistinct;
-import static com.saasquatch.jsonschemainferrer.JunkDrawer.unrecognizedEnumError;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -333,21 +332,9 @@ public final class JsonSchemaInferrer {
       case NULL:
         return Consts.Types.NULL;
       case NUMBER: {
-        final boolean useInteger;
-        switch (integerTypePreference) {
-          case IF_ALL:
-            useInteger = allNumbersAreIntegers;
-            break;
-          case IF_ANY:
-            useInteger = value.isIntegralNumber();
-            break;
-          case NEVER:
-            useInteger = false;
-            break;
-          default:
-            return unrecognizedEnumError(integerTypePreference);
-        }
-        return useInteger ? Consts.Types.INTEGER : Consts.Types.NUMBER;
+        return integerTypePreference.shouldUseInteger(value, allNumbersAreIntegers)
+            ? Consts.Types.INTEGER
+            : Consts.Types.NUMBER;
       }
       default:
         break;
@@ -457,46 +444,6 @@ public final class JsonSchemaInferrer {
     }
   }
 
-  private void processObjectSizeFeatures(@Nonnull ObjectNode schema,
-      @Nonnull Collection<ObjectNode> objectNodes) {
-    for (ObjectSizeFeature objectSizeFeature : objectSizeFeatures) {
-      switch (objectSizeFeature) {
-        case MIN_PROPERTIES: {
-          objectNodes.stream().mapToInt(JsonNode::size).min()
-              .ifPresent(minProps -> schema.put(Consts.Fields.MIN_PROPERTIES, minProps));
-          break;
-        }
-        case MAX_PROPERTIES: {
-          objectNodes.stream().mapToInt(JsonNode::size).max()
-              .ifPresent(maxProps -> schema.put(Consts.Fields.MAX_PROPERTIES, maxProps));
-          break;
-        }
-        default:
-          unrecognizedEnumError(objectSizeFeature);
-      }
-    }
-  }
-
-  private void processArrayLengthFeatures(@Nonnull ObjectNode schema,
-      @Nonnull Collection<ArrayNode> arrayNodes) {
-    for (ArrayLengthFeature arrayLengthFeature : arrayLengthFeatures) {
-      switch (arrayLengthFeature) {
-        case MIN_ITEMS: {
-          arrayNodes.stream().mapToInt(JsonNode::size).min()
-              .ifPresent(minItems -> schema.put(Consts.Fields.MIN_ITEMS, minItems));
-          break;
-        }
-        case MAX_ITEMS: {
-          arrayNodes.stream().mapToInt(JsonNode::size).max()
-              .ifPresent(maxItems -> schema.put(Consts.Fields.MAX_ITEMS, maxItems));
-          break;
-        }
-        default:
-          unrecognizedEnumError(arrayLengthFeature);
-      }
-    }
-  }
-
   private void processDefault(@Nonnull ObjectNode schema,
       @Nonnull PrimitivesSummary primitivesSummary) {
     final JsonNode defaultNode = defaultPolicy.getDefault(new DefaultPolicyInput() {
@@ -522,23 +469,24 @@ public final class JsonSchemaInferrer {
     }
   }
 
+  private void processObjectSizeFeatures(@Nonnull ObjectNode schema,
+      @Nonnull Collection<ObjectNode> objectNodes) {
+    for (ObjectSizeFeature objectSizeFeature : objectSizeFeatures) {
+      objectSizeFeature.process(schema, objectNodes, this);
+    }
+  }
+
+  private void processArrayLengthFeatures(@Nonnull ObjectNode schema,
+      @Nonnull Collection<ArrayNode> arrayNodes) {
+    for (ArrayLengthFeature arrayLengthFeature : arrayLengthFeatures) {
+      arrayLengthFeature.process(schema, arrayNodes, this);
+    }
+  }
+
   private void processStringLengthFeatures(@Nonnull ObjectNode schema,
       @Nonnull PrimitivesSummary primitivesSummary) {
     for (StringLengthFeature stringLengthFeature : stringLengthFeatures) {
-      switch (stringLengthFeature) {
-        case MIN_LENGTH: {
-          primitivesSummary.getMinStringLength()
-              .ifPresent(minLength -> schema.put(Consts.Fields.MIN_LENGTH, minLength));
-          break;
-        }
-        case MAX_LENGTH: {
-          primitivesSummary.getMaxStringLength()
-              .ifPresent(maxLength -> schema.put(Consts.Fields.MAX_LENGTH, maxLength));
-          break;
-        }
-        default:
-          unrecognizedEnumError(stringLengthFeature);
-      }
+      stringLengthFeature.process(schema, primitivesSummary, this);
     }
   }
 

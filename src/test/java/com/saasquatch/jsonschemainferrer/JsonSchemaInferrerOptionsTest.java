@@ -3,6 +3,7 @@ package com.saasquatch.jsonschemainferrer;
 import static com.saasquatch.jsonschemainferrer.TestJunkDrawer.jnf;
 import static com.saasquatch.jsonschemainferrer.TestJunkDrawer.toStringSet;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -24,6 +25,7 @@ public class JsonSchemaInferrerOptionsTest {
     // Fake format inferrer that always uses the string length as the format
     final FormatInferrer testStrLenFormatInferrer = input -> {
       final String textValue = input.getSample().textValue();
+      assertNotNull(input.getSpecVersion());
       if (textValue == null) {
         return null;
       }
@@ -192,6 +194,7 @@ public class JsonSchemaInferrerOptionsTest {
     {
       final JsonSchemaInferrer inferrer =
           JsonSchemaInferrer.newBuilder().setTitleGenerator(input -> {
+            assertNotNull(input.getSpecVersion());
             return Optional.ofNullable(input.getFieldName()).map(String::toUpperCase).orElse(null);
           }).build();
       assertEquals("FIELDNAME", inferrer.inferForSample(sample).path("properties").path("fieldName")

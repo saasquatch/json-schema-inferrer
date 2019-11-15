@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.OptionalInt;
 import java.util.Set;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import com.fasterxml.jackson.databind.JsonNode;
 
 /**
@@ -52,18 +53,22 @@ final class PrimitivesSummary {
     return examples;
   }
 
+  @Nullable
   public JsonNode getFirstSample() {
     return firstSample;
   }
 
+  @Nullable
   public JsonNode getLastSample() {
     return lastSample;
   }
 
+  @Nonnull
   public OptionalInt getMinStringLength() {
     return minStringLength < 0 ? OptionalInt.empty() : OptionalInt.of(minStringLength);
   }
 
+  @Nonnull
   public OptionalInt getMaxStringLength() {
     return maxStringLength < 0 ? OptionalInt.empty() : OptionalInt.of(maxStringLength);
   }
