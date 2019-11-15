@@ -104,7 +104,7 @@ public final class JsonSchemaInferrer {
   @Nonnull
   public ObjectNode inferForSamples(@Nonnull Collection<? extends JsonNode> samples) {
     if (samples.isEmpty()) {
-      throw new IllegalArgumentException("Unable to process empty Collection");
+      throw new IllegalArgumentException("Unable to process empty samples");
     }
     final ObjectNode schema = newObject();
     schema.put(Consts.Fields.DOLLAR_SCHEMA, specVersion.getMetaSchemaUrl());
@@ -422,11 +422,6 @@ public final class JsonSchemaInferrer {
   private void processRequired(@Nonnull ObjectNode schema,
       @Nonnull Collection<ObjectNode> objectNodes) {
     final JsonNode required = requiredPolicy.getRequired(new RequiredPolicyInput() {
-
-      @Override
-      public ObjectNode getSchema() {
-        return schema;
-      }
 
       @Override
       public Collection<JsonNode> getSamples() {

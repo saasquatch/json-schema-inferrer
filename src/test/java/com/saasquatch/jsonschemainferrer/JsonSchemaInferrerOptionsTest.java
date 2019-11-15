@@ -107,6 +107,16 @@ public class JsonSchemaInferrerOptionsTest {
       assertNull(schema.get("additionalProperties"));
     }
     {
+      final JsonSchemaInferrer inferrer =
+          JsonSchemaInferrer.newBuilder().setAdditionalPropertiesPolicy(input -> {
+            assertNotNull(input.getSchema());
+            assertNotNull(input.getSpecVersion());
+            return null;
+          }).build();
+      final ObjectNode schema = inferrer.inferForSample(jnf.objectNode());
+      assertNull(schema.get("additionalProperties"));
+    }
+    {
       final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
           .setAdditionalPropertiesPolicy(AdditionalPropertiesPolicies.allowed()).build();
       final ObjectNode schema = inferrer.inferForSample(jnf.objectNode());
@@ -164,6 +174,15 @@ public class JsonSchemaInferrerOptionsTest {
       assertNull(inferrer.inferForSamples(samples).get("required"));
     }
     {
+      final JsonSchemaInferrer inferrer =
+          JsonSchemaInferrer.newBuilder().setRequiredPolicy(input -> {
+            assertNotNull(input.getSamples());
+            assertNotNull(input.getSpecVersion());
+            return null;
+          }).build();
+      assertNull(inferrer.inferForSamples(samples).get("required"));
+    }
+    {
       final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
           .setRequiredPolicy(RequiredPolicies.commonFields()).build();
       assertEquals(ImmutableSet.of("1", "2"),
@@ -178,7 +197,7 @@ public class JsonSchemaInferrerOptionsTest {
   }
 
   @Test
-  public void testTitleGenerator() {
+  public void testTitleAndDescriptionGenerator() {
     final JsonNode sample = jnf.objectNode().put("fieldName", "value");
     {
       final JsonSchemaInferrer inferrer =
@@ -187,9 +206,24 @@ public class JsonSchemaInferrerOptionsTest {
     }
     {
       final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
+          .setDescriptionGenerator(DescriptionGenerators.noOp()).build();
+      assertNull(
+          inferrer.inferForSample(sample).path("properties").path("fieldName").get("description"));
+    }
+    {
+      final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
           .setTitleGenerator(TitleGenerators.useFieldNames()).build();
       assertEquals("fieldName", inferrer.inferForSample(sample).path("properties").path("fieldName")
           .get("title").textValue());
+    }
+    {
+      final JsonSchemaInferrer inferrer =
+          JsonSchemaInferrer.newBuilder().setDescriptionGenerator(input -> {
+            assertNotNull(input.getSpecVersion());
+            return null;
+          }).build();
+      assertNull(
+          inferrer.inferForSample(sample).path("properties").path("fieldName").get("description"));
     }
     {
       final JsonSchemaInferrer inferrer =
@@ -200,6 +234,15 @@ public class JsonSchemaInferrerOptionsTest {
       assertEquals("FIELDNAME", inferrer.inferForSample(sample).path("properties").path("fieldName")
           .get("title").textValue());
     }
+    {
+      final JsonSchemaInferrer inferrer =
+          JsonSchemaInferrer.newBuilder().setDescriptionGenerator(input -> {
+            assertNotNull(input.getSpecVersion());
+            return Optional.ofNullable(input.getFieldName()).map(String::toUpperCase).orElse(null);
+          }).build();
+      assertEquals("FIELDNAME", inferrer.inferForSample(sample).path("properties").path("fieldName")
+          .get("description").textValue());
+    }
   }
 
   @Test
@@ -209,6 +252,14 @@ public class JsonSchemaInferrerOptionsTest {
     {
       final JsonSchemaInferrer inferrer =
           JsonSchemaInferrer.newBuilder().setDefaultPolicy(DefaultPolicies.noOp()).build();
+      assertNull(inferrer.inferForSamples(samples).get("default"));
+    }
+    {
+      final JsonSchemaInferrer inferrer =
+          JsonSchemaInferrer.newBuilder().setDefaultPolicy(input -> {
+            assertNotNull(input.getSpecVersion());
+            return null;
+          }).build();
       assertNull(inferrer.inferForSamples(samples).get("default"));
     }
     {
