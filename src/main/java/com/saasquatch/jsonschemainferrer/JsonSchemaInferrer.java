@@ -17,6 +17,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnegative;
@@ -141,10 +142,10 @@ public final class JsonSchemaInferrer {
     return value;
   }
 
-  @Nonnull
+  @Nullable
   private ObjectNode processObjects(@Nonnull Collection<ObjectNode> objectNodes) {
     if (objectNodes.isEmpty()) {
-      throw new IllegalStateException("Unable to process empty Collection of objects");
+      return null;
     }
     // All the field names across all samples combined
     final Set<String> allFieldNames = getAllFieldNames(objectNodes);
@@ -179,10 +180,10 @@ public final class JsonSchemaInferrer {
     return schema;
   }
 
-  @Nonnull
+  @Nullable
   private ObjectNode processArrays(@Nonnull Collection<ArrayNode> arrayNodes) {
     if (arrayNodes.isEmpty()) {
-      throw new IllegalStateException("Unable to process empty Collection of arrays");
+      return null;
     }
     // Note that samples can be empty here if the sample arrays are empty
     final Collection<JsonNode> samples =
@@ -213,7 +214,7 @@ public final class JsonSchemaInferrer {
   @Nonnull
   private Set<ObjectNode> processPrimitives(@Nonnull Set<ValueNode> valueNodes) {
     if (valueNodes.isEmpty()) {
-      throw new IllegalStateException("Unable to process empty Collection of primitive");
+      return Collections.emptySet();
     }
     final Set<ObjectNode> anyOfs = new HashSet<>();
     // Whether all the numbers in the samples are integers. Used for inferring number types.
@@ -281,15 +282,9 @@ public final class JsonSchemaInferrer {
         valueNodes.add((ValueNode) sample);
       }
     }
-    if (!objectNodes.isEmpty()) {
-      anyOfs.add(processObjects(objectNodes));
-    }
-    if (!arrayNodes.isEmpty()) {
-      anyOfs.add(processArrays(arrayNodes));
-    }
-    if (!valueNodes.isEmpty()) {
-      anyOfs.addAll(processPrimitives(valueNodes));
-    }
+    Optional.ofNullable(processObjects(objectNodes)).ifPresent(anyOfs::add);
+    Optional.ofNullable(processArrays(arrayNodes)).ifPresent(anyOfs::add);
+    anyOfs.addAll(processPrimitives(valueNodes));
     postProcessAnyOfs(anyOfs);
     return Collections.unmodifiableSet(anyOfs);
   }

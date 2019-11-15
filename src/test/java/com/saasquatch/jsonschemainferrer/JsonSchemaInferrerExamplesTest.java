@@ -45,7 +45,7 @@ public class JsonSchemaInferrerExamplesTest {
 
   private static final String QUICKTYPE_REPO_BASE_URL =
       "https://cdn.jsdelivr.net/gh/quicktype/quicktype@f75f66bff3d1f812b61c481637c12173778a29b8";
-//  private static final String CONST_BASE = "com.saasquatch.jsonschemainferrer.test.";
+  // private static final String CONST_BASE = "com.saasquatch.jsonschemainferrer.test.";
   private static CloseableHttpClient httpClient;
   private static final Collection<JsonSchemaInferrer> testInferrers = getTestInferrers();
   private static final LoadingCache<String, JsonNode> testJsonCache =
@@ -239,12 +239,14 @@ public class JsonSchemaInferrerExamplesTest {
              * Skip tests for inferring format with draft-07 due to a disagreement between Java time
              * and the schema library on what a valid time string is.
              */
-            builder.setFormatInferrer(FormatInferrers.dateTime());
+            builder.setFormatInferrer(FormatInferrers.chained(FormatInferrers.dateTime(),
+                FormatInferrers.email(), FormatInferrers.ip()));
           }
           builder.enable(ArrayLengthFeature.values()).enable(ObjectSizeFeature.values())
               .enable(StringLengthFeature.values()).setExamplesLimit(10)
               .setDefaultPolicy(defaultPolicyIter.next())
               .setTitleGenerator(TitleGenerators.useFieldNames())
+              .setDescriptionGenerator(DescriptionGeneratorInput::getFieldName)
               .setAdditionalPropertiesPolicy(additionalPropPolicyIter.next())
               .setRequiredPolicy(requiredPolicyIter.next());
         }

@@ -65,6 +65,19 @@ public class JsonSchemaInferrerOptionsTest {
       assertEquals("0", inferrer.inferForSample(jnf.textNode("")).path("format").textValue());
     }
     {
+      final JsonSchemaInferrer inferrer =
+          JsonSchemaInferrer.newBuilder().setFormatInferrer(FormatInferrers.ip()).build();
+      assertEquals("ipv4",
+          inferrer.inferForSample(jnf.textNode("12.34.56.78")).path("format").textValue());
+      assertEquals("ipv6",
+          inferrer.inferForSample(jnf.textNode("2001:0db8:85a3:0000:0000:8a2e:0370:7334"))
+              .path("format").textValue());
+      assertEquals("ipv6",
+          inferrer.inferForSample(jnf.textNode("a::F")).path("format").textValue());
+      assertEquals("ipv6", inferrer.inferForSample(jnf.textNode("5::")).path("format").textValue());
+      assertEquals("ipv6", inferrer.inferForSample(jnf.textNode("::")).path("format").textValue());
+    }
+    {
       final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
           .setFormatInferrer(FormatInferrers.chained(FormatInferrers.noOp(), FormatInferrers.noOp(),
               FormatInferrers.noOp(), FormatInferrers.ip(), FormatInferrers.email()))
