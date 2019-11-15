@@ -5,7 +5,8 @@ import javax.annotation.Nullable;
 import com.fasterxml.jackson.databind.JsonNode;
 
 /**
- * Policy for {@code additionalProperties}
+ * Policy for {@code additionalProperties}. Implementations are expected to be stateless and thread
+ * safe.
  *
  * @author sli
  * @see AdditionalPropertiesPolicies

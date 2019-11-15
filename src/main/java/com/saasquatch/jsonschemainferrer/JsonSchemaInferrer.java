@@ -22,7 +22,6 @@ import java.util.stream.Stream;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.annotation.concurrent.Immutable;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -31,14 +30,13 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.ValueNode;
 
 /**
- * Infer JSON schema based on sample JSONs
+ * Infer JSON schema based on sample JSONs. This class is immutable and thread safe.
  *
  * @author sli
  * @see #newBuilder()
  * @see #inferForSample(JsonNode)
  * @see #inferForSamples(Collection)
  */
-@Immutable
 public final class JsonSchemaInferrer {
 
   private final SpecVersion specVersion;

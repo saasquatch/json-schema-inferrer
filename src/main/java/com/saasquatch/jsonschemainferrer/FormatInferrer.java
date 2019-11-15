@@ -6,7 +6,7 @@ import javax.annotation.Nullable;
 /**
  * Interface for inferring the <a href=
  * "https://json-schema.org/understanding-json-schema/reference/string.html#format">format</a> of
- * strings
+ * strings. Implementations are expected to be stateless and thread safe.
  *
  * @author sli
  * @see FormatInferrers

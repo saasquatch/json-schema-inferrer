@@ -4,7 +4,7 @@ import javax.annotation.Nonnull;
 import com.fasterxml.jackson.databind.JsonNode;
 
 /**
- * Policy for {@code required}
+ * Policy for {@code required}. Implementations are expected to be stateless and thread safe.
  *
  * @author sli
  * @see RequiredPolicies

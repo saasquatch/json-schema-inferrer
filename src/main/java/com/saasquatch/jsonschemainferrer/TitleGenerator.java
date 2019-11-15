@@ -4,7 +4,8 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
- * Interface for generating {@code title}s based on the sample JSON
+ * Interface for generating {@code title}s. Implementations are expected to be stateless and thread
+ * safe.
  *
  * @author sli
  * @see TitleGenerators
