@@ -16,18 +16,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.saasquatch.jsonschemainferrer.AdditionalPropertiesPolicies;
-import com.saasquatch.jsonschemainferrer.ArrayLengthFeature;
-import com.saasquatch.jsonschemainferrer.DefaultPolicies;
-import com.saasquatch.jsonschemainferrer.FormatInferrer;
-import com.saasquatch.jsonschemainferrer.FormatInferrers;
-import com.saasquatch.jsonschemainferrer.IntegerTypePreference;
-import com.saasquatch.jsonschemainferrer.JsonSchemaInferrer;
-import com.saasquatch.jsonschemainferrer.ObjectSizeFeature;
-import com.saasquatch.jsonschemainferrer.RequiredPolicies;
-import com.saasquatch.jsonschemainferrer.SpecVersion;
-import com.saasquatch.jsonschemainferrer.StringLengthFeature;
-import com.saasquatch.jsonschemainferrer.TitleGenerators;
 
 public class JsonSchemaInferrerOptionsTest {
 
@@ -42,6 +30,8 @@ public class JsonSchemaInferrerOptionsTest {
       return textValue.length() + "";
     };
     assertSame(FormatInferrers.noOp(), FormatInferrers.chained());
+    assertSame(FormatInferrers.noOp(),
+        FormatInferrers.chained(FormatInferrers.chained(FormatInferrers.noOp())));
     assertThrows(NullPointerException.class,
         () -> FormatInferrers.chained(FormatInferrers.dateTime(), null));
     assertSame(FormatInferrers.dateTime(), FormatInferrers.chained(FormatInferrers.dateTime()));
@@ -77,7 +67,7 @@ public class JsonSchemaInferrerOptionsTest {
     {
       final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
           .setFormatInferrer(FormatInferrers.chained(FormatInferrers.noOp(), FormatInferrers.noOp(),
-              FormatInferrers.noOp()))
+              FormatInferrers.noOp(), FormatInferrers.ip(), FormatInferrers.email()))
           .build();
       assertNull(inferrer.inferForSample(jnf.textNode(Instant.now().toString())).get("format"));
     }

@@ -40,20 +40,6 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Iterators;
-import com.saasquatch.jsonschemainferrer.AdditionalPropertiesPolicies;
-import com.saasquatch.jsonschemainferrer.AdditionalPropertiesPolicy;
-import com.saasquatch.jsonschemainferrer.ArrayLengthFeature;
-import com.saasquatch.jsonschemainferrer.DefaultPolicies;
-import com.saasquatch.jsonschemainferrer.DefaultPolicy;
-import com.saasquatch.jsonschemainferrer.FormatInferrers;
-import com.saasquatch.jsonschemainferrer.JsonSchemaInferrer;
-import com.saasquatch.jsonschemainferrer.JsonSchemaInferrerBuilder;
-import com.saasquatch.jsonschemainferrer.ObjectSizeFeature;
-import com.saasquatch.jsonschemainferrer.RequiredPolicies;
-import com.saasquatch.jsonschemainferrer.RequiredPolicy;
-import com.saasquatch.jsonschemainferrer.SpecVersion;
-import com.saasquatch.jsonschemainferrer.StringLengthFeature;
-import com.saasquatch.jsonschemainferrer.TitleGenerators;
 
 public class JsonSchemaInferrerExamplesTest {
 

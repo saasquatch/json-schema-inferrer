@@ -1,8 +1,5 @@
 package com.saasquatch.jsonschemainferrer;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.ZonedDateTime;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 
@@ -19,39 +16,32 @@ public final class FormatInferrers {
    * @return a singleton {@link FormatInferrer} that does not infer formats.
    */
   public static FormatInferrer noOp() {
-    return input -> null;
+    return BuiltInFormatInferrer.NO_OP;
   }
 
   /**
    * @return a singleton {@link FormatInferrer} that infers date time formats.
    */
   public static FormatInferrer dateTime() {
-    return input -> {
-      final String textValue = input.getSample().textValue();
-      if (textValue != null) {
-        try {
-          ZonedDateTime.parse(textValue);
-          return "date-time";
-        } catch (Exception e) {
-          // Ignore
-        }
-        if (input.getSpecVersion().compareTo(SpecVersion.DRAFT_07) >= 0) {
-          try {
-            LocalTime.parse(textValue);
-            return "time";
-          } catch (Exception e) {
-            // Ignore
-          }
-          try {
-            LocalDate.parse(textValue);
-            return "date";
-          } catch (Exception e) {
-            // Ignore
-          }
-        }
-      }
-      return null;
-    };
+    return BuiltInFormatInferrer.DATE_TIME;
+  }
+
+  /**
+   * This {@link FormatInferrer} requires commons-validator dependency!
+   *
+   * @return a singleton {@link FormatInferrer} that infers emails.
+   */
+  public static FormatInferrer email() {
+    return BuiltInFormatInferrer.EMAIL;
+  }
+
+  /**
+   * This {@link FormatInferrer} requires commons-validator dependency!
+   *
+   * @return a singleton {@link FormatInferrer} that infers ipv4 and ipv6.
+   */
+  public static FormatInferrer ip() {
+    return BuiltInFormatInferrer.IP;
   }
 
   /**
@@ -60,10 +50,6 @@ public final class FormatInferrers {
    * @throws NullPointerException if the input has null elements
    */
   public static FormatInferrer chained(@Nonnull FormatInferrer... formatInferrers) {
-    return _chained(formatInferrers.clone());
-  }
-
-  private static FormatInferrer _chained(@Nonnull FormatInferrer[] formatInferrers) {
     for (FormatInferrer formatInferrer : formatInferrers) {
       Objects.requireNonNull(formatInferrer);
     }
@@ -75,6 +61,10 @@ public final class FormatInferrers {
       default:
         break;
     }
+    return _chained(formatInferrers.clone());
+  }
+
+  private static FormatInferrer _chained(@Nonnull FormatInferrer[] formatInferrers) {
     return input -> {
       for (FormatInferrer formatInferrer : formatInferrers) {
         final String result = formatInferrer.inferFormat(input);

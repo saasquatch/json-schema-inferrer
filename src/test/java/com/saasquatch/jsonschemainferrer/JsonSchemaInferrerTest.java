@@ -15,9 +15,6 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.ImmutableSet;
-import com.saasquatch.jsonschemainferrer.FormatInferrers;
-import com.saasquatch.jsonschemainferrer.JsonSchemaInferrer;
-import com.saasquatch.jsonschemainferrer.SpecVersion;
 
 public class JsonSchemaInferrerTest {
 

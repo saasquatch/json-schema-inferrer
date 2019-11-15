@@ -54,6 +54,12 @@
       <version>2.10.0</version>
     </dependency>
     <dependency>
+      <groupId>commons-validator</groupId>
+      <artifactId>commons-validator</artifactId>
+      <version>1.6</version>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
       <groupId>com.github.everit-org.json-schema</groupId>
       <artifactId>org.everit.json.schema</artifactId>
       <version>1.12.0</version>
