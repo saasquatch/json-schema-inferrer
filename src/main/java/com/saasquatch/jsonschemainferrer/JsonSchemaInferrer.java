@@ -127,18 +127,18 @@ public final class JsonSchemaInferrer {
    * Pre-process a {@link JsonNode} input.
    */
   @Nonnull
-  private JsonNode preProcessJsonNode(@Nullable JsonNode value) {
-    if (value == null || value.isNull() || value.isMissingNode()) {
+  private JsonNode preProcessSample(@Nullable JsonNode sample) {
+    if (sample == null || sample.isNull() || sample.isMissingNode()) {
       /*
        * Treat null as NullNode for obvious reasons. Treat NullNode as the singleton NullNode
        * because NullNode is not a final class and may break equals in the future. Treat MissingNode
        * as NullNode so we don't end up with duplicate nulls in examples.
        */
       return JsonNodeFactory.instance.nullNode();
-    } else if (value.isPojo()) {
-      throw new IllegalArgumentException(value.getClass().getSimpleName() + " not supported");
+    } else if (sample.isPojo()) {
+      throw new IllegalArgumentException(sample.getClass().getSimpleName() + " not supported");
     }
-    return value;
+    return sample;
   }
 
   @Nullable
@@ -151,7 +151,8 @@ public final class JsonSchemaInferrer {
     final ObjectNode properties = newObject();
     for (String fieldName : allFieldNames) {
       // Get the vals from samples that have the field name. vals cannot be empty.
-      final Collection<JsonNode> samples = getAllValuesForFieldName(objectNodes, fieldName);
+      final Collection<JsonNode> samples = getAllValuesForFieldName(objectNodes, fieldName).stream()
+          .map(this::preProcessSample).collect(Collectors.toList());
       final ObjectNode newProperty = newObject();
       handleTitleGeneration(newProperty, fieldName);
       handleDescriptionGeneration(newProperty, fieldName);
@@ -185,8 +186,8 @@ public final class JsonSchemaInferrer {
       return null;
     }
     // Note that samples can be empty here if the sample arrays are empty
-    final Collection<JsonNode> samples =
-        arrayNodes.stream().flatMap(j -> stream(j)).collect(Collectors.toList());
+    final Collection<JsonNode> samples = arrayNodes.stream().flatMap(j -> stream(j))
+        .map(this::preProcessSample).collect(Collectors.toList());
     final ObjectNode items;
     final Set<ObjectNode> anyOfs = getAnyOfsFromSamples(samples);
     switch (anyOfs.size()) {
@@ -267,7 +268,7 @@ public final class JsonSchemaInferrer {
   private Set<ObjectNode> getAnyOfsFromSamples(
       @Nonnull Collection<? extends JsonNode> samplesInput) {
     final Collection<JsonNode> samples =
-        samplesInput.stream().map(this::preProcessJsonNode).collect(Collectors.toList());
+        samplesInput.stream().map(this::preProcessSample).collect(Collectors.toList());
     final Set<ObjectNode> anyOfs = new HashSet<>();
     final Collection<ObjectNode> objectNodes = new ArrayList<>();
     final Collection<ArrayNode> arrayNodes = new ArrayList<>();
@@ -313,10 +314,10 @@ public final class JsonSchemaInferrer {
 
   // Visible for testing
   @Nonnull
-  String inferPrimitiveType(@Nonnull JsonNode value, boolean allNumbersAreIntegers) {
+  String inferPrimitiveType(@Nonnull JsonNode sample, boolean allNumbersAreIntegers) {
     // Marker for whether the error is caused by a known type
     boolean knownType = false;
-    final JsonNodeType type = value.getNodeType();
+    final JsonNodeType type = sample.getNodeType();
     switch (type) {
       // We shouldn't encounter these types here
       case ARRAY:
@@ -333,7 +334,7 @@ public final class JsonSchemaInferrer {
       case NULL:
         return Consts.Types.NULL;
       case NUMBER: {
-        return integerTypePreference.shouldUseInteger(value, allNumbersAreIntegers)
+        return integerTypePreference.shouldUseInteger(sample, allNumbersAreIntegers)
             ? Consts.Types.INTEGER
             : Consts.Types.NUMBER;
       }
@@ -341,16 +342,16 @@ public final class JsonSchemaInferrer {
         break;
     }
     throw new IllegalStateException(format("%s %s[%s] encountered with value[%s]",
-        knownType ? "Unexpected" : "Unrecognized", type.getClass().getSimpleName(), type, value));
+        knownType ? "Unexpected" : "Unrecognized", type.getClass().getSimpleName(), type, sample));
   }
 
   @Nullable
-  private String inferFormat(@Nonnull JsonNode value) {
+  private String inferFormat(@Nonnull JsonNode sample) {
     return formatInferrer.inferFormat(new FormatInferrerInput() {
 
       @Override
       public JsonNode getSample() {
-        return value;
+        return sample;
       }
 
       @Override
