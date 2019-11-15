@@ -44,10 +44,6 @@ public class JsonSchemaInferrerTest {
           jnf.arrayNode().add(jnf.arrayNode().add(jnf.arrayNode().add(jnf.pojoNode("")))));
       inferrer.inferForSample(sampleObj);
     });
-    assertThrows(IllegalArgumentException.class,
-        () -> JsonSchemaInferrer.newBuilder().setExamplesLimit(-1));
-    assertThrows(IllegalArgumentException.class, () -> JsonSchemaInferrer.newBuilder()
-        .setSpecVersion(SpecVersion.DRAFT_04).setExamplesLimit(1).build());
   }
 
   @Test

@@ -15,12 +15,12 @@ import javax.annotation.Nonnull;
 public final class JsonSchemaInferrerBuilder {
 
   private SpecVersion specVersion = SpecVersion.DRAFT_04;
-  private int examplesLimit = 0;
   private IntegerTypePreference integerTypePreference = IntegerTypePreference.IF_ALL;
   private AdditionalPropertiesPolicy additionalPropertiesPolicy =
       AdditionalPropertiesPolicies.noOp();
   private RequiredPolicy requiredPolicy = RequiredPolicies.noOp();
   private DefaultPolicy defaultPolicy = DefaultPolicies.noOp();
+  private ExamplesPolicy examplesPolicy = ExamplesPolicies.noOp();
   private FormatInferrer formatInferrer = FormatInferrers.noOp();
   private TitleGenerator titleGenerator = TitleGenerators.noOp();
   private DescriptionGenerator descriptionGenerator = DescriptionGenerators.noOp();
@@ -45,13 +45,14 @@ public final class JsonSchemaInferrerBuilder {
    * Set the max size for {@code examples}. 0 to disable {@code examples}. By default it is 0.
    *
    * @throws IllegalArgumentException if the input is negative
+   * @deprecated use {@link #setExamplesPolicy(ExamplesPolicy)}
    */
+  @Deprecated
   public JsonSchemaInferrerBuilder setExamplesLimit(@Nonnegative int examplesLimit) {
     if (examplesLimit < 0) {
       throw new IllegalArgumentException("Invalid examplesLimit");
     }
-    this.examplesLimit = examplesLimit;
-    return this;
+    return setExamplesPolicy(ExamplesPolicies.first(examplesLimit));
   }
 
   /**
@@ -95,6 +96,17 @@ public final class JsonSchemaInferrerBuilder {
    */
   public JsonSchemaInferrerBuilder setDefaultPolicy(@Nonnull DefaultPolicy defaultPolicy) {
     this.defaultPolicy = Objects.requireNonNull(defaultPolicy);
+    return this;
+  }
+
+  /**
+   * Set the {@link ExamplesPolicy}. By default is {@link ExamplesPolicies#noOp()}.
+   *
+   * @see ExamplesPolicy
+   * @see ExamplesPolicies
+   */
+  public JsonSchemaInferrerBuilder setExamplesPolicy(ExamplesPolicy examplesPolicy) {
+    this.examplesPolicy = Objects.requireNonNull(examplesPolicy);
     return this;
   }
 
@@ -205,12 +217,8 @@ public final class JsonSchemaInferrerBuilder {
    * @throws IllegalArgumentException if the spec version and features don't match up
    */
   public JsonSchemaInferrer build() {
-    if (specVersion.compareTo(SpecVersion.DRAFT_06) < 0 && examplesLimit > 0) {
-      throw new IllegalArgumentException(
-          "examples not supported with " + specVersion.getMetaSchemaIdentifier());
-    }
-    return new JsonSchemaInferrer(specVersion, examplesLimit, integerTypePreference,
-        additionalPropertiesPolicy, requiredPolicy, defaultPolicy, formatInferrer, titleGenerator,
+    return new JsonSchemaInferrer(specVersion, integerTypePreference, additionalPropertiesPolicy,
+        requiredPolicy, defaultPolicy, examplesPolicy, formatInferrer, titleGenerator,
         descriptionGenerator, unmodifiableEnumSet(objectSizeFeatures),
         unmodifiableEnumSet(arrayLengthFeatures), unmodifiableEnumSet(stringLengthFeatures));
   }

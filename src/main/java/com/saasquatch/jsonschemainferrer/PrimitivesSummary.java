@@ -1,9 +1,8 @@
 package com.saasquatch.jsonschemainferrer;
 
-import java.util.Collections;
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.OptionalInt;
-import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -19,18 +18,14 @@ final class PrimitivesSummary {
   private JsonNode lastSample;
   private int minStringLength = -1;
   private int maxStringLength = -1;
-  private final int examplesLimit;
-  private final Set<JsonNode> examples;
+  private final Collection<JsonNode> samples;
 
-  public PrimitivesSummary(int examplesLimit) {
-    this.examplesLimit = examplesLimit;
-    this.examples = examplesLimit > 0 ? new HashSet<>() : Collections.emptySet();
+  public PrimitivesSummary() {
+    this.samples = new ArrayList<>();
   }
 
   public void addSample(@Nonnull JsonNode sample) {
-    if (examples.size() < examplesLimit) {
-      examples.add(sample);
-    }
+    samples.add(sample);
     if (firstSample == null) {
       firstSample = sample;
     }
@@ -49,8 +44,8 @@ final class PrimitivesSummary {
   }
 
   @Nonnull
-  public Set<JsonNode> getExamples() {
-    return examples;
+  public Collection<JsonNode> getSamples() {
+    return samples;
   }
 
   @Nullable

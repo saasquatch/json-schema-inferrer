@@ -19,7 +19,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -40,11 +39,11 @@ import com.fasterxml.jackson.databind.node.ValueNode;
 public final class JsonSchemaInferrer {
 
   private final SpecVersion specVersion;
-  private final int examplesLimit;
   private final IntegerTypePreference integerTypePreference;
   private final AdditionalPropertiesPolicy additionalPropertiesPolicy;
   private final RequiredPolicy requiredPolicy;
   private final DefaultPolicy defaultPolicy;
+  private final ExamplesPolicy examplesPolicy;
   private final FormatInferrer formatInferrer;
   private final TitleGenerator titleGenerator;
   private final DescriptionGenerator descriptionGenerator;
@@ -52,21 +51,21 @@ public final class JsonSchemaInferrer {
   private final Set<ArrayLengthFeature> arrayLengthFeatures;
   private final Set<StringLengthFeature> stringLengthFeatures;
 
-  JsonSchemaInferrer(@Nonnull SpecVersion specVersion, @Nonnegative int examplesLimit,
+  JsonSchemaInferrer(@Nonnull SpecVersion specVersion,
       @Nonnull IntegerTypePreference integerTypePreference,
       @Nonnull AdditionalPropertiesPolicy additionalPropertiesPolicy,
       @Nonnull RequiredPolicy requiredPolicy, @Nonnull DefaultPolicy defaultPolicy,
-      @Nonnull FormatInferrer formatInferrer, @Nonnull TitleGenerator titleGenerator,
-      @Nonnull DescriptionGenerator descriptionGenerator,
+      @Nonnull ExamplesPolicy examplesPolicy, @Nonnull FormatInferrer formatInferrer,
+      @Nonnull TitleGenerator titleGenerator, @Nonnull DescriptionGenerator descriptionGenerator,
       @Nonnull Set<ObjectSizeFeature> objectSizeFeatures,
       @Nonnull Set<ArrayLengthFeature> arrayLengthFeatures,
       @Nonnull Set<StringLengthFeature> stringLengthFeatures) {
     this.specVersion = specVersion;
-    this.examplesLimit = examplesLimit;
     this.integerTypePreference = integerTypePreference;
     this.additionalPropertiesPolicy = additionalPropertiesPolicy;
     this.requiredPolicy = requiredPolicy;
     this.defaultPolicy = defaultPolicy;
+    this.examplesPolicy = examplesPolicy;
     this.formatInferrer = formatInferrer;
     this.titleGenerator = titleGenerator;
     this.descriptionGenerator = descriptionGenerator;
@@ -231,7 +230,7 @@ public final class JsonSchemaInferrer {
       primitivesSummaryMap.compute(Arrays.asList(type, format),
           (typeFormatPair, primitiveSummary) -> {
             if (primitiveSummary == null) {
-              primitiveSummary = new PrimitivesSummary(examplesLimit);
+              primitiveSummary = new PrimitivesSummary();
             }
             primitiveSummary.addSample(valueNode);
             return primitiveSummary;
@@ -246,10 +245,7 @@ public final class JsonSchemaInferrer {
       final PrimitivesSummary primitivesSummary =
           primitivesSummaryMap.get(Arrays.asList(type, format));
       processDefault(anyOf, primitivesSummary);
-      final Collection<JsonNode> examples = primitivesSummary.getExamples();
-      if (!examples.isEmpty()) {
-        anyOf.set(Consts.Fields.EXAMPLES, newArray().addAll(examples));
-      }
+      processExamples(anyOf, primitivesSummary, type, format);
       processStringLengthFeatures(anyOf, primitivesSummary);
     }
     return anyOfs;
@@ -454,6 +450,36 @@ public final class JsonSchemaInferrer {
     });
     if (defaultNode != null) {
       schema.set(Consts.Fields.DEFAULT, defaultNode);
+    }
+  }
+
+  private void processExamples(@Nonnull ObjectNode schema,
+      @Nonnull PrimitivesSummary primitivesSummary, @Nonnull String type, @Nullable String format) {
+    final JsonNode examples = examplesPolicy.getExamples(new ExamplesPolicyInput() {
+
+      @Override
+      public Collection<JsonNode> getSamples() {
+        return primitivesSummary.getSamples();
+      }
+
+      @Override
+      public String getType() {
+        return type;
+      }
+
+      @Override
+      public String getFormat() {
+        return format;
+      }
+
+      @Override
+      public SpecVersion getSpecVersion() {
+        return specVersion;
+      }
+
+    });
+    if (examples != null) {
+      schema.set(Consts.Fields.EXAMPLES, examples);
     }
   }
 

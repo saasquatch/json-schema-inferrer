@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.saasquatch.jsonschemainferrer.AdditionalPropertiesPolicies;
 import com.saasquatch.jsonschemainferrer.ArrayLengthFeature;
+import com.saasquatch.jsonschemainferrer.ExamplesPolicies;
 import com.saasquatch.jsonschemainferrer.FormatInferrerInput;
 import com.saasquatch.jsonschemainferrer.JsonSchemaInferrer;
 import com.saasquatch.jsonschemainferrer.ObjectSizeFeature;
@@ -22,7 +23,7 @@ public class Example2 {
   private static final JsonSchemaInferrer inferrer =
       JsonSchemaInferrer.newBuilder()
           .setSpecVersion(SpecVersion.DRAFT_06)
-          .setExamplesLimit(3)
+          .setExamplesPolicy(ExamplesPolicies.first(3))
           .setAdditionalPropertiesPolicy(AdditionalPropertiesPolicies.existingTypes())
           .setRequiredPolicy(RequiredPolicies.nonNullCommonFields())
           .setTitleGenerator(TitleGenerators.useFieldNames())
