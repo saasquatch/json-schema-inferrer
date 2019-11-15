@@ -88,12 +88,11 @@ final class JunkDrawer {
   /**
    * Get all the unique values for a field name across multiple {@link ObjectNode}s
    */
-  static Collection<JsonNode> getAllValuesForFieldName(
+  static Stream<JsonNode> getAllValuesForFieldName(
       @Nonnull Iterable<? extends JsonNode> objectNodes, @Nonnull String fieldName) {
     return stream(objectNodes)
         .map(j -> j.get(fieldName))
-        .filter(Objects::nonNull)
-        .collect(Collectors.toList());
+        .filter(Objects::nonNull);
   }
 
   @Nonnull

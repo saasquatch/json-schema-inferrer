@@ -13,12 +13,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -108,7 +108,7 @@ public final class JsonSchemaInferrer {
     }
     final ObjectNode schema = newObject();
     schema.put(Consts.Fields.DOLLAR_SCHEMA, specVersion.getMetaSchemaUrl());
-    final Collection<ObjectNode> anyOfs = getAnyOfsFromSamples(samples);
+    final Collection<ObjectNode> anyOfs = getAnyOfsFromSamples(samples.stream());
     switch (anyOfs.size()) {
       case 0:
         // anyOfs cannot be empty here, since we force inputs to be non empty
@@ -151,12 +151,11 @@ public final class JsonSchemaInferrer {
     final ObjectNode properties = newObject();
     for (String fieldName : allFieldNames) {
       // Get the vals from samples that have the field name. vals cannot be empty.
-      final Collection<JsonNode> samples = getAllValuesForFieldName(objectNodes, fieldName).stream()
-          .map(this::preProcessSample).collect(Collectors.toList());
+      final Stream<JsonNode> samplesStream = getAllValuesForFieldName(objectNodes, fieldName);
       final ObjectNode newProperty = newObject();
       handleTitleGeneration(newProperty, fieldName);
       handleDescriptionGeneration(newProperty, fieldName);
-      final Collection<ObjectNode> anyOfs = getAnyOfsFromSamples(samples);
+      final Collection<ObjectNode> anyOfs = getAnyOfsFromSamples(samplesStream);
       switch (anyOfs.size()) {
         case 0:
           // anyOfs cannot be empty here, since we should have at least one match of the fieldName
@@ -186,10 +185,9 @@ public final class JsonSchemaInferrer {
       return null;
     }
     // Note that samples can be empty here if the sample arrays are empty
-    final Collection<JsonNode> samples = arrayNodes.stream().flatMap(j -> stream(j))
-        .map(this::preProcessSample).collect(Collectors.toList());
+    final Stream<JsonNode> samplesStream = arrayNodes.stream().flatMap(j -> stream(j));
     final ObjectNode items;
-    final Set<ObjectNode> anyOfs = getAnyOfsFromSamples(samples);
+    final Set<ObjectNode> anyOfs = getAnyOfsFromSamples(samplesStream);
     switch (anyOfs.size()) {
       case 0:
         // anyOfs can be empty here, since the original array can be empty
@@ -212,7 +210,7 @@ public final class JsonSchemaInferrer {
   }
 
   @Nonnull
-  private Set<ObjectNode> processPrimitives(@Nonnull Set<ValueNode> valueNodes) {
+  private Set<ObjectNode> processPrimitives(@Nonnull Collection<ValueNode> valueNodes) {
     if (valueNodes.isEmpty()) {
       return Collections.emptySet();
     }
@@ -265,15 +263,12 @@ public final class JsonSchemaInferrer {
    * Build {@code anyOf} from sample JSONs. Note that all the arrays and objects will be combined.
    */
   @Nonnull
-  private Set<ObjectNode> getAnyOfsFromSamples(
-      @Nonnull Collection<? extends JsonNode> samplesInput) {
-    final Collection<JsonNode> samples =
-        samplesInput.stream().map(this::preProcessSample).collect(Collectors.toList());
+  private Set<ObjectNode> getAnyOfsFromSamples(@Nonnull Stream<? extends JsonNode> samplesStream) {
     final Set<ObjectNode> anyOfs = new HashSet<>();
     final Collection<ObjectNode> objectNodes = new ArrayList<>();
     final Collection<ArrayNode> arrayNodes = new ArrayList<>();
-    final Set<ValueNode> valueNodes = new LinkedHashSet<>();
-    for (JsonNode sample : samples) {
+    final Collection<ValueNode> valueNodes = new ArrayList<>();
+    samplesStream.map(this::preProcessSample).forEach(sample -> {
       if (sample instanceof ObjectNode) {
         objectNodes.add((ObjectNode) sample);
       } else if (sample instanceof ArrayNode) {
@@ -281,7 +276,7 @@ public final class JsonSchemaInferrer {
       } else {
         valueNodes.add((ValueNode) sample);
       }
-    }
+    });
     Optional.ofNullable(processObjects(objectNodes)).ifPresent(anyOfs::add);
     Optional.ofNullable(processArrays(arrayNodes)).ifPresent(anyOfs::add);
     anyOfs.addAll(processPrimitives(valueNodes));
