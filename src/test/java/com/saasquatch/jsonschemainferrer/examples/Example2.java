@@ -1,11 +1,14 @@
 package com.saasquatch.jsonschemainferrer.examples;
 
+import java.net.URI;
 import java.net.URL;
+import javax.annotation.Nonnull;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.saasquatch.jsonschemainferrer.AdditionalPropertiesPolicies;
 import com.saasquatch.jsonschemainferrer.ArrayLengthFeature;
+import com.saasquatch.jsonschemainferrer.FormatInferrerInput;
 import com.saasquatch.jsonschemainferrer.JsonSchemaInferrer;
 import com.saasquatch.jsonschemainferrer.ObjectSizeFeature;
 import com.saasquatch.jsonschemainferrer.RequiredPolicies;
@@ -19,14 +22,31 @@ public class Example2 {
   private static final JsonSchemaInferrer inferrer =
       JsonSchemaInferrer.newBuilder()
           .setSpecVersion(SpecVersion.DRAFT_06)
+          .setExamplesLimit(3)
           .setAdditionalPropertiesPolicy(AdditionalPropertiesPolicies.existingTypes())
           .setRequiredPolicy(RequiredPolicies.nonNullCommonFields())
           .setTitleGenerator(TitleGenerators.useFieldNames())
-          .setExamplesLimit(3)
+          .setFormatInferrer(Example2::absoluteUriFormatInferrer)
           .enable(ArrayLengthFeature.MIN_ITEMS, ArrayLengthFeature.MAX_ITEMS)
           .enable(ObjectSizeFeature.MIN_PROPERTIES, ObjectSizeFeature.MAX_PROPERTIES)
           .enable(StringLengthFeature.MIN_LENGTH, StringLengthFeature.MAX_LENGTH)
           .build();
+
+  private static String absoluteUriFormatInferrer(@Nonnull FormatInferrerInput input) {
+    final String textValue = input.getSample().textValue();
+    if (textValue == null) {
+      return null;
+    }
+    try {
+      final URI uri = new URI(input.getSample().textValue());
+      if (uri.isAbsolute()) {
+        return "uri";
+      }
+    } catch (Exception e) {
+      // ignore
+    }
+    return null;
+  }
 
   public static void main(String[] args) throws Exception {
     final JsonNode sample = mapper.readTree(new URL(
