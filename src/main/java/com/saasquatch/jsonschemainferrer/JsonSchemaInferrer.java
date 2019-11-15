@@ -109,10 +109,9 @@ public final class JsonSchemaInferrer {
     final ObjectNode schema = newObject();
     schema.put(Consts.Fields.DOLLAR_SCHEMA, specVersion.getMetaSchemaUrl());
     final Collection<ObjectNode> anyOfs = getAnyOfsFromSamples(samples.stream());
+    // anyOfs cannot be empty here, since we force inputs to be non empty
+    assert !anyOfs.isEmpty() : "empty anyOfs encountered in inferForSamples";
     switch (anyOfs.size()) {
-      case 0:
-        // anyOfs cannot be empty here, since we force inputs to be non empty
-        throw new IllegalStateException("empty anyOfs encountered in inferForSamples");
       case 1:
         schema.setAll(anyOfs.iterator().next());
         break;
@@ -156,10 +155,9 @@ public final class JsonSchemaInferrer {
       handleTitleGeneration(newProperty, fieldName);
       handleDescriptionGeneration(newProperty, fieldName);
       final Collection<ObjectNode> anyOfs = getAnyOfsFromSamples(samplesStream);
+      // anyOfs cannot be empty here, since we should have at least one match of the fieldName
+      assert !anyOfs.isEmpty() : "empty anyOfs encountered";
       switch (anyOfs.size()) {
-        case 0:
-          // anyOfs cannot be empty here, since we should have at least one match of the fieldName
-          throw new IllegalStateException("empty anyOfs encountered");
         case 1:
           newProperty.setAll(anyOfs.iterator().next());
           break;
