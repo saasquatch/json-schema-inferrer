@@ -13,6 +13,8 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -284,6 +286,46 @@ public class JsonSchemaInferrerOptionsTest {
       final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
           .setDefaultPolicy(DefaultPolicies.useLastSamples()).build();
       assertEquals("c", inferrer.inferForSamples(samples).path("default").textValue());
+    }
+  }
+
+  @Test
+  public void testExamples() {
+    assertSame(ExamplesPolicies.noOp(), ExamplesPolicies.first(0));
+    assertThrows(IllegalArgumentException.class, () -> ExamplesPolicies.first(-1));
+    {
+      final JsonSchemaInferrer inferrer =
+          JsonSchemaInferrer.newBuilder().setSpecVersion(SpecVersion.DRAFT_04)
+              .setExamplesPolicy(ExamplesPolicies.first(3)).build();
+      final ObjectNode schema = inferrer.inferForSamples(IntStream.range(0, 5)
+          .mapToObj(Integer::toString).map(jnf::textNode).collect(Collectors.toList()));
+      assertNull(schema.get("examples"));
+    }
+    {
+      final JsonSchemaInferrer inferrer =
+          JsonSchemaInferrer.newBuilder().setSpecVersion(SpecVersion.DRAFT_06)
+              .setExamplesPolicy(ExamplesPolicies.first(3)).build();
+      final ObjectNode schema = inferrer.inferForSamples(IntStream.range(0, 5)
+          .mapToObj(Integer::toString).map(jnf::textNode).collect(Collectors.toList()));
+      assertEquals(ImmutableSet.of("0", "1", "2"), toStringSet(schema.path("examples")));
+    }
+    {
+      final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
+          .setSpecVersion(SpecVersion.DRAFT_06).setExamplesPolicy(input -> {
+            assertNotNull(input.getType());
+            return null;
+          }).build();
+      inferrer.inferForSamples(IntStream.range(0, 5).mapToObj(Integer::toString).map(jnf::textNode)
+          .collect(Collectors.toList()));
+    }
+    {
+      final JsonSchemaInferrer inferrer =
+          JsonSchemaInferrer.newBuilder().setSpecVersion(SpecVersion.DRAFT_06)
+              .setExamplesPolicy(ExamplesPolicies.first(3)).build();
+      final ObjectNode sample = jnf.objectNode();
+      sample.set("foo", jnf.arrayNode());
+      final ObjectNode schema = inferrer.inferForSample(sample);
+      assertNull(schema.path("properties").path("foo").get("examples"));
     }
   }
 

@@ -19,6 +19,10 @@ public class LambdaSingletonTest {
     doTest(RequiredPolicies::nonNullCommonFields);
     doTest(TitleGenerators::noOp);
     doTest(TitleGenerators::useFieldNames);
+    doTest(DefaultPolicies::noOp);
+    doTest(DefaultPolicies::useFirstSamples);
+    doTest(DefaultPolicies::useLastSamples);
+    doTest(ExamplesPolicies::noOp);
   }
 
   private static void doTest(Supplier<? extends Object> supplier) {

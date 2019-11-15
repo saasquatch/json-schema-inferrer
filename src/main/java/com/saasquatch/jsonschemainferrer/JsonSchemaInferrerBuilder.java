@@ -3,7 +3,6 @@ package com.saasquatch.jsonschemainferrer;
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.unmodifiableEnumSet;
 import java.util.EnumSet;
 import java.util.Objects;
-import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 /**
@@ -39,20 +38,6 @@ public final class JsonSchemaInferrerBuilder {
   public JsonSchemaInferrerBuilder setSpecVersion(@Nonnull SpecVersion specVersion) {
     this.specVersion = Objects.requireNonNull(specVersion);
     return this;
-  }
-
-  /**
-   * Set the max size for {@code examples}. 0 to disable {@code examples}. By default it is 0.
-   *
-   * @throws IllegalArgumentException if the input is negative
-   * @deprecated use {@link #setExamplesPolicy(ExamplesPolicy)}
-   */
-  @Deprecated
-  public JsonSchemaInferrerBuilder setExamplesLimit(@Nonnegative int examplesLimit) {
-    if (examplesLimit < 0) {
-      throw new IllegalArgumentException("Invalid examplesLimit");
-    }
-    return setExamplesPolicy(ExamplesPolicies.first(examplesLimit));
   }
 
   /**

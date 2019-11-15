@@ -18,7 +18,9 @@ public final class ExamplesPolicies {
    * @return An {@link ExamplesPolicy} that takes the first n samples.
    */
   public static ExamplesPolicy first(@Nonnegative int limit) {
-    if (limit < 0) {
+    if (limit == 0) {
+      return noOp();
+    } else if (limit < 0) {
       throw new IllegalArgumentException("Invalid limit");
     }
     return input -> {

@@ -468,11 +468,6 @@ public final class JsonSchemaInferrer {
       }
 
       @Override
-      public String getFormat() {
-        return format;
-      }
-
-      @Override
       public SpecVersion getSpecVersion() {
         return specVersion;
       }
