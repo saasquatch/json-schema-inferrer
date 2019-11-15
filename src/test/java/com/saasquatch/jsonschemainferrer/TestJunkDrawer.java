@@ -8,6 +8,8 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 
 public final class TestJunkDrawer {
 
+  private TestJunkDrawer() {}
+
   public static final JsonNodeFactory jnf = JsonNodeFactory.instance;
   public static final ObjectMapper mapper = new ObjectMapper();
 

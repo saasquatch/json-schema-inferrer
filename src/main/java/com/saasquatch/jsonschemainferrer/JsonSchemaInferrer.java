@@ -311,8 +311,9 @@ public final class JsonSchemaInferrer {
     anyOfs.add(combinedSimpleAnyOf);
   }
 
+  // Visible for testing
   @Nonnull
-  private String inferPrimitiveType(@Nonnull JsonNode value, boolean allNumbersAreIntegers) {
+  String inferPrimitiveType(@Nonnull JsonNode value, boolean allNumbersAreIntegers) {
     // Marker for whether the error is caused by a known type
     boolean knownType = false;
     final JsonNodeType type = value.getNodeType();

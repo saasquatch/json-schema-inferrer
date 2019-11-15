@@ -2,6 +2,7 @@ package com.saasquatch.jsonschemainferrer;
 
 import static com.saasquatch.jsonschemainferrer.TestJunkDrawer.jnf;
 import static com.saasquatch.jsonschemainferrer.TestJunkDrawer.toStringSet;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -19,6 +20,18 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 
 public class JsonSchemaInferrerOptionsTest {
+
+  @Test
+  public void testJsonTypeInference() {
+    final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder().build();
+    final List<? extends JsonNode> unexpectedNodes =
+        ImmutableList.of(jnf.objectNode(), jnf.arrayNode(), jnf.missingNode(), jnf.pojoNode(1));
+    for (JsonNode jsonNode : unexpectedNodes) {
+      assertThrows(IllegalStateException.class, () -> inferrer.inferPrimitiveType(jsonNode, false));
+    }
+    assertEquals("string",
+        inferrer.inferPrimitiveType(jnf.binaryNode("foo".getBytes(UTF_8)), false));
+  }
 
   @Test
   public void testFormatInferrers() {
