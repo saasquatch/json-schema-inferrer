@@ -310,6 +310,22 @@ public class JsonSchemaInferrerOptionsTest {
       assertEquals(ImmutableSet.of("0", "1", "2"), toStringSet(schema.path("examples")));
     }
     {
+      final JsonSchemaInferrer inferrer =
+          JsonSchemaInferrer.newBuilder().setSpecVersion(SpecVersion.DRAFT_06)
+              .setExamplesPolicy(ExamplesPolicies.first(3, "boolean"::equals)).build();
+      final ObjectNode schema = inferrer.inferForSamples(IntStream.range(0, 5)
+          .mapToObj(Integer::toString).map(jnf::textNode).collect(Collectors.toList()));
+      assertNull(schema.get("examples"));
+    }
+    {
+      final JsonSchemaInferrer inferrer =
+          JsonSchemaInferrer.newBuilder().setSpecVersion(SpecVersion.DRAFT_06)
+              .setExamplesPolicy(ExamplesPolicies.first(3, "string"::equals)).build();
+      final ObjectNode schema = inferrer.inferForSamples(IntStream.range(0, 5)
+          .mapToObj(Integer::toString).map(jnf::textNode).collect(Collectors.toList()));
+      assertEquals(ImmutableSet.of("0", "1", "2"), toStringSet(schema.path("examples")));
+    }
+    {
       final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
           .setSpecVersion(SpecVersion.DRAFT_06).setExamplesPolicy(input -> {
             assertNotNull(input.getType());
