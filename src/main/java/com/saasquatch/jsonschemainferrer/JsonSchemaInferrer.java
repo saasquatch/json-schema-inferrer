@@ -459,7 +459,7 @@ public final class JsonSchemaInferrer {
 
       @Override
       public Collection<JsonNode> getSamples() {
-        return primitivesSummary.getSamples();
+        return Collections.unmodifiableCollection(primitivesSummary.getSamples());
       }
 
       @Override

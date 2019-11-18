@@ -11,6 +11,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.math.BigInteger;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -316,6 +318,27 @@ public class JsonSchemaInferrerOptionsTest {
       final ObjectNode schema = inferrer.inferForSamples(IntStream.range(0, 5)
           .mapToObj(Integer::toString).map(jnf::textNode).collect(Collectors.toList()));
       assertNull(schema.get("examples"));
+    }
+    {
+      final JsonNode examples = ExamplesPolicies.first(1).getExamples(new ExamplesPolicyInput() {
+
+        @Override
+        public String getType() {
+          return "string";
+        }
+
+        @Override
+        public SpecVersion getSpecVersion() {
+          return SpecVersion.DRAFT_07;
+        }
+
+        @Override
+        public Collection<JsonNode> getSamples() {
+          return Collections.emptyList();
+        }
+
+      });
+      assertNull(examples);
     }
     {
       final JsonSchemaInferrer inferrer =
