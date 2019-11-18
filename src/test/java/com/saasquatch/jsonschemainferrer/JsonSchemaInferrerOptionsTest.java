@@ -74,6 +74,10 @@ public class JsonSchemaInferrerOptionsTest {
         JsonSchemaInferrer.newBuilder().setFormatInferrer(FormatInferrers.dateTime())
             .setSpecVersion(SpecVersion.DRAFT_07).build().inferForSample(jnf.textNode("20:20:39"))
             .path("format").textValue());
+    assertEquals("time",
+        JsonSchemaInferrer.newBuilder().setFormatInferrer(FormatInferrers.dateTime())
+            .setSpecVersion(SpecVersion.DRAFT_07).build()
+            .inferForSample(jnf.textNode("20:20:39+00:00")).path("format").textValue());
     {
       final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
           .setFormatInferrer(
