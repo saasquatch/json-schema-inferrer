@@ -40,6 +40,12 @@ enum BuiltInFormatInferrer implements FormatInferrer {
         } catch (Exception e) {
           // Ignore
         }
+        try {
+          ZonedDateTime.parse("1111-11-11T" + textValue);
+          return "time";
+        } catch (Exception e) {
+          // Ignore
+        }
       }
       return null;
     }
