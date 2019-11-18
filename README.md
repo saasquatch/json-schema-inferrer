@@ -177,14 +177,14 @@ Maven
 <dependency>
   <groupId>com.saasquatch</groupId>
   <artifactId>json-schema-inferrer</artifactId>
-  <version>0.1.1-alpha-29</version>
+  <version>0.1.1-alpha-30</version>
 </dependency>
 ```
 
 Gradle
 
 ```gradle
-compile 'com.saasquatch:json-schema-inferrer:0.1.1-alpha-29'
+compile 'com.saasquatch:json-schema-inferrer:0.1.1-alpha-30'
 ```
 
 ### Transitive Dependencies
