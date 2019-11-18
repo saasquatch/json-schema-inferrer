@@ -15,27 +15,28 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.saasquatch.jsonschemainferrer.AdditionalPropertiesPolicies;
+import com.saasquatch.jsonschemainferrer.FormatInferrers;
 import com.saasquatch.jsonschemainferrer.JsonSchemaInferrer;
 import com.saasquatch.jsonschemainferrer.RequiredPolicies;
 import com.saasquatch.jsonschemainferrer.SpecVersion;
-import com.saasquatch.jsonschemainferrer.TitleGenerators;
 
 public class Example {
 
   private static final ObjectMapper mapper = new ObjectMapper();
-  private static final JsonSchemaInferrer inferrer =
-      JsonSchemaInferrer.newBuilder()
-          .setSpecVersion(SpecVersion.DRAFT_06)
-          .setAdditionalPropertiesPolicy(AdditionalPropertiesPolicies.notAllowed())
-          .setRequiredPolicy(RequiredPolicies.nonNullCommonFields())
-          .setTitleGenerator(TitleGenerators.useFieldNames())
-          .build();
+  private static final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
+      .setSpecVersion(SpecVersion.DRAFT_06)
+      .setFormatInferrer(FormatInferrers.chained(
+          // Requires commons-validator
+          FormatInferrers.email(), FormatInferrers.ip()))
+      .setAdditionalPropertiesPolicy(AdditionalPropertiesPolicies.notAllowed())
+      .setRequiredPolicy(RequiredPolicies.nonNullCommonFields())
+      .build();
 
   public static void main(String[] args) throws Exception {
     final JsonNode sample1 = mapper.readTree(
         "{\"one\":\"https://saasquatch.com\",\"two\":[-1.5,2,\"hello@saasquat.ch\",false],\"three\":3}");
     final JsonNode sample2 = mapper.readTree(
-        "{\"one\":1,\"two\":{\"four\":true,\"five\":[2,\"2\"],\"six\":null},\"three\":null}");
+        "{\"one\":1,\"two\":{\"four\":true,\"five\":[2,\"1234:5678::\"],\"six\":null},\"three\":null}");
     final ObjectNode resultForSample1 = inferrer.inferForSample(sample1);
     final ObjectNode resultForSample1And2 =
         inferrer.inferForSamples(Arrays.asList(sample1, sample2));
@@ -62,7 +63,7 @@ In the code above, `sample1` is:
 ```json
 {
   "one": 1,
-  "two": { "four": true, "five": [2, "2"], "six": null },
+  "two": { "four": true, "five": [2, "1234:5678::"], "six": null },
   "three": null
 }
 ```
@@ -74,13 +75,17 @@ In the code above, `sample1` is:
   "$schema": "http://json-schema.org/draft-06/schema#",
   "type": "object",
   "properties": {
-    "one": { "title": "one", "type": "string" },
+    "one": { "type": "string" },
     "two": {
-      "title": "two",
       "type": "array",
-      "items": { "type": ["number", "boolean", "string"] }
+      "items": {
+        "anyOf": [
+          { "type": ["number", "boolean"] },
+          { "type": "string", "format": "email" }
+        ]
+      }
     },
-    "three": { "title": "three", "type": "integer" }
+    "three": { "type": "integer" }
   },
   "additionalProperties": false,
   "required": ["one", "two", "three"]
@@ -94,19 +99,22 @@ And `resultForSample1And2` is:
   "$schema": "http://json-schema.org/draft-06/schema#",
   "type": "object",
   "properties": {
-    "one": { "title": "one", "type": ["string", "integer"] },
+    "one": { "type": ["string", "integer"] },
     "two": {
-      "title": "two",
       "anyOf": [
         {
           "type": "object",
           "properties": {
-            "six": { "title": "six", "type": "null" },
-            "four": { "title": "four", "type": "boolean" },
+            "six": { "type": "null" },
+            "four": { "type": "boolean" },
             "five": {
-              "title": "five",
               "type": "array",
-              "items": { "type": ["string", "integer"] }
+              "items": {
+                "anyOf": [
+                  { "type": "integer" },
+                  { "type": "string", "format": "ipv6" }
+                ]
+              }
             }
           },
           "additionalProperties": false,
@@ -114,11 +122,16 @@ And `resultForSample1And2` is:
         },
         {
           "type": "array",
-          "items": { "type": ["number", "boolean", "string"] }
+          "items": {
+            "anyOf": [
+              { "type": ["number", "boolean"] },
+              { "type": "string", "format": "email" }
+            ]
+          }
         }
       ]
     },
-    "three": { "title": "three", "type": ["null", "integer"] }
+    "three": { "type": ["null", "integer"] }
   },
   "additionalProperties": false,
   "required": ["one", "two"]
