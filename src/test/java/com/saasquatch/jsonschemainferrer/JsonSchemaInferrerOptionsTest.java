@@ -293,12 +293,12 @@ public class JsonSchemaInferrerOptionsTest {
 
   @Test
   public void testExamples() {
-    assertSame(ExamplesPolicies.noOp(), ExamplesPolicies.first(0));
-    assertThrows(IllegalArgumentException.class, () -> ExamplesPolicies.first(-1));
+    assertSame(ExamplesPolicies.noOp(), ExamplesPolicies.useFirstSamples(0));
+    assertThrows(IllegalArgumentException.class, () -> ExamplesPolicies.useFirstSamples(-1));
     {
       final JsonSchemaInferrer inferrer =
           JsonSchemaInferrer.newBuilder().setSpecVersion(SpecVersion.DRAFT_04)
-              .setExamplesPolicy(ExamplesPolicies.first(3)).build();
+              .setExamplesPolicy(ExamplesPolicies.useFirstSamples(3)).build();
       final ObjectNode schema = inferrer.inferForSamples(IntStream.range(0, 5)
           .mapToObj(Integer::toString).map(jnf::textNode).collect(Collectors.toList()));
       assertNull(schema.get("examples"));
@@ -306,7 +306,7 @@ public class JsonSchemaInferrerOptionsTest {
     {
       final JsonSchemaInferrer inferrer =
           JsonSchemaInferrer.newBuilder().setSpecVersion(SpecVersion.DRAFT_06)
-              .setExamplesPolicy(ExamplesPolicies.first(3)).build();
+              .setExamplesPolicy(ExamplesPolicies.useFirstSamples(3)).build();
       final ObjectNode schema = inferrer.inferForSamples(IntStream.range(0, 5)
           .mapToObj(Integer::toString).map(jnf::textNode).collect(Collectors.toList()));
       assertEquals(ImmutableSet.of("0", "1", "2"), toStringSet(schema.path("examples")));
@@ -314,36 +314,37 @@ public class JsonSchemaInferrerOptionsTest {
     {
       final JsonSchemaInferrer inferrer =
           JsonSchemaInferrer.newBuilder().setSpecVersion(SpecVersion.DRAFT_06)
-              .setExamplesPolicy(ExamplesPolicies.first(3, "boolean"::equals)).build();
+              .setExamplesPolicy(ExamplesPolicies.useFirstSamples(3, "boolean"::equals)).build();
       final ObjectNode schema = inferrer.inferForSamples(IntStream.range(0, 5)
           .mapToObj(Integer::toString).map(jnf::textNode).collect(Collectors.toList()));
       assertNull(schema.get("examples"));
     }
     {
-      final JsonNode examples = ExamplesPolicies.first(1).getExamples(new ExamplesPolicyInput() {
+      final JsonNode examples =
+          ExamplesPolicies.useFirstSamples(1).getExamples(new ExamplesPolicyInput() {
 
-        @Override
-        public String getType() {
-          return "string";
-        }
+            @Override
+            public String getType() {
+              return "string";
+            }
 
-        @Override
-        public SpecVersion getSpecVersion() {
-          return SpecVersion.DRAFT_07;
-        }
+            @Override
+            public SpecVersion getSpecVersion() {
+              return SpecVersion.DRAFT_07;
+            }
 
-        @Override
-        public Collection<JsonNode> getSamples() {
-          return Collections.emptyList();
-        }
+            @Override
+            public Collection<JsonNode> getSamples() {
+              return Collections.emptyList();
+            }
 
-      });
+          });
       assertNull(examples);
     }
     {
       final JsonSchemaInferrer inferrer =
           JsonSchemaInferrer.newBuilder().setSpecVersion(SpecVersion.DRAFT_06)
-              .setExamplesPolicy(ExamplesPolicies.first(3, "string"::equals)).build();
+              .setExamplesPolicy(ExamplesPolicies.useFirstSamples(3, "string"::equals)).build();
       final ObjectNode schema = inferrer.inferForSamples(IntStream.range(0, 5)
           .mapToObj(Integer::toString).map(jnf::textNode).collect(Collectors.toList()));
       assertEquals(ImmutableSet.of("0", "1", "2"), toStringSet(schema.path("examples")));
@@ -360,7 +361,7 @@ public class JsonSchemaInferrerOptionsTest {
     {
       final JsonSchemaInferrer inferrer =
           JsonSchemaInferrer.newBuilder().setSpecVersion(SpecVersion.DRAFT_06)
-              .setExamplesPolicy(ExamplesPolicies.first(3)).build();
+              .setExamplesPolicy(ExamplesPolicies.useFirstSamples(3)).build();
       final ObjectNode sample = jnf.objectNode();
       sample.set("foo", jnf.arrayNode());
       final ObjectNode schema = inferrer.inferForSample(sample);

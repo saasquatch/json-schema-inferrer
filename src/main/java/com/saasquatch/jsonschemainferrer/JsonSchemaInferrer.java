@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -36,6 +37,7 @@ import com.fasterxml.jackson.databind.node.ValueNode;
  * @see #inferForSample(JsonNode)
  * @see #inferForSamples(Collection)
  */
+@Immutable
 public final class JsonSchemaInferrer {
 
   private final SpecVersion specVersion;
@@ -77,6 +79,7 @@ public final class JsonSchemaInferrer {
   /**
    * @return A new instance of {@link JsonSchemaInferrerBuilder} with default options.
    */
+  @Nonnull
   public static JsonSchemaInferrerBuilder newBuilder() {
     return new JsonSchemaInferrerBuilder();
   }
@@ -127,8 +130,8 @@ public final class JsonSchemaInferrer {
     if (sample == null || sample.isNull() || sample.isMissingNode()) {
       /*
        * Treat null as NullNode for obvious reasons. Treat NullNode as the singleton NullNode
-       * because NullNode is not a final class and may break equals in the future. Treat MissingNode
-       * as NullNode so we don't end up with duplicate nulls in examples.
+       * because NullNode is not a final class and may break equals further down the logic. Treat
+       * MissingNode as NullNode so we don't end up with duplicate nulls.
        */
       return JsonNodeFactory.instance.nullNode();
     } else if (sample.isPojo()) {

@@ -23,7 +23,7 @@ public class Example2 {
   private static final JsonSchemaInferrer inferrer =
       JsonSchemaInferrer.newBuilder()
           .setSpecVersion(SpecVersion.DRAFT_06)
-          .setExamplesPolicy(ExamplesPolicies.first(3))
+          .setExamplesPolicy(ExamplesPolicies.useFirstSamples(3))
           .setAdditionalPropertiesPolicy(AdditionalPropertiesPolicies.existingTypes())
           .setRequiredPolicy(RequiredPolicies.nonNullCommonFields())
           .setTitleGenerator(TitleGenerators.useFieldNames())

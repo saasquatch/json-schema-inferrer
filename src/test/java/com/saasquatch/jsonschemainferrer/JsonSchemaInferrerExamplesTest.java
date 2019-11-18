@@ -243,7 +243,8 @@ public class JsonSchemaInferrerExamplesTest {
                 FormatInferrers.email(), FormatInferrers.ip()));
           }
           builder.enable(ArrayLengthFeature.values()).enable(ObjectSizeFeature.values())
-              .enable(StringLengthFeature.values()).setExamplesPolicy(ExamplesPolicies.first(10))
+              .enable(StringLengthFeature.values())
+              .setExamplesPolicy(ExamplesPolicies.useFirstSamples(10))
               .setDefaultPolicy(defaultPolicyIter.next())
               .setTitleGenerator(TitleGenerators.useFieldNames())
               .setDescriptionGenerator(DescriptionGeneratorInput::getFieldName)

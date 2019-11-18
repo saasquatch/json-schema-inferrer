@@ -24,17 +24,17 @@ public final class ExamplesPolicies {
   }
 
   /**
-   * @return An {@link ExamplesPolicy} that takes the first n samples.
+   * @return An {@link ExamplesPolicy} that takes the first samples with a limit.
    */
-  public static ExamplesPolicy first(@Nonnegative int limit) {
-    return first(limit, type -> true);
+  public static ExamplesPolicy useFirstSamples(@Nonnegative int limit) {
+    return useFirstSamples(limit, type -> true);
   }
 
   /**
-   * @return An {@link ExamplesPolicy} that takes the first n samples and a {@link Predicate} for
-   *         types.
+   * @return An {@link ExamplesPolicy} that takes the first samples with a limit and a
+   *         {@link Predicate} for types.
    */
-  public static ExamplesPolicy first(@Nonnegative int limit,
+  public static ExamplesPolicy useFirstSamples(@Nonnegative int limit,
       @Nonnull Predicate<String> typePredicate) {
     Objects.requireNonNull(typePredicate);
     if (limit < 0) {

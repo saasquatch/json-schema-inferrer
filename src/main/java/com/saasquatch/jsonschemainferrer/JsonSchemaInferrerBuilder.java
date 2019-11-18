@@ -4,13 +4,15 @@ import static com.saasquatch.jsonschemainferrer.JunkDrawer.unmodifiableEnumSet;
 import java.util.EnumSet;
 import java.util.Objects;
 import javax.annotation.Nonnull;
+import javax.annotation.concurrent.NotThreadSafe;
 
 /**
- * Builder for {@link JsonSchemaInferrer}.
+ * Builder for {@link JsonSchemaInferrer}. This class is mutable and not thread safe.
  *
  * @author sli
  * @see JsonSchemaInferrer#newBuilder()
  */
+@NotThreadSafe
 public final class JsonSchemaInferrerBuilder {
 
   private SpecVersion specVersion = SpecVersion.DRAFT_04;
