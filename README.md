@@ -7,6 +7,10 @@
 
 Java library for inferring JSON schema based on sample JSONs.
 
+## Demo site
+
+[Here is a simple demo site](http://json-schema-inferrer.herokuapp.com/) for this library that showcases some of the things it's capable of.
+
 ## Sample usage
 
 ```java

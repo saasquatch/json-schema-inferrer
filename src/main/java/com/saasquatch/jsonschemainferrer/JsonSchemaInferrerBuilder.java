@@ -92,7 +92,7 @@ public final class JsonSchemaInferrerBuilder {
    * @see ExamplesPolicy
    * @see ExamplesPolicies
    */
-  public JsonSchemaInferrerBuilder setExamplesPolicy(ExamplesPolicy examplesPolicy) {
+  public JsonSchemaInferrerBuilder setExamplesPolicy(@Nonnull ExamplesPolicy examplesPolicy) {
     this.examplesPolicy = Objects.requireNonNull(examplesPolicy);
     return this;
   }
