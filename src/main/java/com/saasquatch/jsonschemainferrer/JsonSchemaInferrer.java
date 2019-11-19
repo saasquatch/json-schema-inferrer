@@ -8,13 +8,9 @@ import static com.saasquatch.jsonschemainferrer.JunkDrawer.newObject;
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.stream;
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.stringColToArrayDistinct;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -220,7 +216,7 @@ public final class JsonSchemaInferrer {
      * Map to keep track of examples. The keys are pairs of [type, format] stored in Lists, and the
      * vales are examples for that type/format combo.
      */
-    final Map<List<String>, PrimitivesSummary> primitivesSummaryMap = new HashMap<>();
+    final PrimitivesSummaryMap primitivesSummaryMap = new PrimitivesSummaryMap();
     for (ValueNode valueNode : valueNodes) {
       final ObjectNode newAnyOf = newObject();
       final String type = inferPrimitiveType(valueNode, allNumbersAreIntegers);
@@ -230,14 +226,7 @@ public final class JsonSchemaInferrer {
         newAnyOf.put(Consts.Fields.FORMAT, format);
       }
       // Keep track of examples even if examples is disabled
-      primitivesSummaryMap.compute(Arrays.asList(type, format),
-          (typeFormatPair, primitiveSummary) -> {
-            if (primitiveSummary == null) {
-              primitiveSummary = new PrimitivesSummary();
-            }
-            primitiveSummary.addSample(valueNode);
-            return primitiveSummary;
-          });
+      primitivesSummaryMap.addSample(type, format, valueNode);
       anyOfs.add(newAnyOf);
     }
     // Put the combined examples and default back into the result schema
@@ -246,7 +235,7 @@ public final class JsonSchemaInferrer {
       final String format = anyOf.path(Consts.Fields.FORMAT).textValue();
       @Nonnull
       final PrimitivesSummary primitivesSummary =
-          primitivesSummaryMap.get(Arrays.asList(type, format));
+          primitivesSummaryMap.getPrimitivesSummary(type, format);
       processDefault(anyOf, primitivesSummary);
       processExamples(anyOf, primitivesSummary, type, format);
       processStringLengthFeatures(anyOf, primitivesSummary);
