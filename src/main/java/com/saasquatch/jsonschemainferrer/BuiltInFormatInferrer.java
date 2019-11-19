@@ -2,6 +2,7 @@ package com.saasquatch.jsonschemainferrer;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.OffsetTime;
 import java.time.ZonedDateTime;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.apache.commons.validator.routines.InetAddressValidator;
@@ -43,7 +44,7 @@ enum BuiltInFormatInferrer implements FormatInferrer {
         }
         try {
           // This covers time strings with time zones
-          ZonedDateTime.parse("1111-11-11T" + textValue);
+          OffsetTime.parse(textValue);
           return "time";
         } catch (Exception e) {
           // Ignore
