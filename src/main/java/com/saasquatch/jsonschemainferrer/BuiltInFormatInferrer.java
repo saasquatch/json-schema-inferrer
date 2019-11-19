@@ -35,12 +35,14 @@ enum BuiltInFormatInferrer implements FormatInferrer {
           // Ignore
         }
         try {
+          // This only covers time strings without time zones
           LocalTime.parse(textValue);
           return "time";
         } catch (Exception e) {
           // Ignore
         }
         try {
+          // This covers time strings with time zones
           ZonedDateTime.parse("1111-11-11T" + textValue);
           return "time";
         } catch (Exception e) {
