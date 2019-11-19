@@ -112,7 +112,7 @@ public final class JsonSchemaInferrer {
         schema.setAll(anyOfs.iterator().next());
         break;
       default:
-        schema.set(Consts.Fields.ANY_OF, newArray().addAll(anyOfs));
+        schema.set(Consts.Fields.ANY_OF, newArray(anyOfs));
         break;
     }
     return schema;
@@ -158,7 +158,7 @@ public final class JsonSchemaInferrer {
           newProperty.setAll(anyOfs.iterator().next());
           break;
         default:
-          newProperty.set(Consts.Fields.ANY_OF, newArray().addAll(anyOfs));
+          newProperty.set(Consts.Fields.ANY_OF, newArray(anyOfs));
           break;
       }
       properties.set(fieldName, newProperty);
@@ -192,7 +192,7 @@ public final class JsonSchemaInferrer {
         break;
       default:
         items = newObject();
-        items.set(Consts.Fields.ANY_OF, newArray().addAll(anyOfs));
+        items.set(Consts.Fields.ANY_OF, newArray(anyOfs));
         break;
     }
     final ObjectNode schema = newObject().put(Consts.Fields.TYPE, Consts.Types.ARRAY);

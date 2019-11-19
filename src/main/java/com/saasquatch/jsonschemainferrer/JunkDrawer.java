@@ -63,6 +63,10 @@ final class JunkDrawer {
     return JsonNodeFactory.instance.arrayNode();
   }
 
+  static ArrayNode newArray(@Nonnull Collection<? extends JsonNode> elements) {
+    return newArray().addAll(elements);
+  }
+
   /**
    * Build an {@link ArrayNode} with distinct strings
    */
