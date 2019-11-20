@@ -31,13 +31,7 @@ final class PrimitivesSummary {
       firstSample = sample;
     }
     lastSample = sample;
-    final String textValue;
-    if (sample.isBinary()) {
-      // Handle Base64 binary
-      textValue = sample.asText();
-    } else {
-      textValue = sample.textValue();
-    }
+    final String textValue = JunkDrawer.getSerializedTextValue(sample);
     if (textValue != null) {
       // DO NOT use String.length()
       final int stringLength = textValue.codePointCount(0, textValue.length());

@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -123,6 +124,16 @@ final class JunkDrawer {
     }
     return commonFieldNames == null ? Collections.emptySet()
         : Collections.unmodifiableSet(commonFieldNames);
+  }
+
+  @Nullable
+  static String getSerializedTextValue(@Nonnull JsonNode jsonNode) {
+    if (jsonNode.isBinary()) {
+      // Jackson serializes BinaryNode as Base64
+      return jsonNode.asText();
+    } else {
+      return jsonNode.textValue();
+    }
   }
 
 }
