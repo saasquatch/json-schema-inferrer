@@ -11,6 +11,7 @@ import com.saasquatch.jsonschemainferrer.ArrayLengthFeature;
 import com.saasquatch.jsonschemainferrer.ExamplesPolicies;
 import com.saasquatch.jsonschemainferrer.FormatInferrerInput;
 import com.saasquatch.jsonschemainferrer.JsonSchemaInferrer;
+import com.saasquatch.jsonschemainferrer.MultipleOfPolicies;
 import com.saasquatch.jsonschemainferrer.NumberRangeFeature;
 import com.saasquatch.jsonschemainferrer.ObjectSizeFeature;
 import com.saasquatch.jsonschemainferrer.RequiredPolicies;
@@ -29,6 +30,7 @@ public class Example2 {
           .setRequiredPolicy(RequiredPolicies.nonNullCommonFields())
           .setTitleGenerator(TitleGenerators.useFieldNames())
           .setFormatInferrer(Example2::absoluteUriFormatInferrer)
+          .setMultipleOfPolicy(MultipleOfPolicies.gcd())
           .enable(ArrayLengthFeature.MIN_ITEMS, ArrayLengthFeature.MAX_ITEMS)
           .enable(ObjectSizeFeature.MIN_PROPERTIES, ObjectSizeFeature.MAX_PROPERTIES)
           .enable(StringLengthFeature.MIN_LENGTH, StringLengthFeature.MAX_LENGTH)
