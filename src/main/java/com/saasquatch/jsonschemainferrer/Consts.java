@@ -18,7 +18,7 @@ interface Consts {
         EXAMPLES = "examples", DEFAULT = "default", MIN_ITEMS = "minItems", MAX_ITEMS = "maxItems",
         MIN_PROPERTIES = "minProperties", MAX_PROPERTIES = "maxProperties",
         MAX_LENGTH = "maxLength", MIN_LENGTH = "minLength", MINIMUM = "minimum",
-        MAXIMUM = "maximum";
+        MAXIMUM = "maximum", MULTIPLE_OF = "multipleOf";
     Set<String> SINGLETON_TYPE = Collections.singleton(TYPE);
   }
 

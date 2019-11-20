@@ -376,6 +376,39 @@ public class JsonSchemaInferrerOptionsTest {
   }
 
   @Test
+  public void testMultipleOf() {
+    final List<JsonNode> samples =
+        ImmutableList.of(jnf.numberNode(2), jnf.numberNode(4), jnf.numberNode(6));
+    final List<JsonNode> unsupportedSamples =
+        ImmutableList.of(jnf.numberNode(2), jnf.numberNode(4), jnf.numberNode(6.0));
+    {
+      final JsonSchemaInferrer inferrer =
+          JsonSchemaInferrer.newBuilder().setMultipleOfPolicy(input -> {
+            assertNotNull(input.getSamples());
+            assertNotNull(input.getType());
+            assertNotNull(input.getSpecVersion());
+            return null;
+          }).setIntegerTypePreference(IntegerTypePreference.NEVER).build();
+      final ObjectNode schema = inferrer.inferForSamples(samples);
+      assertNull(schema.get("multipleOf"));
+    }
+    {
+      final JsonSchemaInferrer inferrer =
+          JsonSchemaInferrer.newBuilder().setMultipleOfPolicy(MultipleOfPolicies.gcd())
+              .setIntegerTypePreference(IntegerTypePreference.NEVER).build();
+      final ObjectNode schema = inferrer.inferForSamples(samples);
+      assertEquals(2, schema.path("multipleOf").intValue());
+    }
+    {
+      final JsonSchemaInferrer inferrer =
+          JsonSchemaInferrer.newBuilder().setMultipleOfPolicy(MultipleOfPolicies.gcd())
+              .setIntegerTypePreference(IntegerTypePreference.NEVER).build();
+      final ObjectNode schema = inferrer.inferForSamples(unsupportedSamples);
+      assertNull(schema.get("multipleOf"));
+    }
+  }
+
+  @Test
   public void testObjectSizeFeatures() {
     final List<JsonNode> samples = ImmutableList.of(jnf.objectNode(),
         jnf.objectNode().put("1", 1).put("2", (String) null).put("3", 3),

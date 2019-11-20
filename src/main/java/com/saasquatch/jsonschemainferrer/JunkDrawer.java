@@ -1,5 +1,6 @@
 package com.saasquatch.jsonschemainferrer;
 
+import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -17,7 +18,9 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.BigIntegerNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.NumericNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
@@ -72,6 +75,25 @@ final class JunkDrawer {
 
   static ArrayNode newArray(@Nonnull Collection<? extends JsonNode> elements) {
     return newArray().addAll(elements);
+  }
+
+  /**
+   * Create a {@link NumericNode} with the given {@link BigInteger} while attempting to fit the
+   * input into an int or a long.
+   */
+  static NumericNode numberNode(@Nonnull BigInteger gcd) {
+    // Attempt to fit the result into a int or long
+    try {
+      return JsonNodeFactory.instance.numberNode(gcd.intValueExact());
+    } catch (ArithmeticException e) {
+      // Ignore
+    }
+    try {
+      return JsonNodeFactory.instance.numberNode(gcd.longValueExact());
+    } catch (ArithmeticException e) {
+      // Ignore
+    }
+    return BigIntegerNode.valueOf(gcd);
   }
 
   /**
@@ -134,6 +156,10 @@ final class JunkDrawer {
     } else {
       return jsonNode.textValue();
     }
+  }
+
+  static boolean allNumbersAreIntegers(@Nonnull Iterable<? extends JsonNode> jsonNodes) {
+    return stream(jsonNodes).filter(JsonNode::isNumber).allMatch(JsonNode::isIntegralNumber);
   }
 
 }

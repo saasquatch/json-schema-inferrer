@@ -1,17 +1,21 @@
 package com.saasquatch.jsonschemainferrer;
 
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.getCommonFieldNames;
+import static com.saasquatch.jsonschemainferrer.JunkDrawer.numberNode;
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.stringColToArrayDistinct;
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.unrecognizedEnumError;
 import static com.saasquatch.jsonschemainferrer.TestJunkDrawer.jnf;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.NumericNode;
+import com.fasterxml.jackson.databind.node.ValueNode;
 
 public class JunkDrawerTest {
 
@@ -36,6 +40,25 @@ public class JunkDrawerTest {
   @Test
   public void testUnrecognizedEnum() {
     assertThrows(IllegalStateException.class, () -> unrecognizedEnumError(TimeUnit.DAYS));
+  }
+
+  @Test
+  public void testNumberNode() {
+    {
+      final int num = 1;
+      final NumericNode numberNode = jnf.numberNode(num);
+      assertEquals(numberNode, numberNode(BigInteger.valueOf(num)));
+    }
+    {
+      final long num = 2L * Integer.MAX_VALUE;
+      final NumericNode numberNode = jnf.numberNode(num);
+      assertEquals(numberNode, numberNode(BigInteger.valueOf(num)));
+    }
+    {
+      final BigInteger num = BigInteger.valueOf(Long.MAX_VALUE).multiply(BigInteger.valueOf(2));
+      final ValueNode numberNode = jnf.numberNode(num);
+      assertEquals(numberNode, numberNode(num));
+    }
   }
 
 }

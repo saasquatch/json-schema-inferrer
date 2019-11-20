@@ -249,7 +249,8 @@ public class JsonSchemaInferrerExamplesTest {
               .setTitleGenerator(TitleGenerators.useFieldNames())
               .setDescriptionGenerator(DescriptionGeneratorInput::getFieldName)
               .setAdditionalPropertiesPolicy(additionalPropPolicyIter.next())
-              .setRequiredPolicy(requiredPolicyIter.next());
+              .setRequiredPolicy(requiredPolicyIter.next())
+              .setMultipleOfPolicy(MultipleOfPolicies.gcd());
         }
         try {
           inferrers.add(builder.build());

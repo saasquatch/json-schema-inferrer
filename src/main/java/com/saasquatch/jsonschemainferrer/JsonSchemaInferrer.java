@@ -1,5 +1,6 @@
 package com.saasquatch.jsonschemainferrer;
 
+import static com.saasquatch.jsonschemainferrer.JunkDrawer.allNumbersAreIntegers;
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.format;
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.getAllFieldNames;
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.getAllValuesForFieldName;
@@ -45,6 +46,7 @@ public final class JsonSchemaInferrer {
   private final FormatInferrer formatInferrer;
   private final TitleGenerator titleGenerator;
   private final DescriptionGenerator descriptionGenerator;
+  private final MultipleOfPolicy multipleOfPolicy;
   private final Set<ObjectSizeFeature> objectSizeFeatures;
   private final Set<ArrayLengthFeature> arrayLengthFeatures;
   private final Set<StringLengthFeature> stringLengthFeatures;
@@ -56,6 +58,7 @@ public final class JsonSchemaInferrer {
       @Nonnull RequiredPolicy requiredPolicy, @Nonnull DefaultPolicy defaultPolicy,
       @Nonnull ExamplesPolicy examplesPolicy, @Nonnull FormatInferrer formatInferrer,
       @Nonnull TitleGenerator titleGenerator, @Nonnull DescriptionGenerator descriptionGenerator,
+      @Nonnull MultipleOfPolicy multipleOfPolicy,
       @Nonnull Set<ObjectSizeFeature> objectSizeFeatures,
       @Nonnull Set<ArrayLengthFeature> arrayLengthFeatures,
       @Nonnull Set<StringLengthFeature> stringLengthFeatures,
@@ -69,6 +72,7 @@ public final class JsonSchemaInferrer {
     this.formatInferrer = formatInferrer;
     this.titleGenerator = titleGenerator;
     this.descriptionGenerator = descriptionGenerator;
+    this.multipleOfPolicy = multipleOfPolicy;
     this.objectSizeFeatures = objectSizeFeatures;
     this.arrayLengthFeatures = arrayLengthFeatures;
     this.stringLengthFeatures = stringLengthFeatures;
@@ -213,8 +217,7 @@ public final class JsonSchemaInferrer {
     }
     final Set<ObjectNode> anyOfs = new HashSet<>();
     // Whether all the numbers in the samples are integers. Used for inferring number types.
-    final boolean allNumbersAreIntegers =
-        valueNodes.stream().filter(JsonNode::isNumber).allMatch(JsonNode::isIntegralNumber);
+    final boolean allNumbersAreIntegers = allNumbersAreIntegers(valueNodes);
     /*
      * Map to keep track of examples. The keys are pairs of [type, format] stored in Lists, and the
      * vales are examples for that type/format combo.
@@ -243,6 +246,7 @@ public final class JsonSchemaInferrer {
       processExamples(anyOf, primitivesSummary, type, format);
       processStringLengthFeatures(anyOf, primitivesSummary);
       if (Consts.Types.NUMBER_TYPES.contains(type)) {
+        processMultipleOf(anyOf, primitivesSummary, type);
         processNumberRangeFeatures(anyOf, primitivesSummary);
       }
     }
@@ -473,6 +477,31 @@ public final class JsonSchemaInferrer {
     });
     if (examples != null) {
       schema.set(Consts.Fields.EXAMPLES, examples);
+    }
+  }
+
+  private void processMultipleOf(@Nonnull ObjectNode schema,
+      @Nonnull PrimitivesSummary primitivesSummary, @Nonnull String type) {
+    final JsonNode multipleOf = multipleOfPolicy.getMultipleOf(new MultipleOfPolicyInput() {
+
+      @Override
+      public Collection<JsonNode> getSamples() {
+        return primitivesSummary.getSamples();
+      }
+
+      @Override
+      public String getType() {
+        return type;
+      }
+
+      @Override
+      public SpecVersion getSpecVersion() {
+        return specVersion;
+      }
+
+    });
+    if (multipleOf != null) {
+      schema.set(Consts.Fields.MULTIPLE_OF, multipleOf);
     }
   }
 

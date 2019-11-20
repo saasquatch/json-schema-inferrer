@@ -25,6 +25,7 @@ public final class JsonSchemaInferrerBuilder {
   private FormatInferrer formatInferrer = FormatInferrers.noOp();
   private TitleGenerator titleGenerator = TitleGenerators.noOp();
   private DescriptionGenerator descriptionGenerator = DescriptionGenerators.noOp();
+  private MultipleOfPolicy multipleOfPolicy = MultipleOfPolicies.noOp();
   private final EnumSet<ObjectSizeFeature> objectSizeFeatures =
       EnumSet.noneOf(ObjectSizeFeature.class);
   private final EnumSet<ArrayLengthFeature> arrayLengthFeatures =
@@ -142,6 +143,16 @@ public final class JsonSchemaInferrerBuilder {
   }
 
   /**
+   * Set the {@link MultipleOfPolicy}. By default it is {@link MultipleOfPolicies#noOp()}.
+   *
+   * @see MultipleOfPolicy
+   */
+  public JsonSchemaInferrerBuilder setMultipleOfPolicy(@Nonnull MultipleOfPolicy multipleOfPolicy) {
+    this.multipleOfPolicy = Objects.requireNonNull(multipleOfPolicy);
+    return this;
+  }
+
+  /**
    * Enable {@link ObjectSizeFeature}s
    */
   public JsonSchemaInferrerBuilder enable(@Nonnull ObjectSizeFeature... features) {
@@ -228,7 +239,7 @@ public final class JsonSchemaInferrerBuilder {
   public JsonSchemaInferrer build() {
     return new JsonSchemaInferrer(specVersion, integerTypePreference, additionalPropertiesPolicy,
         requiredPolicy, defaultPolicy, examplesPolicy, formatInferrer, titleGenerator,
-        descriptionGenerator, unmodifiableEnumSet(objectSizeFeatures),
+        descriptionGenerator, multipleOfPolicy, unmodifiableEnumSet(objectSizeFeatures),
         unmodifiableEnumSet(arrayLengthFeatures), unmodifiableEnumSet(stringLengthFeatures),
         unmodifiableEnumSet(numberRangeFeatures));
   }
