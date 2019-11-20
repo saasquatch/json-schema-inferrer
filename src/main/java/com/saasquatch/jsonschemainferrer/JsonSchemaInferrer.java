@@ -305,16 +305,8 @@ public final class JsonSchemaInferrer {
   @Nonnull
   String inferPrimitiveType(@Nonnull JsonNode sample, boolean allNumbersAreIntegers) {
     // Marker for whether the error is caused by a known type
-    boolean knownType = false;
     final JsonNodeType type = sample.getNodeType();
     switch (type) {
-      // We shouldn't encounter these types here
-      case ARRAY:
-      case POJO:
-      case OBJECT:
-      case MISSING:
-        knownType = true;
-        break;
       case STRING:
       case BINARY:
         return Consts.Types.STRING;
@@ -327,11 +319,12 @@ public final class JsonSchemaInferrer {
             ? Consts.Types.INTEGER
             : Consts.Types.NUMBER;
       }
+      // We shouldn't encounter other types here
       default:
         break;
     }
-    throw new IllegalStateException(format("%s %s[%s] encountered with value[%s]",
-        knownType ? "Unexpected" : "Unrecognized", type.getClass().getSimpleName(), type, sample));
+    throw new IllegalStateException(format("Unexpected %s[%s] encountered with value[%s]",
+        type.getClass().getSimpleName(), type, sample));
   }
 
   @Nullable
