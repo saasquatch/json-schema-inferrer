@@ -50,14 +50,23 @@ final class JunkDrawer {
     return StreamSupport.stream(iter.spliterator(), false);
   }
 
+  /**
+   * Create an unmodifiable {@link Set} with the given elements. Note that this method is meant for
+   * creating constants. If you want to create constant {@link Set}s of size 0 or 1, you should be
+   * using {@link Collections#emptySet()} or {@link Collections#singleton(Object)} instead.
+   */
   @SafeVarargs
   static <E> Set<E> unmodifiableSetOf(E... elements) {
     return Collections.unmodifiableSet(new HashSet<>(Arrays.asList(elements)));
   }
 
+  /**
+   * Create an unmodifiable {@link Set} possibly backed by a defensive copy of the given
+   * {@link EnumSet}.
+   */
   static <E extends Enum<E>> Set<E> unmodifiableEnumSet(@Nonnull EnumSet<E> enumSet) {
     return enumSet.isEmpty() ? Collections.emptySet()
-        : Collections.unmodifiableSet(enumSet.clone());
+        : Collections.unmodifiableSet(EnumSet.copyOf(enumSet));
   }
 
   static <E extends Enum<E>, R> R unrecognizedEnumError(E enumVal) {

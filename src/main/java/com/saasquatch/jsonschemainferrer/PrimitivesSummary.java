@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.OptionalInt;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.NotThreadSafe;
 import com.fasterxml.jackson.databind.JsonNode;
 
 /**
@@ -14,6 +15,7 @@ import com.fasterxml.jackson.databind.JsonNode;
  *
  * @author sli
  */
+@NotThreadSafe
 final class PrimitivesSummary {
 
   private JsonNode firstSample;

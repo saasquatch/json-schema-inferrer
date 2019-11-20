@@ -6,9 +6,11 @@ import java.util.List;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.NotThreadSafe;
 import com.fasterxml.jackson.databind.JsonNode;
 
 @SuppressWarnings("serial") // We never serialize it
+@NotThreadSafe
 final class PrimitivesSummaryMap extends HashMap<List<String>, PrimitivesSummary> {
 
   public PrimitivesSummaryMap() {}
