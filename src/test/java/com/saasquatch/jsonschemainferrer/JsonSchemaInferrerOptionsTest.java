@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.Instant;
 import java.util.Arrays;
@@ -446,6 +447,27 @@ public class JsonSchemaInferrerOptionsTest {
     assertEquals(dateTimeString.length(), schema.path("minLength").intValue());
     assertEquals(dateTimeString.length(), schema.path("maxLength").intValue());
     assertEquals("date-time", schema.path("format").textValue());
+  }
+
+  @Test
+  public void testNumberRangeFeatures() {
+    final List<JsonNode> samples = ImmutableList.of(jnf.numberNode(BigDecimal.valueOf(1L)),
+        jnf.numberNode(BigInteger.valueOf(2L)), jnf.numberNode(3L), jnf.numberNode(4.0f),
+        jnf.numberNode((byte) 5), jnf.numberNode(7.5));
+    {
+      final JsonSchemaInferrer inferrer =
+          JsonSchemaInferrer.newBuilder().enable(NumberRangeFeature.values()).build();
+      final ObjectNode schema = inferrer.inferForSamples(samples);
+      assertEquals(BigDecimal.valueOf(1L), schema.path("minimum").decimalValue());
+      assertEquals(BigDecimal.valueOf(7.5), schema.path("maximum").decimalValue());
+    }
+    {
+      final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
+          .enable(NumberRangeFeature.MAXIMUM).disable(NumberRangeFeature.values()).build();
+      final ObjectNode schema = inferrer.inferForSamples(samples);
+      assertNull(schema.get("minimum"));
+      assertNull(schema.get("maximum"));
+    }
   }
 
 }
