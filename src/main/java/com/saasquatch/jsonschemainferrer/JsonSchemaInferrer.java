@@ -244,7 +244,9 @@ public final class JsonSchemaInferrer {
           primitivesSummaryMap.getPrimitivesSummary(type, format);
       processDefault(anyOf, primitivesSummary);
       processExamples(anyOf, primitivesSummary, type, format);
-      processStringLengthFeatures(anyOf, primitivesSummary);
+      if (Consts.Types.STRING.equals(type)) {
+        processStringLengthFeatures(anyOf, primitivesSummary);
+      }
       if (Consts.Types.NUMBER_TYPES.contains(type)) {
         processMultipleOf(anyOf, primitivesSummary, type);
         processNumberRangeFeatures(anyOf, primitivesSummary);
