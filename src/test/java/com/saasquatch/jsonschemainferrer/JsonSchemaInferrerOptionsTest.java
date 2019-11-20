@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.BinaryNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -435,6 +436,14 @@ public class JsonSchemaInferrerOptionsTest {
       assertEquals(0, schema.path("minLength").intValue());
       assertEquals(6, schema.path("maxLength").intValue());
     }
+    {
+      final BinaryNode binaryNode = jnf.binaryNode("abc".getBytes(UTF_8));
+      final JsonSchemaInferrer inferrer =
+          JsonSchemaInferrer.newBuilder().enable(StringLengthFeature.values()).build();
+      final ObjectNode schema = inferrer.inferForSample(binaryNode);
+      assertEquals(binaryNode.asText().length(), schema.path("minLength").intValue());
+      assertEquals(binaryNode.asText().length(), schema.path("maxLength").intValue());
+    }
   }
 
   @Test
@@ -455,18 +464,18 @@ public class JsonSchemaInferrerOptionsTest {
         jnf.numberNode(BigInteger.valueOf(2L)), jnf.numberNode(3L), jnf.numberNode(4.0f),
         jnf.numberNode((byte) 5), jnf.numberNode(7.5));
     {
-      final JsonSchemaInferrer inferrer =
-          JsonSchemaInferrer.newBuilder().enable(NumberRangeFeature.values()).build();
-      final ObjectNode schema = inferrer.inferForSamples(samples);
-      assertEquals(BigDecimal.valueOf(1L), schema.path("minimum").decimalValue());
-      assertEquals(BigDecimal.valueOf(7.5), schema.path("maximum").decimalValue());
-    }
-    {
       final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
           .enable(NumberRangeFeature.MAXIMUM).disable(NumberRangeFeature.values()).build();
       final ObjectNode schema = inferrer.inferForSamples(samples);
       assertNull(schema.get("minimum"));
       assertNull(schema.get("maximum"));
+    }
+    {
+      final JsonSchemaInferrer inferrer =
+          JsonSchemaInferrer.newBuilder().enable(NumberRangeFeature.values()).build();
+      final ObjectNode schema = inferrer.inferForSamples(samples);
+      assertEquals(BigDecimal.valueOf(1L), schema.path("minimum").decimalValue());
+      assertEquals(BigDecimal.valueOf(7.5), schema.path("maximum").decimalValue());
     }
   }
 
