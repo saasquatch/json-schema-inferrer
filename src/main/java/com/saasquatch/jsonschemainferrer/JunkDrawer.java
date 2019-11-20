@@ -18,10 +18,10 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.BigIntegerNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.NumericNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.ValueNode;
 
 /**
  * Exactly what it sounds like. NOT PUBLIC!!!
@@ -90,7 +90,7 @@ final class JunkDrawer {
    * Create a {@link NumericNode} with the given {@link BigInteger} while attempting to fit the
    * input into an int or a long.
    */
-  static NumericNode numberNode(@Nonnull BigInteger gcd) {
+  static ValueNode numberNode(@Nonnull BigInteger gcd) {
     // Attempt to fit the result into a int or long
     try {
       return JsonNodeFactory.instance.numberNode(gcd.intValueExact());
@@ -102,7 +102,7 @@ final class JunkDrawer {
     } catch (ArithmeticException e) {
       // Ignore
     }
-    return BigIntegerNode.valueOf(gcd);
+    return JsonNodeFactory.instance.numberNode(gcd);
   }
 
   /**
