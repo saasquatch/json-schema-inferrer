@@ -1,5 +1,6 @@
 package com.saasquatch.jsonschemainferrer;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -43,6 +44,11 @@ final class JunkDrawer {
       return ((Collection<E>) iter).stream();
     }
     return StreamSupport.stream(iter.spliterator(), false);
+  }
+
+  @SafeVarargs
+  static <E> Set<E> unmodifiableSetOf(E... elements) {
+    return Collections.unmodifiableSet(new HashSet<>(Arrays.asList(elements)));
   }
 
   static <E extends Enum<E>> Set<E> unmodifiableEnumSet(@Nonnull EnumSet<E> enumSet) {

@@ -48,6 +48,7 @@ public final class JsonSchemaInferrer {
   private final Set<ObjectSizeFeature> objectSizeFeatures;
   private final Set<ArrayLengthFeature> arrayLengthFeatures;
   private final Set<StringLengthFeature> stringLengthFeatures;
+  private final Set<NumberRangeFeature> numberRangeFeatures;
 
   JsonSchemaInferrer(@Nonnull SpecVersion specVersion,
       @Nonnull IntegerTypePreference integerTypePreference,
@@ -57,7 +58,8 @@ public final class JsonSchemaInferrer {
       @Nonnull TitleGenerator titleGenerator, @Nonnull DescriptionGenerator descriptionGenerator,
       @Nonnull Set<ObjectSizeFeature> objectSizeFeatures,
       @Nonnull Set<ArrayLengthFeature> arrayLengthFeatures,
-      @Nonnull Set<StringLengthFeature> stringLengthFeatures) {
+      @Nonnull Set<StringLengthFeature> stringLengthFeatures,
+      @Nonnull Set<NumberRangeFeature> numberRangeFeatures) {
     this.specVersion = specVersion;
     this.integerTypePreference = integerTypePreference;
     this.additionalPropertiesPolicy = additionalPropertiesPolicy;
@@ -70,6 +72,7 @@ public final class JsonSchemaInferrer {
     this.objectSizeFeatures = objectSizeFeatures;
     this.arrayLengthFeatures = arrayLengthFeatures;
     this.stringLengthFeatures = stringLengthFeatures;
+    this.numberRangeFeatures = numberRangeFeatures;
   }
 
   /**
@@ -239,6 +242,9 @@ public final class JsonSchemaInferrer {
       processDefault(anyOf, primitivesSummary);
       processExamples(anyOf, primitivesSummary, type, format);
       processStringLengthFeatures(anyOf, primitivesSummary);
+      if (Consts.Types.NUMBER_TYPES.contains(type)) {
+        processNumberRangeFeatures(anyOf, primitivesSummary);
+      }
     }
     return anyOfs;
   }
@@ -488,6 +494,13 @@ public final class JsonSchemaInferrer {
       @Nonnull PrimitivesSummary primitivesSummary) {
     for (StringLengthFeature stringLengthFeature : stringLengthFeatures) {
       stringLengthFeature.process(schema, primitivesSummary, this);
+    }
+  }
+
+  private void processNumberRangeFeatures(@Nonnull ObjectNode schema,
+      @Nonnull PrimitivesSummary primitivesSummary) {
+    for (NumberRangeFeature numberRangeFeature : numberRangeFeatures) {
+      numberRangeFeature.process(schema, primitivesSummary, this);
     }
   }
 

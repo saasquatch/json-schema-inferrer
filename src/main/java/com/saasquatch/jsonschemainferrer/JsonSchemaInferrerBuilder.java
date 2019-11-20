@@ -31,6 +31,8 @@ public final class JsonSchemaInferrerBuilder {
       EnumSet.noneOf(ArrayLengthFeature.class);
   private final EnumSet<StringLengthFeature> stringLengthFeatures =
       EnumSet.noneOf(StringLengthFeature.class);
+  private final EnumSet<NumberRangeFeature> numberRangeFeatures =
+      EnumSet.noneOf(NumberRangeFeature.class);
 
   JsonSchemaInferrerBuilder() {}
 
@@ -200,6 +202,26 @@ public final class JsonSchemaInferrerBuilder {
   }
 
   /**
+   * Enable {@link NumberRangeFeature}s
+   */
+  public JsonSchemaInferrerBuilder enable(@Nonnull NumberRangeFeature... features) {
+    for (NumberRangeFeature feature : features) {
+      this.numberRangeFeatures.add(Objects.requireNonNull(feature));
+    }
+    return this;
+  }
+
+  /**
+   * Disable {@link NumberRangeFeature}s.
+   */
+  public JsonSchemaInferrerBuilder disable(@Nonnull NumberRangeFeature... features) {
+    for (NumberRangeFeature feature : features) {
+      this.numberRangeFeatures.remove(Objects.requireNonNull(feature));
+    }
+    return this;
+  }
+
+  /**
    * @return the {@link JsonSchemaInferrer} built
    * @throws IllegalArgumentException if the spec version and features don't match up
    */
@@ -207,7 +229,8 @@ public final class JsonSchemaInferrerBuilder {
     return new JsonSchemaInferrer(specVersion, integerTypePreference, additionalPropertiesPolicy,
         requiredPolicy, defaultPolicy, examplesPolicy, formatInferrer, titleGenerator,
         descriptionGenerator, unmodifiableEnumSet(objectSizeFeatures),
-        unmodifiableEnumSet(arrayLengthFeatures), unmodifiableEnumSet(stringLengthFeatures));
+        unmodifiableEnumSet(arrayLengthFeatures), unmodifiableEnumSet(stringLengthFeatures),
+        unmodifiableEnumSet(numberRangeFeatures));
   }
 
 }
