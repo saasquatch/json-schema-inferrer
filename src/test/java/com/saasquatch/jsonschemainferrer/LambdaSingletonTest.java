@@ -23,6 +23,8 @@ public class LambdaSingletonTest {
     doTest(DefaultPolicies::useFirstSamples);
     doTest(DefaultPolicies::useLastSamples);
     doTest(ExamplesPolicies::noOp);
+    doTest(MultipleOfPolicies::noOp);
+    doTest(MultipleOfPolicies::gcd);
   }
 
   private static void doTest(Supplier<? extends Object> supplier) {
