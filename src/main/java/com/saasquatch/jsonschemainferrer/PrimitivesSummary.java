@@ -2,6 +2,7 @@ package com.saasquatch.jsonschemainferrer;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.OptionalInt;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -45,7 +46,7 @@ final class PrimitivesSummary {
 
   @Nonnull
   public Collection<JsonNode> getSamples() {
-    return samples;
+    return Collections.unmodifiableCollection(samples);
   }
 
   @Nullable

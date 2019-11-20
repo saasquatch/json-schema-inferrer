@@ -19,7 +19,7 @@ public enum NumberRangeFeature {
     @Override
     void process(ObjectNode schema, PrimitivesSummary primitivesSummary,
         JsonSchemaInferrer jsonSchemaInferrer) {
-      primitivesSummary.getSamples().stream().min(NUM_VALUE_COMPARATOR)
+      primitivesSummary.getSamples().stream().filter(JsonNode::isNumber).min(NUM_VALUE_COMPARATOR)
           .ifPresent(minNode -> schema.set(Consts.Fields.MINIMUM, minNode));
     }
   },
@@ -30,7 +30,7 @@ public enum NumberRangeFeature {
     @Override
     void process(ObjectNode schema, PrimitivesSummary primitivesSummary,
         JsonSchemaInferrer jsonSchemaInferrer) {
-      primitivesSummary.getSamples().stream().max(NUM_VALUE_COMPARATOR)
+      primitivesSummary.getSamples().stream().filter(JsonNode::isNumber).max(NUM_VALUE_COMPARATOR)
           .ifPresent(maxNode -> schema.set(Consts.Fields.MAXIMUM, maxNode));
     }
   },;
