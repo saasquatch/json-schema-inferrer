@@ -193,8 +193,10 @@ final class JunkDrawer {
     return textValue.codePointCount(0, textValue.length());
   }
 
-  static boolean allNumbersAreIntegers(@Nonnull Iterable<? extends JsonNode> jsonNodes) {
-    return stream(jsonNodes).filter(JsonNode::isNumber).allMatch(JsonNode::isIntegralNumber);
+  static boolean allNumbersAreIntegers(@Nonnull Iterable<? extends JsonNode> jsonNodes,
+      @Nonnull IntegerTypeCriterion integerTypeCriterion) {
+    return stream(jsonNodes).filter(JsonNode::isNumber)
+        .allMatch(j -> integerTypeCriterion.isInteger(j));
   }
 
   /**

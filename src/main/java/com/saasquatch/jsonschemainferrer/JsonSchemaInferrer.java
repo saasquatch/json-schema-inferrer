@@ -230,7 +230,7 @@ public final class JsonSchemaInferrer {
     }
     final Set<ObjectNode> anyOfs = new HashSet<>();
     // Whether all the numbers in the samples are integers. Used for inferring number types.
-    final boolean allNumbersAreIntegers = allNumbersAreIntegers(valueNodes);
+    final boolean allNumbersAreIntegers = allNumbersAreIntegers(valueNodes, integerTypeCriterion);
     /*
      * Map to keep track of examples. The keys are pairs of [type, format] stored in Lists, and the
      * vales are examples for that type/format combo.

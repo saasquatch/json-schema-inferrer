@@ -29,7 +29,7 @@ public final class MultipleOfPolicies {
     return input -> {
       // Only proceed if all numbers are integers
       if (!Consts.Types.INTEGER.equals(input.getType())) {
-        if (!allNumbersAreIntegers(input.getSamples())) {
+        if (!allNumbersAreIntegers(input.getSamples(), IntegerTypeCriterion.MATHEMATICAL_INTEGER)) {
           return null;
         }
       }

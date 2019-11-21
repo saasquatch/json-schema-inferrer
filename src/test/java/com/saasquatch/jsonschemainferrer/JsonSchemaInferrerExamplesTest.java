@@ -244,6 +244,7 @@ public class JsonSchemaInferrerExamplesTest {
           }
           builder.enable(ArrayLengthFeature.values()).enable(ObjectSizeFeature.values())
               .enable(StringLengthFeature.values()).enable(NumberRangeFeature.values())
+              .setIntegerTypeCriterion(IntegerTypeCriterion.MATHEMATICAL_INTEGER)
               .setExamplesPolicy(ExamplesPolicies.useFirstSamples(10))
               .setDefaultPolicy(defaultPolicyIter.next())
               .setTitleGenerator(TitleGenerators.useFieldNames())
