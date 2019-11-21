@@ -39,7 +39,7 @@ import com.fasterxml.jackson.databind.node.ValueNode;
 public final class JsonSchemaInferrer {
 
   private final SpecVersion specVersion;
-  private final IntegerTypeCriterion integerTypeCriterion;
+  final IntegerTypeCriterion integerTypeCriterion;
   private final IntegerTypePreference integerTypePreference;
   private final AdditionalPropertiesPolicy additionalPropertiesPolicy;
   private final RequiredPolicy requiredPolicy;
@@ -334,7 +334,8 @@ public final class JsonSchemaInferrer {
           // This covers NaN and infinity
           return Consts.Types.STRING;
         }
-        return integerTypePreference.shouldUseInteger(sample, allNumbersAreIntegers)
+        final boolean currentNumberIsInteger = integerTypeCriterion.isInteger(sample);
+        return integerTypePreference.shouldUseInteger(currentNumberIsInteger, allNumbersAreIntegers)
             ? Consts.Types.INTEGER
             : Consts.Types.NUMBER;
       }

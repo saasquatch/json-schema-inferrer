@@ -197,6 +197,16 @@ public class JsonSchemaInferrerOptionsTest {
   }
 
   @Test
+  public void testIntegerConfigCombo() {
+    {
+      final JsonSchemaInferrer inferrer =
+          JsonSchemaInferrer.newBuilder().setIntegerTypeCriterion(IntegerTypeCriterion.NEVER)
+              .setIntegerTypePreference(IntegerTypePreference.IF_ANY).build();
+      assertEquals("number", inferrer.inferForSample(jnf.numberNode(1)).path("type").textValue());
+    }
+  }
+
+  @Test
   public void testRequired() {
     final List<ObjectNode> samples = ImmutableList.of(jnf.objectNode().put("1", 1).put("2", 2),
         jnf.objectNode().put("1", "1").put("2", (String) null));

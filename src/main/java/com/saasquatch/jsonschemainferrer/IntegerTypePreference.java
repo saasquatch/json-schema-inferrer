@@ -1,8 +1,5 @@
 package com.saasquatch.jsonschemainferrer;
 
-import javax.annotation.Nonnull;
-import com.fasterxml.jackson.databind.JsonNode;
-
 /**
  * Preference for when type {@code integer} should be used over {@code number} in the result schema.
  *
@@ -16,7 +13,7 @@ public enum IntegerTypePreference {
    */
   IF_ALL {
     @Override
-    boolean shouldUseInteger(JsonNode sample, boolean allNumbersAreIntegers) {
+    boolean shouldUseInteger(boolean currentNumberIsInteger, boolean allNumbersAreIntegers) {
       return allNumbersAreIntegers;
     }
   },
@@ -26,8 +23,8 @@ public enum IntegerTypePreference {
    */
   IF_ANY {
     @Override
-    boolean shouldUseInteger(JsonNode sample, boolean allNumbersAreIntegers) {
-      return sample.isIntegralNumber();
+    boolean shouldUseInteger(boolean currentNumberIsInteger, boolean allNumbersAreIntegers) {
+      return currentNumberIsInteger;
     }
   },
   /**
@@ -35,11 +32,11 @@ public enum IntegerTypePreference {
    */
   NEVER {
     @Override
-    boolean shouldUseInteger(JsonNode sample, boolean allNumbersAreIntegers) {
+    boolean shouldUseInteger(boolean currentNumberIsInteger, boolean allNumbersAreIntegers) {
       return false;
     }
   },;
 
-  abstract boolean shouldUseInteger(@Nonnull JsonNode sample, boolean allNumbersAreIntegers);
+  abstract boolean shouldUseInteger(boolean currentNumberIsInteger, boolean allNumbersAreIntegers);
 
 }
