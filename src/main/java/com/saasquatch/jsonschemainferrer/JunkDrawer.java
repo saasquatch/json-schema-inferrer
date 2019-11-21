@@ -180,6 +180,9 @@ final class JunkDrawer {
         return -1;
       }
       return getBase64Length(binaryValue.length);
+    } else if (isTextualFloat(jsonNode)) {
+      // Handle NaN and infinity
+      return jsonNode.asText().length();
     }
     final String textValue = jsonNode.textValue();
     if (textValue == null) {
@@ -191,6 +194,25 @@ final class JunkDrawer {
 
   static boolean allNumbersAreIntegers(@Nonnull Iterable<? extends JsonNode> jsonNodes) {
     return stream(jsonNodes).filter(JsonNode::isNumber).allMatch(JsonNode::isIntegralNumber);
+  }
+
+  /**
+   * @return Whether the input is a floating point node that is to be serialized as text, i.e. NaN
+   *         and infinity
+   */
+  static boolean isTextualFloat(@Nonnull JsonNode jsonNode) {
+    if (jsonNode.isFloat()) {
+      final float floatValue = jsonNode.floatValue();
+      if (Float.isNaN(floatValue) || Float.isInfinite(floatValue)) {
+        return true;
+      }
+    } else if (jsonNode.isDouble()) {
+      final double doubleValue = jsonNode.doubleValue();
+      if (Double.isNaN(doubleValue) || Double.isInfinite(doubleValue)) {
+        return true;
+      }
+    }
+    return false;
   }
 
 }

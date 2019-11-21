@@ -4,6 +4,7 @@ import static com.saasquatch.jsonschemainferrer.JunkDrawer.allNumbersAreIntegers
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.format;
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.getAllFieldNames;
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.getAllValuesForFieldName;
+import static com.saasquatch.jsonschemainferrer.JunkDrawer.isTextualFloat;
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.newArray;
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.newObject;
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.stream;
@@ -326,6 +327,10 @@ public final class JsonSchemaInferrer {
       case NULL:
         return Consts.Types.NULL;
       case NUMBER: {
+        if (isTextualFloat(sample)) {
+          // This covers NaN and infinity
+          return Consts.Types.STRING;
+        }
         return integerTypePreference.shouldUseInteger(sample, allNumbersAreIntegers)
             ? Consts.Types.INTEGER
             : Consts.Types.NUMBER;

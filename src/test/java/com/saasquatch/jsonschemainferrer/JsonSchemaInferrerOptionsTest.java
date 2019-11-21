@@ -20,7 +20,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.BinaryNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -37,6 +36,16 @@ public class JsonSchemaInferrerOptionsTest {
     }
     assertEquals("string",
         inferrer.inferPrimitiveType(jnf.binaryNode("foo".getBytes(UTF_8)), false));
+    assertEquals("string", inferrer.inferPrimitiveType(jnf.numberNode(Double.NaN), false));
+    assertEquals("string",
+        inferrer.inferPrimitiveType(jnf.numberNode(Double.NEGATIVE_INFINITY), false));
+    assertEquals("string",
+        inferrer.inferPrimitiveType(jnf.numberNode(Double.POSITIVE_INFINITY), false));
+    assertEquals("string", inferrer.inferPrimitiveType(jnf.numberNode(Float.NaN), false));
+    assertEquals("string",
+        inferrer.inferPrimitiveType(jnf.numberNode(Float.NEGATIVE_INFINITY), false));
+    assertEquals("string",
+        inferrer.inferPrimitiveType(jnf.numberNode(Float.POSITIVE_INFINITY), false));
   }
 
   @Test
@@ -469,13 +478,15 @@ public class JsonSchemaInferrerOptionsTest {
       assertEquals(0, schema.path("minLength").intValue());
       assertEquals(6, schema.path("maxLength").intValue());
     }
-    {
-      final BinaryNode binaryNode = jnf.binaryNode("abc".getBytes(UTF_8));
+    for (JsonNode shouldBeText : Arrays.asList(jnf.numberNode(Double.NaN),
+        jnf.numberNode(Double.NEGATIVE_INFINITY), jnf.numberNode(Double.POSITIVE_INFINITY),
+        jnf.numberNode(Float.NaN), jnf.numberNode(Float.NEGATIVE_INFINITY),
+        jnf.numberNode(Float.POSITIVE_INFINITY), jnf.binaryNode("abc".getBytes(UTF_8)))) {
       final JsonSchemaInferrer inferrer =
           JsonSchemaInferrer.newBuilder().enable(StringLengthFeature.values()).build();
-      final ObjectNode schema = inferrer.inferForSample(binaryNode);
-      assertEquals(binaryNode.asText().length(), schema.path("minLength").intValue());
-      assertEquals(binaryNode.asText().length(), schema.path("maxLength").intValue());
+      final ObjectNode schema = inferrer.inferForSample(shouldBeText);
+      assertEquals(shouldBeText.asText().length(), schema.path("minLength").intValue());
+      assertEquals(shouldBeText.asText().length(), schema.path("maxLength").intValue());
     }
   }
 
