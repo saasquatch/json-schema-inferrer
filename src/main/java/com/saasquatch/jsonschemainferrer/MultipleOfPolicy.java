@@ -13,6 +13,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 @FunctionalInterface
 public interface MultipleOfPolicy {
 
+  /**
+   * @return the appropriate {@code multipleOf} {@link JsonNode} for the given input
+   */
   @Nullable
   JsonNode getMultipleOf(@Nonnull MultipleOfPolicyInput input);
 

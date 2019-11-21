@@ -11,9 +11,15 @@ import com.fasterxml.jackson.databind.JsonNode;
  */
 public interface DefaultPolicyInput {
 
+  /**
+   * @return The first sample for the current inferred schema, if available.
+   */
   @Nullable
   JsonNode getFirstSample();
 
+  /**
+   * @return The last sample for the current inferred schema, if available.
+   */
   @Nullable
   JsonNode getLastSample();
 

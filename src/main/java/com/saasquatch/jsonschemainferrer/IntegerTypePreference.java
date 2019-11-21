@@ -22,7 +22,7 @@ public enum IntegerTypePreference {
   },
   /**
    * Use {@code integer} if an element is an integral number. Note that this option allows
-   * {@code integer} and {@code number} to coexist.
+   * {@code integer} and {@code number} to coexist in one (sub)schema.
    */
   IF_ANY {
     @Override

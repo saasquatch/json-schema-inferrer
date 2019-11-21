@@ -12,6 +12,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 @FunctionalInterface
 public interface ExamplesPolicy {
 
+  /**
+   * @return The appropriate {@code examples} {@link JsonNode} for the given input
+   */
   @Nullable
   JsonNode getExamples(@Nonnull ExamplesPolicyInput input);
 

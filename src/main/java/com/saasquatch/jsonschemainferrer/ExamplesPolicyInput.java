@@ -17,6 +17,9 @@ public interface ExamplesPolicyInput {
   @Nonnull
   Collection<JsonNode> getSamples();
 
+  /**
+   * @return The {@code type} for the current inferred schema
+   */
   @Nonnull
   String getType();
 

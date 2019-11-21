@@ -143,6 +143,9 @@ public final class JsonSchemaInferrer {
     return sample;
   }
 
+  /**
+   * Handle object samples
+   */
   @Nullable
   private ObjectNode processObjects(@Nonnull Collection<ObjectNode> objectNodes) {
     if (objectNodes.isEmpty()) {
@@ -180,6 +183,9 @@ public final class JsonSchemaInferrer {
     return schema;
   }
 
+  /**
+   * Handle array samples
+   */
   @Nullable
   private ObjectNode processArrays(@Nonnull Collection<ArrayNode> arrayNodes) {
     if (arrayNodes.isEmpty()) {
@@ -210,6 +216,9 @@ public final class JsonSchemaInferrer {
     return schema;
   }
 
+  /**
+   * Handle primitive samples
+   */
   @Nonnull
   private Set<ObjectNode> processPrimitives(@Nonnull Collection<ValueNode> valueNodes) {
     if (valueNodes.isEmpty()) {

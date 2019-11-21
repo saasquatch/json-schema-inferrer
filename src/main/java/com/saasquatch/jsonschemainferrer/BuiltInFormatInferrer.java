@@ -7,6 +7,12 @@ import java.time.ZonedDateTime;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.apache.commons.validator.routines.InetAddressValidator;
 
+/**
+ * Exists only to make {@link FormatInferrers} a little bit cleaner
+ *
+ * @author sli
+ * @see FormatInferrers
+ */
 enum BuiltInFormatInferrer implements FormatInferrer {
 
   NO_OP {
