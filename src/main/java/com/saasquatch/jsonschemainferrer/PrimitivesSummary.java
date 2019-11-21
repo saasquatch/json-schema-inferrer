@@ -11,9 +11,10 @@ import javax.annotation.concurrent.NotThreadSafe;
 import com.fasterxml.jackson.databind.JsonNode;
 
 /**
- * Helper class for keeping track of examples
+ * Helper class for keeping track of primitive samples
  *
  * @author sli
+ * @see PrimitivesSummaryMap
  */
 @NotThreadSafe
 final class PrimitivesSummary {

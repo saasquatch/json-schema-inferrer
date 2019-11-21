@@ -1,6 +1,7 @@
 package com.saasquatch.jsonschemainferrer;
 
 import java.math.BigInteger;
+import java.util.AbstractMap;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -8,6 +9,7 @@ import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.Spliterators;
@@ -48,6 +50,10 @@ final class JunkDrawer {
       return ((Collection<E>) iter).stream();
     }
     return StreamSupport.stream(iter.spliterator(), false);
+  }
+
+  static <K, V> Map.Entry<K, V> entryOf(K k, V v) {
+    return new AbstractMap.SimpleImmutableEntry<>(k, v);
   }
 
   /**

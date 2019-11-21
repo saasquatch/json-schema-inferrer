@@ -1,5 +1,6 @@
 package com.saasquatch.jsonschemainferrer;
 
+import static com.saasquatch.jsonschemainferrer.JunkDrawer.entryOf;
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.getCommonFieldNames;
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.numberNode;
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.stringColToArrayDistinct;
@@ -18,6 +19,12 @@ import com.fasterxml.jackson.databind.node.NumericNode;
 import com.fasterxml.jackson.databind.node.ValueNode;
 
 public class JunkDrawerTest {
+
+  @Test
+  public void testEntryOf() {
+    final Object o1 = new Object(), o2 = new Object();
+    assertEquals(entryOf(o1, o2), entryOf(o1, o2));
+  }
 
   @Test
   public void testStringColToArrayDistinct() {
