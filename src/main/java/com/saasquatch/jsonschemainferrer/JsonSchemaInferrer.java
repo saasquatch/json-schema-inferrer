@@ -101,7 +101,7 @@ public final class JsonSchemaInferrer {
   /**
    * Infer the JSON schema from multiple sample JSONs.
    *
-   * @param input the sample JSONs
+   * @param samples the sample JSONs
    * @return the inferred JSON schema
    */
   @Nonnull
