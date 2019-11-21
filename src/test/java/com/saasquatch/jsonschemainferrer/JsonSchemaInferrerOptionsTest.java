@@ -420,6 +420,13 @@ public class JsonSchemaInferrerOptionsTest {
     {
       final JsonSchemaInferrer inferrer =
           JsonSchemaInferrer.newBuilder().setMultipleOfPolicy(MultipleOfPolicies.gcd())
+              .setIntegerTypeCriterion(IntegerTypeCriterion.MATHEMATICAL_INTEGER).build();
+      final ObjectNode schema = inferrer.inferForSamples(samples2);
+      assertEquals(2, schema.path("multipleOf").intValue());
+    }
+    {
+      final JsonSchemaInferrer inferrer =
+          JsonSchemaInferrer.newBuilder().setMultipleOfPolicy(MultipleOfPolicies.gcd())
               .setIntegerTypePreference(IntegerTypePreference.NEVER).build();
       final ObjectNode schema = inferrer.inferForSamples(samples3);
       assertNull(schema.get("multipleOf"));
