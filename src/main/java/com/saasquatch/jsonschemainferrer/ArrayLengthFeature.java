@@ -18,8 +18,7 @@ public enum ArrayLengthFeature {
    */
   MIN_ITEMS {
     @Override
-    void process(ObjectNode schema, Collection<ArrayNode> samples,
-        JsonSchemaInferrer jsonSchemaInferrer) {
+    void process(ObjectNode schema, Collection<ArrayNode> samples) {
       samples.stream().mapToInt(JsonNode::size).min()
           .ifPresent(minItems -> schema.put(Consts.Fields.MIN_ITEMS, minItems));
     }
@@ -29,14 +28,12 @@ public enum ArrayLengthFeature {
    */
   MAX_ITEMS {
     @Override
-    void process(ObjectNode schema, Collection<ArrayNode> samples,
-        JsonSchemaInferrer jsonSchemaInferrer) {
+    void process(ObjectNode schema, Collection<ArrayNode> samples) {
       samples.stream().mapToInt(JsonNode::size).max()
           .ifPresent(maxItems -> schema.put(Consts.Fields.MAX_ITEMS, maxItems));
     }
   },;
 
-  abstract void process(@Nonnull ObjectNode schema, @Nonnull Collection<ArrayNode> samples,
-      @Nonnull JsonSchemaInferrer jsonSchemaInferrer);
+  abstract void process(@Nonnull ObjectNode schema, @Nonnull Collection<ArrayNode> samples);
 
 }

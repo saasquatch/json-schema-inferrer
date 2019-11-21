@@ -15,8 +15,7 @@ public enum StringLengthFeature {
    */
   MIN_LENGTH {
     @Override
-    void process(ObjectNode schema, PrimitivesSummary primitivesSummary,
-        JsonSchemaInferrer jsonSchemaInferrer) {
+    void process(ObjectNode schema, PrimitivesSummary primitivesSummary) {
       primitivesSummary.getMinStringLength()
           .ifPresent(minLength -> schema.put(Consts.Fields.MIN_LENGTH, minLength));
     }
@@ -26,14 +25,12 @@ public enum StringLengthFeature {
    */
   MAX_LENGTH {
     @Override
-    void process(ObjectNode schema, PrimitivesSummary primitivesSummary,
-        JsonSchemaInferrer jsonSchemaInferrer) {
+    void process(ObjectNode schema, PrimitivesSummary primitivesSummary) {
       primitivesSummary.getMaxStringLength()
           .ifPresent(maxLength -> schema.put(Consts.Fields.MAX_LENGTH, maxLength));
     }
   },;
 
-  abstract void process(@Nonnull ObjectNode schema, @Nonnull PrimitivesSummary primitivesSummary,
-      @Nonnull JsonSchemaInferrer jsonSchemaInferrer);
+  abstract void process(@Nonnull ObjectNode schema, @Nonnull PrimitivesSummary primitivesSummary);
 
 }

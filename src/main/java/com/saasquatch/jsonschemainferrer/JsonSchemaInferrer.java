@@ -521,28 +521,28 @@ public final class JsonSchemaInferrer {
   private void processObjectSizeFeatures(@Nonnull ObjectNode schema,
       @Nonnull Collection<ObjectNode> objectNodes) {
     for (ObjectSizeFeature objectSizeFeature : objectSizeFeatures) {
-      objectSizeFeature.process(schema, objectNodes, this);
+      objectSizeFeature.process(schema, objectNodes);
     }
   }
 
   private void processArrayLengthFeatures(@Nonnull ObjectNode schema,
       @Nonnull Collection<ArrayNode> arrayNodes) {
     for (ArrayLengthFeature arrayLengthFeature : arrayLengthFeatures) {
-      arrayLengthFeature.process(schema, arrayNodes, this);
+      arrayLengthFeature.process(schema, arrayNodes);
     }
   }
 
   private void processStringLengthFeatures(@Nonnull ObjectNode schema,
       @Nonnull PrimitivesSummary primitivesSummary) {
     for (StringLengthFeature stringLengthFeature : stringLengthFeatures) {
-      stringLengthFeature.process(schema, primitivesSummary, this);
+      stringLengthFeature.process(schema, primitivesSummary);
     }
   }
 
   private void processNumberRangeFeatures(@Nonnull ObjectNode schema,
       @Nonnull PrimitivesSummary primitivesSummary) {
     for (NumberRangeFeature numberRangeFeature : numberRangeFeatures) {
-      numberRangeFeature.process(schema, primitivesSummary, this);
+      numberRangeFeature.process(schema, primitivesSummary);
     }
   }
 

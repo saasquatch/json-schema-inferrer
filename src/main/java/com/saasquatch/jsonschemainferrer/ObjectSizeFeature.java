@@ -17,8 +17,7 @@ public enum ObjectSizeFeature {
    */
   MIN_PROPERTIES {
     @Override
-    void process(ObjectNode schema, Collection<ObjectNode> samples,
-        JsonSchemaInferrer jsonSchemaInferrer) {
+    void process(ObjectNode schema, Collection<ObjectNode> samples) {
       samples.stream().mapToInt(JsonNode::size).min()
           .ifPresent(minProps -> schema.put(Consts.Fields.MIN_PROPERTIES, minProps));
     }
@@ -28,14 +27,12 @@ public enum ObjectSizeFeature {
    */
   MAX_PROPERTIES {
     @Override
-    void process(ObjectNode schema, Collection<ObjectNode> samples,
-        JsonSchemaInferrer jsonSchemaInferrer) {
+    void process(ObjectNode schema, Collection<ObjectNode> samples) {
       samples.stream().mapToInt(JsonNode::size).max()
           .ifPresent(maxProps -> schema.put(Consts.Fields.MAX_PROPERTIES, maxProps));
     }
   },;
 
-  abstract void process(@Nonnull ObjectNode schema, @Nonnull Collection<ObjectNode> samples,
-      @Nonnull JsonSchemaInferrer jsonSchemaInferrer);
+  abstract void process(@Nonnull ObjectNode schema, @Nonnull Collection<ObjectNode> samples);
 
 }
