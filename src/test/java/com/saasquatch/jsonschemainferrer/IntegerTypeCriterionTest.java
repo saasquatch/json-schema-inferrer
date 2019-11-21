@@ -14,6 +14,7 @@ public class IntegerTypeCriterionTest {
     final IntegerTypeCriterion cr = IntegerTypeCriterion.NON_FLOATING_POINT;
     assertTrue(cr.isInteger(jnf.numberNode(1)));
     assertTrue(cr.isInteger(jnf.numberNode(1L)));
+    assertFalse(cr.isInteger(jnf.numberNode(BigDecimal.valueOf(0L))));
     assertTrue(cr.isInteger(jnf.numberNode(BigInteger.valueOf(1L))));
     assertFalse(cr.isInteger(jnf.numberNode(1.0f)));
     assertFalse(cr.isInteger(jnf.numberNode(1.0)));
@@ -32,6 +33,7 @@ public class IntegerTypeCriterionTest {
     final IntegerTypeCriterion cr = IntegerTypeCriterion.MATHEMATICAL_INTEGER;
     assertTrue(cr.isInteger(jnf.numberNode(1)));
     assertTrue(cr.isInteger(jnf.numberNode(1L)));
+    assertTrue(cr.isInteger(jnf.numberNode(BigDecimal.valueOf(0L))));
     assertTrue(cr.isInteger(jnf.numberNode(BigInteger.valueOf(1L))));
     assertTrue(cr.isInteger(jnf.numberNode(1.0f)));
     assertTrue(cr.isInteger(jnf.numberNode(1.0)));
@@ -50,6 +52,7 @@ public class IntegerTypeCriterionTest {
     final IntegerTypeCriterion cr = IntegerTypeCriterion.NEVER;
     assertFalse(cr.isInteger(jnf.numberNode(1)));
     assertFalse(cr.isInteger(jnf.numberNode(1L)));
+    assertFalse(cr.isInteger(jnf.numberNode(BigDecimal.valueOf(0L))));
     assertFalse(cr.isInteger(jnf.numberNode(BigInteger.valueOf(1L))));
     assertFalse(cr.isInteger(jnf.numberNode(1.0f)));
     assertFalse(cr.isInteger(jnf.numberNode(1.0)));

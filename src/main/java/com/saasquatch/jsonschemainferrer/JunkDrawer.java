@@ -219,7 +219,7 @@ final class JunkDrawer {
   }
 
   static boolean isMathematicalInteger(float val) {
-    return !Double.isNaN(val) && !Double.isInfinite(val) && val == Math.rint(val);
+    return !Float.isNaN(val) && !Float.isInfinite(val) && val == Math.rint(val);
   }
 
   static boolean isMathematicalInteger(double val) {
@@ -227,7 +227,7 @@ final class JunkDrawer {
   }
 
   static boolean isMathematicalInteger(BigDecimal val) {
-    return val.stripTrailingZeros().scale() <= 0;
+    return val.compareTo(BigDecimal.ZERO) == 0 || val.stripTrailingZeros().scale() <= 0;
   }
 
 }
