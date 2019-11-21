@@ -22,20 +22,19 @@ import com.saasquatch.jsonschemainferrer.TitleGenerators;
 public class Example2 {
 
   private static final ObjectMapper mapper = new ObjectMapper();
-  private static final JsonSchemaInferrer inferrer =
-      JsonSchemaInferrer.newBuilder()
-          .setSpecVersion(SpecVersion.DRAFT_06)
-          .setExamplesPolicy(ExamplesPolicies.useFirstSamples(3))
-          .setAdditionalPropertiesPolicy(AdditionalPropertiesPolicies.existingTypes())
-          .setRequiredPolicy(RequiredPolicies.nonNullCommonFields())
-          .setTitleGenerator(TitleGenerators.useFieldNames())
-          .setFormatInferrer(Example2::absoluteUriFormatInferrer)
-          .setMultipleOfPolicy(MultipleOfPolicies.gcd())
-          .enable(ArrayLengthFeature.MIN_ITEMS, ArrayLengthFeature.MAX_ITEMS)
-          .enable(ObjectSizeFeature.MIN_PROPERTIES, ObjectSizeFeature.MAX_PROPERTIES)
-          .enable(StringLengthFeature.MIN_LENGTH, StringLengthFeature.MAX_LENGTH)
-          .enable(NumberRangeFeature.MINIMUM, NumberRangeFeature.MAXIMUM)
-          .build();
+  private static final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
+      .setSpecVersion(SpecVersion.DRAFT_06)
+      .setExamplesPolicy(ExamplesPolicies.useFirstSamples(3))
+      .setAdditionalPropertiesPolicy(AdditionalPropertiesPolicies.existingTypes())
+      .setRequiredPolicy(RequiredPolicies.nonNullCommonFields())
+      .setTitleGenerator(TitleGenerators.useFieldNames())
+      .setFormatInferrer(Example2::absoluteUriFormatInferrer)
+      .setMultipleOfPolicy(MultipleOfPolicies.gcd())
+      .enable(ArrayLengthFeature.MIN_ITEMS, ArrayLengthFeature.MAX_ITEMS)
+      .enable(ObjectSizeFeature.MIN_PROPERTIES, ObjectSizeFeature.MAX_PROPERTIES)
+      .enable(StringLengthFeature.MIN_LENGTH, StringLengthFeature.MAX_LENGTH)
+      .enable(NumberRangeFeature.MINIMUM, NumberRangeFeature.MAXIMUM)
+      .build();
 
   private static String absoluteUriFormatInferrer(@Nonnull FormatInferrerInput input) {
     final String textValue = input.getSample().textValue();

@@ -10,6 +10,7 @@ import static com.saasquatch.jsonschemainferrer.JunkDrawer.unrecognizedEnumError
 import static com.saasquatch.jsonschemainferrer.TestJunkDrawer.jnf;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Base64;
@@ -40,10 +41,13 @@ public class JunkDrawerTest {
 
   @Test
   public void testGetCommonFieldNames() {
-    assertEquals(0, getCommonFieldNames(Collections.emptyList(), false).size());
+    assertTrue(getCommonFieldNames(Collections.emptyList(), false).isEmpty());
+    assertTrue(getCommonFieldNames(Arrays.asList(jnf.objectNode(), jnf.objectNode().put("a", "a"),
+        jnf.objectNode().put("b", "b")), false).isEmpty());
     assertEquals(0,
-        getCommonFieldNames(Arrays.asList(jnf.objectNode(), jnf.objectNode().put("a", "a")), false)
-            .size());
+        getCommonFieldNames(
+            Arrays.asList(jnf.objectNode().put("a", "a"), jnf.objectNode().put("b", "b")), false)
+                .size());
     assertEquals(Collections.singleton("a"),
         getCommonFieldNames(Arrays.asList(jnf.objectNode().put("a", 1).put("b", 2),
             jnf.objectNode().put("a", 1).put("b", (String) null)), true));
@@ -75,10 +79,11 @@ public class JunkDrawerTest {
 
   @Test
   public void testBse64Length() {
-    for (int i = 0; i < 512; i++) {
+    for (int i = 0; i < 1024; i++) {
       final byte[] bytes = new byte[i];
       ThreadLocalRandom.current().nextBytes(bytes);
       assertEquals(getBase64Length(i), Base64.getEncoder().encodeToString(bytes).length());
+      assertEquals(getBase64Length(i), jnf.binaryNode(bytes).asText().length());
     }
   }
 

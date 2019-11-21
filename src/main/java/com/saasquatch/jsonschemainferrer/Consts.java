@@ -11,6 +11,9 @@ import java.util.Set;
  */
 interface Consts {
 
+  /**
+   * Field names
+   */
   interface Fields {
     String TYPE = "type", ITEMS = "items", ANY_OF = "anyOf", PROPERTIES = "properties",
         FORMAT = "format", DOLLAR_SCHEMA = "$schema", TITLE = "title", DESCRIPTION = "description",
@@ -22,6 +25,9 @@ interface Consts {
     Set<String> SINGLETON_TYPE = Collections.singleton(TYPE);
   }
 
+  /**
+   * Type names
+   */
   interface Types {
     String OBJECT = "object", ARRAY = "array", STRING = "string", BOOLEAN = "boolean",
         INTEGER = "integer", NUMBER = "number", NULL = "null";
