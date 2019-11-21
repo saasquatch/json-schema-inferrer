@@ -140,6 +140,7 @@ public class JsonSchemaInferrerExamplesTest {
       try {
         schema = SchemaLoader.load(new JSONObject(schemaJson.toString()));
       } catch (RuntimeException e) {
+        System.out.println(schemaJson.toPrettyString());
         fail(format("Unable to parse the inferred schema for urls%s", jsonUrls), e);
         throw e;
       }
@@ -244,14 +245,12 @@ public class JsonSchemaInferrerExamplesTest {
           }
           builder.enable(ArrayLengthFeature.values()).enable(ObjectSizeFeature.values())
               .enable(StringLengthFeature.values()).enable(NumberRangeFeature.values())
-              .setIntegerTypeCriterion(IntegerTypeCriterion.MATHEMATICAL_INTEGER)
               .setExamplesPolicy(ExamplesPolicies.useFirstSamples(10))
               .setDefaultPolicy(defaultPolicyIter.next())
               .setTitleGenerator(TitleGenerators.useFieldNames())
               .setDescriptionGenerator(DescriptionGeneratorInput::getFieldName)
               .setAdditionalPropertiesPolicy(additionalPropPolicyIter.next())
-              .setRequiredPolicy(requiredPolicyIter.next())
-              .setMultipleOfPolicy(MultipleOfPolicies.gcd());
+              .setRequiredPolicy(requiredPolicyIter.next());
         }
         try {
           inferrers.add(builder.build());

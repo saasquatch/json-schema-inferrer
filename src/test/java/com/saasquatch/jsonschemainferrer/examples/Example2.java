@@ -10,6 +10,7 @@ import com.saasquatch.jsonschemainferrer.AdditionalPropertiesPolicies;
 import com.saasquatch.jsonschemainferrer.ArrayLengthFeature;
 import com.saasquatch.jsonschemainferrer.ExamplesPolicies;
 import com.saasquatch.jsonschemainferrer.FormatInferrerInput;
+import com.saasquatch.jsonschemainferrer.IntegerTypeCriterion;
 import com.saasquatch.jsonschemainferrer.JsonSchemaInferrer;
 import com.saasquatch.jsonschemainferrer.MultipleOfPolicies;
 import com.saasquatch.jsonschemainferrer.NumberRangeFeature;
@@ -24,6 +25,7 @@ public class Example2 {
   private static final ObjectMapper mapper = new ObjectMapper();
   private static final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
       .setSpecVersion(SpecVersion.DRAFT_06)
+      .setIntegerTypeCriterion(IntegerTypeCriterion.MATHEMATICAL_INTEGER)
       .setExamplesPolicy(ExamplesPolicies.useFirstSamples(3))
       .setAdditionalPropertiesPolicy(AdditionalPropertiesPolicies.existingTypes())
       .setRequiredPolicy(RequiredPolicies.nonNullCommonFields())

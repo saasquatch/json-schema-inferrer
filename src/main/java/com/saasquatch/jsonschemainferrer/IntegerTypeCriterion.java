@@ -5,15 +5,15 @@ import javax.annotation.Nonnull;
 import com.fasterxml.jackson.databind.JsonNode;
 
 /**
- * Criterion for deciding whether a number is an integer
+ * Criterion for deciding whether a number is an integer.
  *
  * @author sli
  */
 public enum IntegerTypeCriterion {
 
   /**
-   * A number is an integer if it's not a floating point. For example, 1 is an integer and 1.0 is
-   * not.
+   * A number is an integer if it's not a floating point number. For example, 1 is an integer and
+   * 1.0 is not.
    */
   NON_FLOATING_POINT {
     @Override
