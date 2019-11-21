@@ -195,7 +195,11 @@ The only required transitive dependencies are [Jackson](https://github.com/Faste
 
 Compile with `mvn compile`. Run tests with `mvn test`. Deploy with `mvn deploy`.
 
-## LICENSE
+## License
+
+Unless explicitly stated otherwise all files in this repository are licensed under the Apache License Version 2.0.
+
+License boilerplate:
 
 ```
 Copyright 2019 ReferralSaaSquatch.com Inc.
