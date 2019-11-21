@@ -1,5 +1,6 @@
 package com.saasquatch.jsonschemainferrer;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.AbstractMap;
 import java.util.Arrays;
@@ -213,6 +214,18 @@ final class JunkDrawer {
       }
     }
     return false;
+  }
+
+  static boolean isMathematicalInteger(float val) {
+    return !Double.isNaN(val) && !Double.isInfinite(val) && val == Math.rint(val);
+  }
+
+  static boolean isMathematicalInteger(double val) {
+    return !Double.isNaN(val) && !Double.isInfinite(val) && val == Math.rint(val);
+  }
+
+  static boolean isMathematicalInteger(BigDecimal val) {
+    return val.stripTrailingZeros().scale() <= 0;
   }
 
 }

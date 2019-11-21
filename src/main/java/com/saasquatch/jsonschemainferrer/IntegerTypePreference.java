@@ -4,7 +4,7 @@ import javax.annotation.Nonnull;
 import com.fasterxml.jackson.databind.JsonNode;
 
 /**
- * Preference for when type {@code integer} should be used over {@code number}.
+ * Preference for when type {@code integer} should be used over {@code number} in the result schema.
  *
  * @author sli
  */

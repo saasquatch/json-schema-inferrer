@@ -16,6 +16,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 public final class JsonSchemaInferrerBuilder {
 
   private SpecVersion specVersion = SpecVersion.DRAFT_04;
+  private IntegerTypeCriterion integerTypeCriterion = IntegerTypeCriterion.NON_FLOATING_POINT;
   private IntegerTypePreference integerTypePreference = IntegerTypePreference.IF_ALL;
   private AdditionalPropertiesPolicy additionalPropertiesPolicy =
       AdditionalPropertiesPolicies.noOp();
@@ -42,6 +43,16 @@ public final class JsonSchemaInferrerBuilder {
    */
   public JsonSchemaInferrerBuilder setSpecVersion(@Nonnull SpecVersion specVersion) {
     this.specVersion = Objects.requireNonNull(specVersion);
+    return this;
+  }
+
+  /**
+   * Set the {@link IntegerTypeCriterion}. The default is
+   * {@link IntegerTypeCriterion#NON_FLOATING_POINT}.
+   */
+  public JsonSchemaInferrerBuilder setIntegerTypeCriterion(
+      @Nonnull IntegerTypeCriterion integerTypeCriterion) {
+    this.integerTypeCriterion = Objects.requireNonNull(integerTypeCriterion);
     return this;
   }
 
@@ -237,11 +248,11 @@ public final class JsonSchemaInferrerBuilder {
    * @throws IllegalArgumentException if the spec version and features don't match up
    */
   public JsonSchemaInferrer build() {
-    return new JsonSchemaInferrer(specVersion, integerTypePreference, additionalPropertiesPolicy,
-        requiredPolicy, defaultPolicy, examplesPolicy, formatInferrer, titleGenerator,
-        descriptionGenerator, multipleOfPolicy, unmodifiableEnumSet(objectSizeFeatures),
-        unmodifiableEnumSet(arrayLengthFeatures), unmodifiableEnumSet(stringLengthFeatures),
-        unmodifiableEnumSet(numberRangeFeatures));
+    return new JsonSchemaInferrer(specVersion, integerTypeCriterion, integerTypePreference,
+        additionalPropertiesPolicy, requiredPolicy, defaultPolicy, examplesPolicy, formatInferrer,
+        titleGenerator, descriptionGenerator, multipleOfPolicy,
+        unmodifiableEnumSet(objectSizeFeatures), unmodifiableEnumSet(arrayLengthFeatures),
+        unmodifiableEnumSet(stringLengthFeatures), unmodifiableEnumSet(numberRangeFeatures));
   }
 
 }
