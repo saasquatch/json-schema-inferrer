@@ -17,9 +17,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.BinaryNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.NumericNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -163,14 +163,30 @@ final class JunkDrawer {
         : Collections.unmodifiableSet(commonFieldNames);
   }
 
-  @Nullable
-  static String getSerializedTextValue(@Nonnull JsonNode jsonNode) {
-    if (jsonNode.isBinary()) {
-      // Jackson serializes BinaryNode as Base64
-      return jsonNode.asText();
-    } else {
-      return jsonNode.textValue();
+  /**
+   * Get the length of the Base64 String for the given number of bytes
+   */
+  static int getBase64Length(@Nonnull int bytesLength) {
+    return (bytesLength + 2) / 3 * 4;
+  }
+
+  /**
+   * Get the serialized text length, or -1 if the input cannot be serialized as text.
+   */
+  static int getSerializedTextLength(@Nonnull JsonNode jsonNode) {
+    if (jsonNode instanceof BinaryNode) {
+      final byte[] binaryValue = ((BinaryNode) jsonNode).binaryValue();
+      if (binaryValue == null) {
+        return -1;
+      }
+      return getBase64Length(binaryValue.length);
     }
+    final String textValue = jsonNode.textValue();
+    if (textValue == null) {
+      return -1;
+    }
+    // DO NOT use String.length()
+    return textValue.codePointCount(0, textValue.length());
   }
 
   static boolean allNumbersAreIntegers(@Nonnull Iterable<? extends JsonNode> jsonNodes) {

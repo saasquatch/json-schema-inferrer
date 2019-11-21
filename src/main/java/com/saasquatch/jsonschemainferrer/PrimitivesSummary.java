@@ -1,6 +1,6 @@
 package com.saasquatch.jsonschemainferrer;
 
-import static com.saasquatch.jsonschemainferrer.JunkDrawer.getSerializedTextValue;
+import static com.saasquatch.jsonschemainferrer.JunkDrawer.getSerializedTextLength;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -35,10 +35,8 @@ final class PrimitivesSummary {
       firstSample = sample;
     }
     lastSample = sample;
-    final String textValue = getSerializedTextValue(sample);
-    if (textValue != null) {
-      // DO NOT use String.length()
-      final int stringLength = textValue.codePointCount(0, textValue.length());
+    final int stringLength = getSerializedTextLength(sample);
+    if (stringLength >= 0) {
       if (minStringLength < 0 || stringLength < minStringLength) {
         minStringLength = stringLength;
       }

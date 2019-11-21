@@ -1,7 +1,9 @@
 package com.saasquatch.jsonschemainferrer;
 
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.entryOf;
+import static com.saasquatch.jsonschemainferrer.JunkDrawer.getBase64Length;
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.getCommonFieldNames;
+import static com.saasquatch.jsonschemainferrer.JunkDrawer.getSerializedTextLength;
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.numberNode;
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.stringColToArrayDistinct;
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.unrecognizedEnumError;
@@ -10,11 +12,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.math.BigInteger;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.BinaryNode;
 import com.fasterxml.jackson.databind.node.NumericNode;
 import com.fasterxml.jackson.databind.node.ValueNode;
 
@@ -66,6 +71,25 @@ public class JunkDrawerTest {
       final ValueNode numberNode = jnf.numberNode(num);
       assertEquals(numberNode, numberNode(num));
     }
+  }
+
+  @Test
+  public void testBse64Length() {
+    for (int i = 0; i < 512; i++) {
+      final byte[] bytes = new byte[i];
+      ThreadLocalRandom.current().nextBytes(bytes);
+      assertEquals(getBase64Length(i), Base64.getEncoder().encodeToString(bytes).length());
+    }
+  }
+
+  @Test
+  public void testSerializedTextLength() {
+    assertEquals(8, getSerializedTextLength(jnf.binaryNode(new byte[4])));
+    assertEquals(-1, getSerializedTextLength(new BinaryNode(null)));
+    assertEquals(-1, getSerializedTextLength(jnf.numberNode(1)));
+    assertEquals(-1, getSerializedTextLength(jnf.objectNode().put("1", "1")));
+    assertEquals(0, getSerializedTextLength(jnf.textNode("")));
+    assertEquals(1, getSerializedTextLength(jnf.textNode("😂")));
   }
 
 }
