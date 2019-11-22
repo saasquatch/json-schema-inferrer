@@ -204,22 +204,13 @@ final class JunkDrawer {
    *         and infinity
    */
   static boolean isTextualFloat(@Nonnull JsonNode jsonNode) {
-    if (jsonNode.isFloat()) {
-      final float floatValue = jsonNode.floatValue();
-      if (Float.isNaN(floatValue) || Float.isInfinite(floatValue)) {
-        return true;
-      }
-    } else if (jsonNode.isDouble()) {
+    if (jsonNode.isFloat() || jsonNode.isDouble()) {
       final double doubleValue = jsonNode.doubleValue();
       if (Double.isNaN(doubleValue) || Double.isInfinite(doubleValue)) {
         return true;
       }
     }
     return false;
-  }
-
-  static boolean isMathematicalInteger(float val) {
-    return !Float.isNaN(val) && !Float.isInfinite(val) && val == Math.rint(val);
   }
 
   static boolean isMathematicalInteger(double val) {

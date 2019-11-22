@@ -30,9 +30,7 @@ public enum IntegerTypeCriterion {
     boolean isInteger(JsonNode numberNode) {
       if (numberNode.isIntegralNumber()) {
         return true;
-      } else if (numberNode.isFloat()) {
-        return isMathematicalInteger(numberNode.floatValue());
-      } else if (numberNode.isDouble()) {
+      } else if (numberNode.isFloat() || numberNode.isDouble()) {
         return isMathematicalInteger(numberNode.doubleValue());
       } else {
         return isMathematicalInteger(numberNode.decimalValue());
