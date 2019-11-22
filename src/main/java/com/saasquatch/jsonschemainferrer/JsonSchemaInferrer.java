@@ -39,7 +39,7 @@ import com.fasterxml.jackson.databind.node.ValueNode;
 public final class JsonSchemaInferrer {
 
   private final SpecVersion specVersion;
-  final IntegerTypeCriterion integerTypeCriterion;
+  private final IntegerTypeCriterion integerTypeCriterion;
   private final IntegerTypePreference integerTypePreference;
   private final AdditionalPropertiesPolicy additionalPropertiesPolicy;
   private final RequiredPolicy requiredPolicy;
