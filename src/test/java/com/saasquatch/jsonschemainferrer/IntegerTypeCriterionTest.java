@@ -12,6 +12,7 @@ public class IntegerTypeCriterionTest {
   @Test
   public void testNonFloatingPoint() {
     final IntegerTypeCriterion cr = IntegerTypeCriterion.NON_FLOATING_POINT;
+    assertFalse(cr.isInteger(jnf.textNode("")));
     assertTrue(cr.isInteger(jnf.numberNode(1)));
     assertTrue(cr.isInteger(jnf.numberNode(1L)));
     assertFalse(cr.isInteger(jnf.numberNode(BigDecimal.valueOf(0L))));
@@ -31,6 +32,7 @@ public class IntegerTypeCriterionTest {
   @Test
   public void testMathematicalInteger() {
     final IntegerTypeCriterion cr = IntegerTypeCriterion.MATHEMATICAL_INTEGER;
+    assertFalse(cr.isInteger(jnf.textNode("")));
     assertTrue(cr.isInteger(jnf.numberNode(1)));
     assertTrue(cr.isInteger(jnf.numberNode(1L)));
     assertTrue(cr.isInteger(jnf.numberNode(BigDecimal.valueOf(0L))));

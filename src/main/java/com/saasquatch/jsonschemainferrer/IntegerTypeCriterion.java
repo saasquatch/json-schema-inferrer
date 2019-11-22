@@ -28,7 +28,9 @@ public enum IntegerTypeCriterion {
   MATHEMATICAL_INTEGER {
     @Override
     boolean isInteger(JsonNode numberNode) {
-      if (numberNode.isIntegralNumber()) {
+      if (!numberNode.isNumber()) {
+        return false;
+      } else if (numberNode.isIntegralNumber()) {
         return true;
       } else if (numberNode.isFloat() || numberNode.isDouble()) {
         return isMathematicalInteger(numberNode.doubleValue());

@@ -217,7 +217,7 @@ final class JunkDrawer {
     return !Double.isNaN(val) && !Double.isInfinite(val) && val == Math.rint(val);
   }
 
-  static boolean isMathematicalInteger(BigDecimal val) {
+  static boolean isMathematicalInteger(@Nonnull BigDecimal val) {
     return val.compareTo(BigDecimal.ZERO) == 0 || val.stripTrailingZeros().scale() <= 0;
   }
 
