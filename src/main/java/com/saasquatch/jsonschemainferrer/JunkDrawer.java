@@ -206,9 +206,7 @@ final class JunkDrawer {
   static boolean isTextualFloat(@Nonnull JsonNode jsonNode) {
     if (jsonNode.isFloat() || jsonNode.isDouble()) {
       final double doubleValue = jsonNode.doubleValue();
-      if (Double.isNaN(doubleValue) || Double.isInfinite(doubleValue)) {
-        return true;
-      }
+      return Double.isNaN(doubleValue) || Double.isInfinite(doubleValue);
     }
     return false;
   }
