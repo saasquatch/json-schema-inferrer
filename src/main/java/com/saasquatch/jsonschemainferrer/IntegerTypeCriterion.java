@@ -36,15 +36,6 @@ public enum IntegerTypeCriterion {
         return isMathematicalInteger(numberNode.decimalValue());
       }
     }
-  },
-  /**
-   * Nothing is an integer.
-   */
-  NEVER {
-    @Override
-    boolean isInteger(JsonNode numberNode) {
-      return false;
-    }
   },;
 
   abstract boolean isInteger(@Nonnull JsonNode numberNode);

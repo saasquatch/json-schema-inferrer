@@ -199,10 +199,11 @@ public class JsonSchemaInferrerOptionsTest {
   @Test
   public void testIntegerConfigCombo() {
     {
-      final JsonSchemaInferrer inferrer =
-          JsonSchemaInferrer.newBuilder().setIntegerTypeCriterion(IntegerTypeCriterion.NEVER)
-              .setIntegerTypePreference(IntegerTypePreference.IF_ANY).build();
-      assertEquals("number", inferrer.inferForSample(jnf.numberNode(1)).path("type").textValue());
+      final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
+          .setIntegerTypeCriterion(IntegerTypeCriterion.MATHEMATICAL_INTEGER)
+          .setIntegerTypePreference(IntegerTypePreference.IF_ANY).build();
+      assertEquals("integer",
+          inferrer.inferForSample(jnf.numberNode(1.0)).path("type").textValue());
     }
   }
 

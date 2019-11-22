@@ -47,23 +47,4 @@ public class IntegerTypeCriterionTest {
     assertFalse(cr.isInteger(jnf.numberNode(Double.NEGATIVE_INFINITY)));
   }
 
-  @Test
-  public void testNever() {
-    final IntegerTypeCriterion cr = IntegerTypeCriterion.NEVER;
-    assertFalse(cr.isInteger(jnf.numberNode(1)));
-    assertFalse(cr.isInteger(jnf.numberNode(1L)));
-    assertFalse(cr.isInteger(jnf.numberNode(BigDecimal.valueOf(0L))));
-    assertFalse(cr.isInteger(jnf.numberNode(BigInteger.valueOf(1L))));
-    assertFalse(cr.isInteger(jnf.numberNode(1.0f)));
-    assertFalse(cr.isInteger(jnf.numberNode(1.0)));
-    assertFalse(cr.isInteger(jnf.numberNode(BigDecimal.valueOf(1.0))));
-    assertFalse(cr.isInteger(jnf.numberNode(1.5f)));
-    assertFalse(cr.isInteger(jnf.numberNode(1.5)));
-    assertFalse(cr.isInteger(jnf.numberNode(BigDecimal.valueOf(1.5))));
-    assertFalse(cr.isInteger(jnf.numberNode(Float.NaN)));
-    assertFalse(cr.isInteger(jnf.numberNode(Double.NaN)));
-    assertFalse(cr.isInteger(jnf.numberNode(Float.NEGATIVE_INFINITY)));
-    assertFalse(cr.isInteger(jnf.numberNode(Double.NEGATIVE_INFINITY)));
-  }
-
 }
