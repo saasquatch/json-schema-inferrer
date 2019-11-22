@@ -22,7 +22,7 @@ public enum IntegerTypeCriterion {
     }
   },
   /**
-   * A number is an integer if it's mathematical value is an integer. For example, 1 and 1.0 are
+   * A number is an integer if its mathematical value is an integer. For example, 1 and 1.0 are
    * integers and 1.5 is not.
    */
   MATHEMATICAL_INTEGER {
