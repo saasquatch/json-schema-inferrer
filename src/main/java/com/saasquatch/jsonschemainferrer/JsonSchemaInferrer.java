@@ -1,6 +1,5 @@
 package com.saasquatch.jsonschemainferrer;
 
-import static com.saasquatch.jsonschemainferrer.JunkDrawer.allNumbersAreIntegers;
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.format;
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.getAllFieldNames;
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.getAllValuesForFieldName;
@@ -230,7 +229,7 @@ public final class JsonSchemaInferrer {
     }
     final Set<ObjectNode> anyOfs = new HashSet<>();
     // Whether all the numbers in the samples are integers. Used for inferring number types.
-    final boolean allNumbersAreIntegers = allNumbersAreIntegers(valueNodes, integerTypeCriterion);
+    final boolean allNumbersAreIntegers = integerTypeCriterion.allNumbersAreIntegers(valueNodes);
     /*
      * Map to keep track of examples. The keys are pairs of [type, format] stored in Lists, and the
      * vales are examples for that type/format combo.

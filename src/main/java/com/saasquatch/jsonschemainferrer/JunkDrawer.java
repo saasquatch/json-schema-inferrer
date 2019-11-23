@@ -53,6 +53,9 @@ final class JunkDrawer {
     return StreamSupport.stream(iter.spliterator(), false);
   }
 
+  /**
+   * Convenience method for creating an immutable {@link Map.Entry}.
+   */
   static <K, V> Map.Entry<K, V> entryOf(K k, V v) {
     return new AbstractMap.SimpleImmutableEntry<>(k, v);
   }
@@ -144,6 +147,12 @@ final class JunkDrawer {
         .filter(Objects::nonNull);
   }
 
+  /**
+   *
+   * @param samples Assumed to be {@link ObjectNode}s
+   * @param requireNonNull
+   * @return The field names common to the given samples
+   */
   @Nonnull
   static Set<String> getCommonFieldNames(@Nonnull Iterable<? extends JsonNode> samples,
       boolean requireNonNull) {
@@ -193,12 +202,6 @@ final class JunkDrawer {
     return textValue.codePointCount(0, textValue.length());
   }
 
-  static boolean allNumbersAreIntegers(@Nonnull Iterable<? extends JsonNode> jsonNodes,
-      @Nonnull IntegerTypeCriterion integerTypeCriterion) {
-    return stream(jsonNodes).filter(JsonNode::isNumber)
-        .allMatch(j -> integerTypeCriterion.isInteger(j));
-  }
-
   /**
    * @return Whether the input is a floating point node that is to be serialized as text, i.e. NaN
    *         and infinity
@@ -211,10 +214,16 @@ final class JunkDrawer {
     return false;
   }
 
+  /**
+   * @return Whether the given number is a whole number
+   */
   static boolean isMathematicalInteger(double val) {
     return !Double.isNaN(val) && !Double.isInfinite(val) && val == Math.rint(val);
   }
 
+  /**
+   * @return Whether the given number is a whole number
+   */
   static boolean isMathematicalInteger(@Nonnull BigDecimal val) {
     return val.compareTo(BigDecimal.ZERO) == 0 || val.stripTrailingZeros().scale() <= 0;
   }
