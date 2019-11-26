@@ -12,6 +12,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
@@ -131,7 +132,7 @@ public class JsonSchemaInferrerExamplesTest {
             + "Error message: [%s]. Skipping tests.\n", jsonUrl, e.getMessage());
         return null;
       }
-    }).collect(Collectors.toList());
+    }).filter(Objects::nonNull).collect(Collectors.toList());
     System.out.printf(Locale.ROOT, "Got valid JSONs from urls%s\n", jsonUrls);
     for (JsonSchemaInferrer inferrer : testInferrers) {
       final ObjectNode schemaJson = inferrer.inferForSamples(sampleJsons);

@@ -63,18 +63,17 @@ public class AdditionalPropertiesPolicies {
             return Stream.empty();
           })
           .collect(Collectors.toSet());
-      final ObjectNode additionalProps = newObject();
       switch (existingTypes.size()) {
         case 0:
           return JsonNodeFactory.instance.booleanNode(false);
         case 1:
-          additionalProps.put(Consts.Fields.TYPE, existingTypes.iterator().next());
-          break;
-        default:
+          return newObject().put(Consts.Fields.TYPE, existingTypes.iterator().next());
+        default: {
+          final ObjectNode additionalProps = newObject();
           additionalProps.set(Consts.Fields.TYPE, stringColToArrayDistinct(existingTypes));
-          break;
+          return additionalProps;
+        }
       }
-      return additionalProps;
     };
   }
 
