@@ -16,8 +16,8 @@ import javax.annotation.concurrent.NotThreadSafe;
 public final class JsonSchemaInferrerBuilder {
 
   private SpecVersion specVersion = SpecVersion.DRAFT_04;
-  private IntegerTypeCriterion integerTypeCriterion = IntegerTypeCriteria.nonFloatingPoint();
   private IntegerTypePreference integerTypePreference = IntegerTypePreference.IF_ALL;
+  private IntegerTypeCriterion integerTypeCriterion = IntegerTypeCriteria.nonFloatingPoint();
   private AdditionalPropertiesPolicy additionalPropertiesPolicy =
       AdditionalPropertiesPolicies.noOp();
   private RequiredPolicy requiredPolicy = RequiredPolicies.noOp();
@@ -47,21 +47,21 @@ public final class JsonSchemaInferrerBuilder {
   }
 
   /**
+   * Set the {@link IntegerTypePreference}. The default is {@link IntegerTypePreference#IF_ALL}.
+   */
+  public JsonSchemaInferrerBuilder setIntegerTypePreference(
+      @Nonnull IntegerTypePreference integerTypePreference) {
+    this.integerTypePreference = Objects.requireNonNull(integerTypePreference);
+    return this;
+  }
+
+  /**
    * Set the {@link IntegerTypeCriterionL}. The default is
    * {@link IntegerTypeCriteria#nonFloatingPoint()}.
    */
   public JsonSchemaInferrerBuilder setIntegerTypeCriterion(
       @Nonnull IntegerTypeCriterion integerTypeCriterion) {
     this.integerTypeCriterion = Objects.requireNonNull(integerTypeCriterion);
-    return this;
-  }
-
-  /**
-   * Set the {@link IntegerTypePreference}. The default is {@link IntegerTypePreference#IF_ALL}.
-   */
-  public JsonSchemaInferrerBuilder setIntegerTypePreference(
-      @Nonnull IntegerTypePreference integerTypePreference) {
-    this.integerTypePreference = Objects.requireNonNull(integerTypePreference);
     return this;
   }
 
@@ -248,7 +248,7 @@ public final class JsonSchemaInferrerBuilder {
    * @throws IllegalArgumentException if the spec version and features don't match up
    */
   public JsonSchemaInferrer build() {
-    return new JsonSchemaInferrer(specVersion, integerTypeCriterion, integerTypePreference,
+    return new JsonSchemaInferrer(specVersion, integerTypePreference, integerTypeCriterion,
         additionalPropertiesPolicy, requiredPolicy, defaultPolicy, examplesPolicy, formatInferrer,
         titleGenerator, descriptionGenerator, multipleOfPolicy,
         unmodifiableEnumSet(objectSizeFeatures), unmodifiableEnumSet(arrayLengthFeatures),

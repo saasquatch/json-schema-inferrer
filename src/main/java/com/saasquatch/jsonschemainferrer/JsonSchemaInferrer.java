@@ -38,8 +38,8 @@ import com.fasterxml.jackson.databind.node.ValueNode;
 public final class JsonSchemaInferrer {
 
   private final SpecVersion specVersion;
-  private final IntegerTypeCriterion integerTypeCriterion;
   private final IntegerTypePreference integerTypePreference;
+  private final IntegerTypeCriterion integerTypeCriterion;
   private final AdditionalPropertiesPolicy additionalPropertiesPolicy;
   private final RequiredPolicy requiredPolicy;
   private final DefaultPolicy defaultPolicy;
@@ -54,8 +54,8 @@ public final class JsonSchemaInferrer {
   private final Set<NumberRangeFeature> numberRangeFeatures;
 
   JsonSchemaInferrer(@Nonnull SpecVersion specVersion,
-      @Nonnull IntegerTypeCriterion integerTypeCriterion,
       @Nonnull IntegerTypePreference integerTypePreference,
+      @Nonnull IntegerTypeCriterion integerTypeCriterion,
       @Nonnull AdditionalPropertiesPolicy additionalPropertiesPolicy,
       @Nonnull RequiredPolicy requiredPolicy, @Nonnull DefaultPolicy defaultPolicy,
       @Nonnull ExamplesPolicy examplesPolicy, @Nonnull FormatInferrer formatInferrer,
@@ -66,8 +66,8 @@ public final class JsonSchemaInferrer {
       @Nonnull Set<StringLengthFeature> stringLengthFeatures,
       @Nonnull Set<NumberRangeFeature> numberRangeFeatures) {
     this.specVersion = specVersion;
-    this.integerTypeCriterion = integerTypeCriterion;
     this.integerTypePreference = integerTypePreference;
+    this.integerTypeCriterion = integerTypeCriterion;
     this.additionalPropertiesPolicy = additionalPropertiesPolicy;
     this.requiredPolicy = requiredPolicy;
     this.defaultPolicy = defaultPolicy;
