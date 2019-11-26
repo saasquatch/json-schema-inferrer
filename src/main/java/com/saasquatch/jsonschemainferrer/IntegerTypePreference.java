@@ -2,8 +2,11 @@ package com.saasquatch.jsonschemainferrer;
 
 /**
  * Preference for when type {@code integer} should be used over {@code number} in the result schema.
+ * Note that this class is not for determining whether a single number is an integer. That is the
+ * job of the {@link IntegerTypeCriterion}.
  *
  * @author sli
+ * @see IntegerTypeCriterion
  */
 public enum IntegerTypePreference {
 
