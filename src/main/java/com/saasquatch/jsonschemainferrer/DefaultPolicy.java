@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.JsonNode;
  *
  * @author sli
  */
+@FunctionalInterface
 public interface DefaultPolicy {
 
   /**
