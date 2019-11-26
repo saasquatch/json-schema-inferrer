@@ -272,7 +272,6 @@ public final class JsonSchemaInferrer {
    */
   @Nonnull
   private Set<ObjectNode> getAnyOfsFromSamples(@Nonnull Stream<? extends JsonNode> samplesStream) {
-    final Set<ObjectNode> anyOfs = new HashSet<>();
     final Collection<ObjectNode> objectNodes = new ArrayList<>();
     final Collection<ArrayNode> arrayNodes = new ArrayList<>();
     final Collection<ValueNode> valueNodes = new ArrayList<>();
@@ -285,6 +284,7 @@ public final class JsonSchemaInferrer {
         valueNodes.add((ValueNode) sample);
       }
     });
+    final Set<ObjectNode> anyOfs = new HashSet<>();
     Optional.ofNullable(processObjects(objectNodes)).ifPresent(anyOfs::add);
     Optional.ofNullable(processArrays(arrayNodes)).ifPresent(anyOfs::add);
     anyOfs.addAll(processPrimitives(valueNodes));

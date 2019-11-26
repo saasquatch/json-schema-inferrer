@@ -100,19 +100,19 @@ final class JunkDrawer {
    * Create a {@link NumericNode} with the given {@link BigInteger} while attempting to fit the
    * input into an int or a long.
    */
-  static ValueNode numberNode(@Nonnull BigInteger gcd) {
-    // Attempt to fit the result into a int or long
+  static ValueNode numberNode(@Nonnull BigInteger v) {
+    // Attempt to fit the result into an int or long
     try {
-      return JsonNodeFactory.instance.numberNode(gcd.intValueExact());
+      return JsonNodeFactory.instance.numberNode(v.intValueExact());
     } catch (ArithmeticException e) {
       // Ignore
     }
     try {
-      return JsonNodeFactory.instance.numberNode(gcd.longValueExact());
+      return JsonNodeFactory.instance.numberNode(v.longValueExact());
     } catch (ArithmeticException e) {
       // Ignore
     }
-    return JsonNodeFactory.instance.numberNode(gcd);
+    return JsonNodeFactory.instance.numberNode(v);
   }
 
   /**
