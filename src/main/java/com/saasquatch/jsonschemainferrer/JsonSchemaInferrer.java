@@ -229,7 +229,8 @@ public final class JsonSchemaInferrer {
     }
     final Set<ObjectNode> anyOfs = new HashSet<>();
     // Whether all the numbers in the samples are integers. Used for inferring number types.
-    final boolean allNumbersAreIntegers = integerTypeCriterion.allNumbersAreIntegers(valueNodes);
+    final boolean allNumbersAreIntegers =
+        valueNodes.stream().filter(JsonNode::isNumber).allMatch(this::isInteger);
     /*
      * Map to keep track of examples. The keys are pairs of [type, format] stored in Lists, and the
      * vales are examples for that type/format combo.
@@ -333,8 +334,7 @@ public final class JsonSchemaInferrer {
           // This covers NaN and infinity
           return Consts.Types.STRING;
         }
-        final boolean currentNumberIsInteger = integerTypeCriterion.isInteger(sample);
-        return integerTypePreference.shouldUseInteger(currentNumberIsInteger, allNumbersAreIntegers)
+        return integerTypePreference.shouldUseInteger(isInteger(sample), allNumbersAreIntegers)
             ? Consts.Types.INTEGER
             : Consts.Types.NUMBER;
       }
@@ -344,6 +344,22 @@ public final class JsonSchemaInferrer {
     }
     throw new IllegalStateException(format("Unexpected %s[%s] encountered with value[%s]",
         type.getClass().getSimpleName(), type, sample));
+  }
+
+  private boolean isInteger(@Nonnull JsonNode sample) {
+    return integerTypeCriterion.isInteger(new IntegerTypeCriterionInput() {
+
+      @Override
+      public JsonNode getSample() {
+        return sample;
+      }
+
+      @Override
+      public SpecVersion getSpecVersion() {
+        return specVersion;
+      }
+
+    });
   }
 
   @Nullable

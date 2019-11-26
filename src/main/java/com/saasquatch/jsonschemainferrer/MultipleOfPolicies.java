@@ -1,5 +1,6 @@
 package com.saasquatch.jsonschemainferrer;
 
+import static com.saasquatch.jsonschemainferrer.JunkDrawer.isMathematicalIntegerNode;
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.numberNode;
 import java.math.BigInteger;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -28,7 +29,9 @@ public final class MultipleOfPolicies {
     return input -> {
       // Only proceed if all numbers are integers
       if (!Consts.Types.INTEGER.equals(input.getType())) {
-        if (!IntegerTypeCriterion.MATHEMATICAL_INTEGER.allNumbersAreIntegers(input.getSamples())) {
+        final boolean allNumbersAreMathematicalIntegers = input.getSamples().stream()
+            .filter(JsonNode::isNumber).allMatch(j -> isMathematicalIntegerNode(j));
+        if (!allNumbersAreMathematicalIntegers) {
           return null;
         }
       }

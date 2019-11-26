@@ -16,7 +16,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 public final class JsonSchemaInferrerBuilder {
 
   private SpecVersion specVersion = SpecVersion.DRAFT_04;
-  private IntegerTypeCriterion integerTypeCriterion = IntegerTypeCriterion.NON_FLOATING_POINT;
+  private IntegerTypeCriterion integerTypeCriterion = IntegerTypeCriteria.nonFloatingPoint();
   private IntegerTypePreference integerTypePreference = IntegerTypePreference.IF_ALL;
   private AdditionalPropertiesPolicy additionalPropertiesPolicy =
       AdditionalPropertiesPolicies.noOp();
@@ -47,8 +47,8 @@ public final class JsonSchemaInferrerBuilder {
   }
 
   /**
-   * Set the {@link IntegerTypeCriterion}. The default is
-   * {@link IntegerTypeCriterion#NON_FLOATING_POINT}.
+   * Set the {@link IntegerTypeCriterionL}. The default is
+   * {@link IntegerTypeCriteria#nonFloatingPoint()}.
    */
   public JsonSchemaInferrerBuilder setIntegerTypeCriterion(
       @Nonnull IntegerTypeCriterion integerTypeCriterion) {

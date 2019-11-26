@@ -5,48 +5,78 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.function.Predicate;
 import org.junit.jupiter.api.Test;
+import com.fasterxml.jackson.databind.JsonNode;
 
 public class IntegerTypeCriterionTest {
 
   @Test
   public void testNonFloatingPoint() {
-    final IntegerTypeCriterion cr = IntegerTypeCriterion.NON_FLOATING_POINT;
-    assertFalse(cr.isInteger(jnf.textNode("")));
-    assertTrue(cr.isInteger(jnf.numberNode(1)));
-    assertTrue(cr.isInteger(jnf.numberNode(1L)));
-    assertFalse(cr.isInteger(jnf.numberNode(BigDecimal.valueOf(0L))));
-    assertTrue(cr.isInteger(jnf.numberNode(BigInteger.valueOf(1L))));
-    assertFalse(cr.isInteger(jnf.numberNode(1.0f)));
-    assertFalse(cr.isInteger(jnf.numberNode(1.0)));
-    assertFalse(cr.isInteger(jnf.numberNode(BigDecimal.valueOf(1.0))));
-    assertFalse(cr.isInteger(jnf.numberNode(1.5f)));
-    assertFalse(cr.isInteger(jnf.numberNode(1.5)));
-    assertFalse(cr.isInteger(jnf.numberNode(BigDecimal.valueOf(1.5))));
-    assertFalse(cr.isInteger(jnf.numberNode(Float.NaN)));
-    assertFalse(cr.isInteger(jnf.numberNode(Double.NaN)));
-    assertFalse(cr.isInteger(jnf.numberNode(Float.NEGATIVE_INFINITY)));
-    assertFalse(cr.isInteger(jnf.numberNode(Double.NEGATIVE_INFINITY)));
+    final Predicate<JsonNode> cr = j -> {
+      return IntegerTypeCriteria.nonFloatingPoint().isInteger(new IntegerTypeCriterionInput() {
+
+        @Override
+        public JsonNode getSample() {
+          return j;
+        }
+
+        @Override
+        public SpecVersion getSpecVersion() {
+          return SpecVersion.DRAFT_06;
+        }
+
+      });
+    };
+    assertFalse(cr.test(jnf.textNode("")));
+    assertTrue(cr.test(jnf.numberNode(1)));
+    assertTrue(cr.test(jnf.numberNode(1L)));
+    assertFalse(cr.test(jnf.numberNode(BigDecimal.valueOf(0L))));
+    assertTrue(cr.test(jnf.numberNode(BigInteger.valueOf(1L))));
+    assertFalse(cr.test(jnf.numberNode(1.0f)));
+    assertFalse(cr.test(jnf.numberNode(1.0)));
+    assertFalse(cr.test(jnf.numberNode(BigDecimal.valueOf(1.0))));
+    assertFalse(cr.test(jnf.numberNode(1.5f)));
+    assertFalse(cr.test(jnf.numberNode(1.5)));
+    assertFalse(cr.test(jnf.numberNode(BigDecimal.valueOf(1.5))));
+    assertFalse(cr.test(jnf.numberNode(Float.NaN)));
+    assertFalse(cr.test(jnf.numberNode(Double.NaN)));
+    assertFalse(cr.test(jnf.numberNode(Float.NEGATIVE_INFINITY)));
+    assertFalse(cr.test(jnf.numberNode(Double.NEGATIVE_INFINITY)));
   }
 
   @Test
   public void testMathematicalInteger() {
-    final IntegerTypeCriterion cr = IntegerTypeCriterion.MATHEMATICAL_INTEGER;
-    assertFalse(cr.isInteger(jnf.textNode("")));
-    assertTrue(cr.isInteger(jnf.numberNode(1)));
-    assertTrue(cr.isInteger(jnf.numberNode(1L)));
-    assertTrue(cr.isInteger(jnf.numberNode(BigDecimal.valueOf(0L))));
-    assertTrue(cr.isInteger(jnf.numberNode(BigInteger.valueOf(1L))));
-    assertTrue(cr.isInteger(jnf.numberNode(1.0f)));
-    assertTrue(cr.isInteger(jnf.numberNode(1.0)));
-    assertTrue(cr.isInteger(jnf.numberNode(BigDecimal.valueOf(1.0))));
-    assertFalse(cr.isInteger(jnf.numberNode(1.5f)));
-    assertFalse(cr.isInteger(jnf.numberNode(1.5)));
-    assertFalse(cr.isInteger(jnf.numberNode(BigDecimal.valueOf(1.5))));
-    assertFalse(cr.isInteger(jnf.numberNode(Float.NaN)));
-    assertFalse(cr.isInteger(jnf.numberNode(Double.NaN)));
-    assertFalse(cr.isInteger(jnf.numberNode(Float.NEGATIVE_INFINITY)));
-    assertFalse(cr.isInteger(jnf.numberNode(Double.NEGATIVE_INFINITY)));
+    final Predicate<JsonNode> cr = j -> {
+      return IntegerTypeCriteria.mathematicalInteger().isInteger(new IntegerTypeCriterionInput() {
+
+        @Override
+        public JsonNode getSample() {
+          return j;
+        }
+
+        @Override
+        public SpecVersion getSpecVersion() {
+          return SpecVersion.DRAFT_06;
+        }
+
+      });
+    };
+    assertFalse(cr.test(jnf.textNode("")));
+    assertTrue(cr.test(jnf.numberNode(1)));
+    assertTrue(cr.test(jnf.numberNode(1L)));
+    assertTrue(cr.test(jnf.numberNode(BigDecimal.valueOf(0L))));
+    assertTrue(cr.test(jnf.numberNode(BigInteger.valueOf(1L))));
+    assertTrue(cr.test(jnf.numberNode(1.0f)));
+    assertTrue(cr.test(jnf.numberNode(1.0)));
+    assertTrue(cr.test(jnf.numberNode(BigDecimal.valueOf(1.0))));
+    assertFalse(cr.test(jnf.numberNode(1.5f)));
+    assertFalse(cr.test(jnf.numberNode(1.5)));
+    assertFalse(cr.test(jnf.numberNode(BigDecimal.valueOf(1.5))));
+    assertFalse(cr.test(jnf.numberNode(Float.NaN)));
+    assertFalse(cr.test(jnf.numberNode(Double.NaN)));
+    assertFalse(cr.test(jnf.numberNode(Float.NEGATIVE_INFINITY)));
+    assertFalse(cr.test(jnf.numberNode(Double.NEGATIVE_INFINITY)));
   }
 
 }

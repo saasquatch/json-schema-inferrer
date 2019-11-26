@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -199,9 +200,12 @@ public class JsonSchemaInferrerOptionsTest {
   @Test
   public void testIntegerConfigCombo() {
     {
-      final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
-          .setIntegerTypeCriterion(IntegerTypeCriterion.MATHEMATICAL_INTEGER)
-          .setIntegerTypePreference(IntegerTypePreference.IF_ANY).build();
+      final JsonSchemaInferrer inferrer =
+          JsonSchemaInferrer.newBuilder().setIntegerTypeCriterion(input -> {
+            Objects.requireNonNull(input.getSample());
+            Objects.requireNonNull(input.getSpecVersion());
+            return IntegerTypeCriteria.mathematicalInteger().isInteger(input);
+          }).setIntegerTypePreference(IntegerTypePreference.IF_ANY).build();
       assertEquals("integer",
           inferrer.inferForSample(jnf.numberNode(1.0)).path("type").textValue());
     }
@@ -433,14 +437,14 @@ public class JsonSchemaInferrerOptionsTest {
     {
       final JsonSchemaInferrer inferrer =
           JsonSchemaInferrer.newBuilder().setMultipleOfPolicy(MultipleOfPolicies.gcd())
-              .setIntegerTypeCriterion(IntegerTypeCriterion.MATHEMATICAL_INTEGER).build();
+              .setIntegerTypeCriterion(IntegerTypeCriteria.mathematicalInteger()).build();
       final ObjectNode schema = inferrer.inferForSamples(samples2);
       assertEquals(2, schema.path("multipleOf").intValue());
     }
     {
       final JsonSchemaInferrer inferrer =
           JsonSchemaInferrer.newBuilder().setMultipleOfPolicy(MultipleOfPolicies.gcd())
-              .setIntegerTypeCriterion(IntegerTypeCriterion.MATHEMATICAL_INTEGER).build();
+              .setIntegerTypeCriterion(IntegerTypeCriteria.mathematicalInteger()).build();
       final ObjectNode schema = inferrer.inferForSamples(samples3);
       assertNull(schema.get("multipleOf"));
     }

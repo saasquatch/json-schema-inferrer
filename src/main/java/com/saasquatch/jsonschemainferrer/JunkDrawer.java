@@ -228,4 +228,19 @@ final class JunkDrawer {
     return val.compareTo(BigDecimal.ZERO) == 0 || val.stripTrailingZeros().scale() <= 0;
   }
 
+  /**
+   * @return Whether the given {@link JsonNode} represents a mathematical integer
+   */
+  static boolean isMathematicalIntegerNode(@Nonnull JsonNode numberNode) {
+    if (!numberNode.isNumber()) {
+      return false;
+    } else if (numberNode.isIntegralNumber()) {
+      return true;
+    } else if (numberNode.isFloat() || numberNode.isDouble()) {
+      return isMathematicalInteger(numberNode.doubleValue());
+    } else {
+      return isMathematicalInteger(numberNode.decimalValue());
+    }
+  }
+
 }
