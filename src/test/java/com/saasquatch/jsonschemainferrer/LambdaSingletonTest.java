@@ -8,6 +8,8 @@ public class LambdaSingletonTest {
 
   @Test
   public void test() {
+    doTest(IntegerTypeCriteria::nonFloatingPoint);
+    doTest(IntegerTypeCriteria::mathematicalInteger);
     doTest(AdditionalPropertiesPolicies::noOp);
     doTest(AdditionalPropertiesPolicies::allowed);
     doTest(AdditionalPropertiesPolicies::notAllowed);
