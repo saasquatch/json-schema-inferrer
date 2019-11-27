@@ -18,12 +18,17 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.BigIntegerNode;
 import com.fasterxml.jackson.databind.node.BinaryNode;
+import com.fasterxml.jackson.databind.node.DecimalNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.NumericNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.POJONode;
+import com.fasterxml.jackson.databind.node.TextNode;
 import com.fasterxml.jackson.databind.node.ValueNode;
 
 /**
@@ -186,9 +191,6 @@ final class JunkDrawer {
   static int getSerializedTextLength(@Nonnull JsonNode jsonNode) {
     if (jsonNode instanceof BinaryNode) {
       final byte[] binaryValue = ((BinaryNode) jsonNode).binaryValue();
-      if (binaryValue == null) {
-        return -1;
-      }
       return getBase64Length(binaryValue.length);
     } else if (isTextualFloat(jsonNode)) {
       // Handle NaN and infinity
@@ -241,6 +243,27 @@ final class JunkDrawer {
     } else {
       return isMathematicalInteger(numberNode.decimalValue());
     }
+  }
+
+  /**
+   * @return Whether the input {@link JsonNode} is null or is to be serialized as null, like a
+   *         {@link TextNode} with a null String.
+   */
+  static boolean isNull(@Nullable JsonNode j) {
+    if (j == null || j.isNull() || j.isMissingNode()) {
+      return true;
+    } else if (j instanceof TextNode) {
+      return j.textValue() == null;
+    } else if (j instanceof BinaryNode) {
+      return ((BinaryNode) j).binaryValue() == null;
+    } else if (j instanceof BigIntegerNode) {
+      return j.bigIntegerValue() == null;
+    } else if (j instanceof DecimalNode) {
+      return j.decimalValue() == null;
+    } else if (j instanceof POJONode) {
+      return ((POJONode) j).getPojo() == null;
+    }
+    return false;
   }
 
 }

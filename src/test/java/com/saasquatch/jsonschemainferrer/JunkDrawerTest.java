@@ -4,13 +4,16 @@ import static com.saasquatch.jsonschemainferrer.JunkDrawer.entryOf;
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.getBase64Length;
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.getCommonFieldNames;
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.getSerializedTextLength;
+import static com.saasquatch.jsonschemainferrer.JunkDrawer.isNull;
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.numberNode;
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.stringColToArrayDistinct;
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.unrecognizedEnumError;
 import static com.saasquatch.jsonschemainferrer.TestJunkDrawer.jnf;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Base64;
@@ -20,8 +23,12 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.BigIntegerNode;
 import com.fasterxml.jackson.databind.node.BinaryNode;
+import com.fasterxml.jackson.databind.node.DecimalNode;
 import com.fasterxml.jackson.databind.node.NumericNode;
+import com.fasterxml.jackson.databind.node.POJONode;
+import com.fasterxml.jackson.databind.node.TextNode;
 import com.fasterxml.jackson.databind.node.ValueNode;
 
 public class JunkDrawerTest {
@@ -90,7 +97,6 @@ public class JunkDrawerTest {
   @Test
   public void testSerializedTextLength() {
     assertEquals(8, getSerializedTextLength(jnf.binaryNode(new byte[4])));
-    assertEquals(-1, getSerializedTextLength(new BinaryNode(null)));
     assertEquals(-1, getSerializedTextLength(jnf.numberNode(1)));
     assertEquals(3, getSerializedTextLength(jnf.numberNode(Float.NaN)));
     assertEquals("infinity".length(),
@@ -105,6 +111,23 @@ public class JunkDrawerTest {
     assertEquals(-1, getSerializedTextLength(jnf.objectNode().put("1", "1")));
     assertEquals(0, getSerializedTextLength(jnf.textNode("")));
     assertEquals(1, getSerializedTextLength(jnf.textNode("😂")));
+  }
+
+  @Test
+  public void testIsNull() {
+    assertTrue(isNull(null));
+    assertTrue(isNull(jnf.nullNode()));
+    assertTrue(isNull(jnf.missingNode()));
+    assertTrue(isNull(new TextNode(null)));
+    assertFalse(isNull(new TextNode("")));
+    assertTrue(isNull(new BinaryNode(null)));
+    assertFalse(isNull(new BinaryNode(new byte[0])));
+    assertTrue(isNull(new BigIntegerNode(null)));
+    assertFalse(isNull(new BigIntegerNode(BigInteger.ZERO)));
+    assertTrue(isNull(new DecimalNode(null)));
+    assertFalse(isNull(new DecimalNode(BigDecimal.ZERO)));
+    assertTrue(isNull(new POJONode(null)));
+    assertFalse(isNull(new POJONode(0)));
   }
 
 }

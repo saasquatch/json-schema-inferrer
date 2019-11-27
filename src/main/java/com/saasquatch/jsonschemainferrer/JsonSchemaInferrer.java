@@ -3,6 +3,7 @@ package com.saasquatch.jsonschemainferrer;
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.format;
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.getAllFieldNames;
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.getAllValuesForFieldName;
+import static com.saasquatch.jsonschemainferrer.JunkDrawer.isNull;
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.isTextualFloat;
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.newArray;
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.newObject;
@@ -133,11 +134,11 @@ public final class JsonSchemaInferrer {
    */
   @Nonnull
   private JsonNode preProcessSample(@Nullable JsonNode sample) {
-    if (sample == null || sample.isNull() || sample.isMissingNode()) {
+    if (isNull(sample)) {
       /*
-       * Treat null as NullNode for obvious reasons. Treat NullNode as the singleton NullNode
-       * because NullNode is not a final class and may break equals further down the logic. Treat
-       * MissingNode as NullNode so we don't end up with duplicate nulls.
+       * Treat JsonNodes that are to be serialized as null as NullNode. Turn NullNode into the
+       * singleton NullNode because NullNode is not a final class and may break equals further down
+       * the logic. Treat MissingNode as NullNode so we don't end up with duplicate nulls.
        */
       return JsonNodeFactory.instance.nullNode();
     } else if (sample.isPojo()) {
