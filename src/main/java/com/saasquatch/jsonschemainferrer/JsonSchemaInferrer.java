@@ -134,15 +134,17 @@ public final class JsonSchemaInferrer {
    */
   @Nonnull
   private JsonNode preProcessSample(@Nullable JsonNode sample) {
-    if (isNull(sample)) {
+    if (sample == null) {
+      return JsonNodeFactory.instance.nullNode();
+    } else if (sample.isPojo()) {
+      throw new IllegalArgumentException(sample.getClass().getSimpleName() + " not supported");
+    } else if (isNull(sample)) {
       /*
        * Treat JsonNodes that are to be serialized as null as NullNode. Turn NullNode into the
        * singleton NullNode because NullNode is not a final class and may break equals further down
        * the logic. Treat MissingNode as NullNode so we don't end up with duplicate nulls.
        */
       return JsonNodeFactory.instance.nullNode();
-    } else if (sample.isPojo()) {
-      throw new IllegalArgumentException(sample.getClass().getSimpleName() + " not supported");
     }
     return sample;
   }
