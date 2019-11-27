@@ -10,6 +10,7 @@ import com.saasquatch.jsonschemainferrer.AdditionalPropertiesPolicies;
 import com.saasquatch.jsonschemainferrer.ArrayLengthFeature;
 import com.saasquatch.jsonschemainferrer.ExamplesPolicies;
 import com.saasquatch.jsonschemainferrer.FormatInferrerInput;
+import com.saasquatch.jsonschemainferrer.FormatInferrers;
 import com.saasquatch.jsonschemainferrer.IntegerTypeCriteria;
 import com.saasquatch.jsonschemainferrer.JsonSchemaInferrer;
 import com.saasquatch.jsonschemainferrer.MultipleOfPolicies;
@@ -30,7 +31,8 @@ public class Example2 {
       .setAdditionalPropertiesPolicy(AdditionalPropertiesPolicies.existingTypes())
       .setRequiredPolicy(RequiredPolicies.nonNullCommonFields())
       .setTitleGenerator(TitleGenerators.useFieldNames())
-      .setFormatInferrer(Example2::absoluteUriFormatInferrer)
+      .setFormatInferrer(FormatInferrers.chained(FormatInferrers.email(),
+          FormatInferrers.dateTime(), FormatInferrers.ip(), Example2::absoluteUriFormatInferrer))
       .setMultipleOfPolicy(MultipleOfPolicies.gcd())
       .enable(ArrayLengthFeature.MIN_ITEMS, ArrayLengthFeature.MAX_ITEMS)
       .enable(ObjectSizeFeature.MIN_PROPERTIES, ObjectSizeFeature.MAX_PROPERTIES)
