@@ -14,8 +14,8 @@ import javax.annotation.Nonnull;
 public enum IntegerTypePreference {
 
   /**
-   * Use {@code integer} if and only if all the samples are integral numbers. Use {@code number}
-   * otherwise.
+   * Use {@code integer} if and only if all the samples are integers according to the
+   * {@link IntegerTypeCriterion}. Use {@code number} otherwise.
    */
   IF_ALL {
     @Override
@@ -25,8 +25,8 @@ public enum IntegerTypePreference {
     }
   },
   /**
-   * Use {@code integer} if an element is an integral number. Note that this option allows
-   * {@code integer} and {@code number} to coexist in one (sub)schema.
+   * Use {@code integer} if an element is an integer according to the {@link IntegerTypeCriterion}.
+   * Note that this option allows {@code integer} and {@code number} to coexist in one (sub)schema.
    */
   IF_ANY {
     @Override
