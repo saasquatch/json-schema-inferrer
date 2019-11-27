@@ -14,6 +14,7 @@ import java.util.Collections;
 import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.POJONode;
 import com.google.common.collect.ImmutableSet;
 
 public class JsonSchemaInferrerTest {
@@ -38,6 +39,7 @@ public class JsonSchemaInferrerTest {
     assertThrows(IllegalArgumentException.class, () -> inferrer.inferForSample(jnf.pojoNode("")));
     assertThrows(IllegalArgumentException.class,
         () -> inferrer.inferForSample(jnf.arrayNode().add(jnf.pojoNode(""))));
+    assertThrows(IllegalArgumentException.class, () -> inferrer.inferForSample(new POJONode(null)));
     assertThrows(IllegalArgumentException.class, () -> {
       final ObjectNode sampleObj = jnf.objectNode();
       sampleObj.set("foo",
