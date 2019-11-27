@@ -334,9 +334,8 @@ public final class JsonSchemaInferrer {
           // This covers NaN and infinity
           return Consts.Types.STRING;
         }
-        return integerTypePreference.shouldUseInteger(isInteger(sample), allNumbersAreIntegers)
-            ? Consts.Types.INTEGER
-            : Consts.Types.NUMBER;
+        return integerTypePreference.shouldUseInteger(() -> isInteger(sample),
+            allNumbersAreIntegers) ? Consts.Types.INTEGER : Consts.Types.NUMBER;
       }
       // We shouldn't encounter other types here
       default:

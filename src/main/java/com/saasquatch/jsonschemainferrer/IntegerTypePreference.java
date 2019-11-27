@@ -1,5 +1,8 @@
 package com.saasquatch.jsonschemainferrer;
 
+import java.util.function.BooleanSupplier;
+import javax.annotation.Nonnull;
+
 /**
  * Preference for whether the type {@code integer} should be used over {@code number} in the result
  * schema. Note that this class is not for determining whether a single number is an integer. That
@@ -16,7 +19,8 @@ public enum IntegerTypePreference {
    */
   IF_ALL {
     @Override
-    boolean shouldUseInteger(boolean currentNumberIsInteger, boolean allNumbersAreIntegers) {
+    boolean shouldUseInteger(BooleanSupplier currentNumberIsInteger,
+        boolean allNumbersAreIntegers) {
       return allNumbersAreIntegers;
     }
   },
@@ -26,8 +30,9 @@ public enum IntegerTypePreference {
    */
   IF_ANY {
     @Override
-    boolean shouldUseInteger(boolean currentNumberIsInteger, boolean allNumbersAreIntegers) {
-      return currentNumberIsInteger;
+    boolean shouldUseInteger(BooleanSupplier currentNumberIsInteger,
+        boolean allNumbersAreIntegers) {
+      return currentNumberIsInteger.getAsBoolean();
     }
   },
   /**
@@ -35,11 +40,13 @@ public enum IntegerTypePreference {
    */
   NEVER {
     @Override
-    boolean shouldUseInteger(boolean currentNumberIsInteger, boolean allNumbersAreIntegers) {
+    boolean shouldUseInteger(BooleanSupplier currentNumberIsInteger,
+        boolean allNumbersAreIntegers) {
       return false;
     }
   },;
 
-  abstract boolean shouldUseInteger(boolean currentNumberIsInteger, boolean allNumbersAreIntegers);
+  abstract boolean shouldUseInteger(@Nonnull BooleanSupplier currentNumberIsInteger,
+      boolean allNumbersAreIntegers);
 
 }
