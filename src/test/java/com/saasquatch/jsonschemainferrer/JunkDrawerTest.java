@@ -92,6 +92,16 @@ public class JunkDrawerTest {
     assertEquals(8, getSerializedTextLength(jnf.binaryNode(new byte[4])));
     assertEquals(-1, getSerializedTextLength(new BinaryNode(null)));
     assertEquals(-1, getSerializedTextLength(jnf.numberNode(1)));
+    assertEquals(3, getSerializedTextLength(jnf.numberNode(Float.NaN)));
+    assertEquals("infinity".length(),
+        getSerializedTextLength(jnf.numberNode(Float.POSITIVE_INFINITY)));
+    assertEquals("-infinity".length(),
+        getSerializedTextLength(jnf.numberNode(Float.NEGATIVE_INFINITY)));
+    assertEquals(3, getSerializedTextLength(jnf.numberNode(Double.NaN)));
+    assertEquals("infinity".length(),
+        getSerializedTextLength(jnf.numberNode(Double.POSITIVE_INFINITY)));
+    assertEquals("-infinity".length(),
+        getSerializedTextLength(jnf.numberNode(Double.NEGATIVE_INFINITY)));
     assertEquals(-1, getSerializedTextLength(jnf.objectNode().put("1", "1")));
     assertEquals(0, getSerializedTextLength(jnf.textNode("")));
     assertEquals(1, getSerializedTextLength(jnf.textNode("😂")));
