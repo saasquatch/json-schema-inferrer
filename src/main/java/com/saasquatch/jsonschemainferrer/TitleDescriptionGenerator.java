@@ -21,6 +21,12 @@ public interface TitleDescriptionGenerator {
   @Nullable
   String generateTitle(@Nonnull TitleDescriptionGeneratorInput input);
 
+  /**
+   * Generate a {@code description} based on the input
+   *
+   * @return The generated title, or null if no description is generated
+   */
+  @Nullable
   default String generateDescription(@Nonnull TitleDescriptionGeneratorInput input) {
     return null;
   }
