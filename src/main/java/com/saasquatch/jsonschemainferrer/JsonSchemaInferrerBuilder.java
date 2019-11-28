@@ -22,13 +22,13 @@ public final class JsonSchemaInferrerBuilder {
   private SpecVersion specVersion = SpecVersion.DRAFT_04;
   private IntegerTypePreference integerTypePreference = IntegerTypePreference.IF_ALL;
   private IntegerTypeCriterion integerTypeCriterion = IntegerTypeCriteria.nonFloatingPoint();
+  private FormatInferrer formatInferrer = FormatInferrers.noOp();
+  private TitleDescriptionGenerator titleDescriptionGenerator = TitleDescriptionGenerators.noOp();
   private AdditionalPropertiesPolicy additionalPropertiesPolicy =
       AdditionalPropertiesPolicies.noOp();
   private RequiredPolicy requiredPolicy = RequiredPolicies.noOp();
   private DefaultPolicy defaultPolicy = DefaultPolicies.noOp();
   private ExamplesPolicy examplesPolicy = ExamplesPolicies.noOp();
-  private FormatInferrer formatInferrer = FormatInferrers.noOp();
-  private TitleDescriptionGenerator titleDescriptionGenerator = TitleDescriptionGenerators.noOp();
   private MultipleOfPolicy multipleOfPolicy = MultipleOfPolicies.noOp();
   private Set<ObjectSizeFeature> objectSizeFeatures = Collections.emptySet();
   private Set<ArrayLengthFeature> arrayLengthFeatures = Collections.emptySet();
@@ -62,6 +62,38 @@ public final class JsonSchemaInferrerBuilder {
   public JsonSchemaInferrerBuilder setIntegerTypeCriterion(
       @Nonnull IntegerTypeCriterion integerTypeCriterion) {
     this.integerTypeCriterion = Objects.requireNonNull(integerTypeCriterion);
+    return this;
+  }
+
+  /**
+   * Set the {@link FormatInferrer} for inferring the <a href=
+   * "https://json-schema.org/understanding-json-schema/reference/string.html#format">format</a> of
+   * strings. By default it uses {@link FormatInferrers#noOp()}. An example of a possible custom
+   * implementation is available at {@link FormatInferrers#dateTime()}, which you can potentially
+   * use or use it combined with your own implementations with
+   * {@link FormatInferrers#chained(FormatInferrer...)}.<br>
+   * Note that if your JSON samples have large nested arrays, it's recommended to set this to false
+   * to prevent confusing outputs.
+   *
+   * @see FormatInferrer
+   * @see FormatInferrers
+   */
+  public JsonSchemaInferrerBuilder setFormatInferrer(@Nonnull FormatInferrer formatInferrer) {
+    this.formatInferrer = Objects.requireNonNull(formatInferrer);
+    return this;
+  }
+
+  /**
+   * Set the {@link TitleDescriptionGenerator} for this inferrer. By default it is
+   * {@link TitleDescriptionGenerators#noOp()}. You can provide your custom implementations and
+   * transform the field names however you see fit.
+   *
+   * @see TitleDescriptionGenerator
+   * @see TitleDescriptionGenerators
+   */
+  public JsonSchemaInferrerBuilder setTitleDescriptionGenerator(
+      @Nonnull TitleDescriptionGenerator titleDescriptionGenerator) {
+    this.titleDescriptionGenerator = Objects.requireNonNull(titleDescriptionGenerator);
     return this;
   }
 
@@ -108,38 +140,6 @@ public final class JsonSchemaInferrerBuilder {
    */
   public JsonSchemaInferrerBuilder setExamplesPolicy(@Nonnull ExamplesPolicy examplesPolicy) {
     this.examplesPolicy = Objects.requireNonNull(examplesPolicy);
-    return this;
-  }
-
-  /**
-   * Set the {@link FormatInferrer} for inferring the <a href=
-   * "https://json-schema.org/understanding-json-schema/reference/string.html#format">format</a> of
-   * strings. By default it uses {@link FormatInferrers#noOp()}. An example of a possible custom
-   * implementation is available at {@link FormatInferrers#dateTime()}, which you can potentially
-   * use or use it combined with your own implementations with
-   * {@link FormatInferrers#chained(FormatInferrer...)}.<br>
-   * Note that if your JSON samples have large nested arrays, it's recommended to set this to false
-   * to prevent confusing outputs.
-   *
-   * @see FormatInferrer
-   * @see FormatInferrers
-   */
-  public JsonSchemaInferrerBuilder setFormatInferrer(@Nonnull FormatInferrer formatInferrer) {
-    this.formatInferrer = Objects.requireNonNull(formatInferrer);
-    return this;
-  }
-
-  /**
-   * Set the {@link TitleDescriptionGenerator} for this inferrer. By default it is
-   * {@link TitleDescriptionGenerators#noOp()}. You can provide your custom implementations and
-   * transform the field names however you see fit.
-   *
-   * @see TitleDescriptionGenerator
-   * @see TitleDescriptionGenerators
-   */
-  public JsonSchemaInferrerBuilder setTitleDescriptionGenerator(
-      @Nonnull TitleDescriptionGenerator titleDescriptionGenerator) {
-    this.titleDescriptionGenerator = Objects.requireNonNull(titleDescriptionGenerator);
     return this;
   }
 
