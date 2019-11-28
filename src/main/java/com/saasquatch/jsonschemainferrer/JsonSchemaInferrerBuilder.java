@@ -28,8 +28,7 @@ public final class JsonSchemaInferrerBuilder {
   private DefaultPolicy defaultPolicy = DefaultPolicies.noOp();
   private ExamplesPolicy examplesPolicy = ExamplesPolicies.noOp();
   private FormatInferrer formatInferrer = FormatInferrers.noOp();
-  private TitleGenerator titleGenerator = TitleGenerators.noOp();
-  private DescriptionGenerator descriptionGenerator = DescriptionGenerators.noOp();
+  private TitleDescriptionGenerator titleDescriptionGenerator = TitleDescriptionGenerators.noOp();
   private MultipleOfPolicy multipleOfPolicy = MultipleOfPolicies.noOp();
   private Set<ObjectSizeFeature> objectSizeFeatures = Collections.emptySet();
   private Set<ArrayLengthFeature> arrayLengthFeatures = Collections.emptySet();
@@ -131,27 +130,16 @@ public final class JsonSchemaInferrerBuilder {
   }
 
   /**
-   * Set the {@link TitleGenerator} for this inferrer. By default it is
-   * {@link TitleGenerators#noOp()}. You can provide your custom implementations and transform the
-   * field names however you see fit.
+   * Set the {@link TitleDescriptionGenerator} for this inferrer. By default it is
+   * {@link TitleDescriptionGenerators#noOp()}. You can provide your custom implementations and
+   * transform the field names however you see fit.
    *
-   * @see TitleGenerator
-   * @see TitleGenerators
+   * @see TitleDescriptionGenerator
+   * @see TitleDescriptionGenerators
    */
-  public JsonSchemaInferrerBuilder setTitleGenerator(@Nonnull TitleGenerator titleGenerator) {
-    this.titleGenerator = Objects.requireNonNull(titleGenerator);
-    return this;
-  }
-
-  /**
-   * Set the {@link DescriptionGenerator}. By default it is {@link DescriptionGenerators#noOp()}.
-   *
-   * @see DescriptionGenerator
-   * @see DescriptionGenerators
-   */
-  public JsonSchemaInferrerBuilder setDescriptionGenerator(
-      @Nonnull DescriptionGenerator descriptionGenerator) {
-    this.descriptionGenerator = Objects.requireNonNull(descriptionGenerator);
+  public JsonSchemaInferrerBuilder setTitleDescriptionGenerator(
+      @Nonnull TitleDescriptionGenerator titleDescriptionGenerator) {
+    this.titleDescriptionGenerator = Objects.requireNonNull(titleDescriptionGenerator);
     return this;
   }
 
@@ -242,7 +230,7 @@ public final class JsonSchemaInferrerBuilder {
    */
   public JsonSchemaInferrer build() {
     return new JsonSchemaInferrer(specVersion, integerTypePreference, integerTypeCriterion,
-        formatInferrer, titleGenerator, descriptionGenerator, getCombinedGenericSchemaFeature());
+        formatInferrer, titleDescriptionGenerator, getCombinedGenericSchemaFeature());
   }
 
 }

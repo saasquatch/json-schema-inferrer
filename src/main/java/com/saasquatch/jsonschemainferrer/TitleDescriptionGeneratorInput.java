@@ -5,12 +5,12 @@ import javax.annotation.Nullable;
 import com.saasquatch.jsonschemainferrer.annotations.NoExternalImpl;
 
 /**
- * The input for {@link TitleGenerator}
+ * The input for {@link TitleDescriptionGenerator}
  *
  * @author sli
  */
 @NoExternalImpl
-public interface TitleGeneratorInput {
+public interface TitleDescriptionGeneratorInput {
 
   /**
    * @return The current field name, or null if it's not in an object.

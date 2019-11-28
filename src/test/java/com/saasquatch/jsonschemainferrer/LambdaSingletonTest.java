@@ -19,8 +19,8 @@ public class LambdaSingletonTest {
     doTest(RequiredPolicies::noOp);
     doTest(RequiredPolicies::commonFields);
     doTest(RequiredPolicies::nonNullCommonFields);
-    doTest(TitleGenerators::noOp);
-    doTest(TitleGenerators::useFieldNames);
+    doTest(TitleDescriptionGenerators::noOp);
+    doTest(TitleDescriptionGenerators::useFieldNamesAsTitles);
     doTest(DefaultPolicies::noOp);
     doTest(DefaultPolicies::useFirstSamples);
     doTest(DefaultPolicies::useLastSamples);

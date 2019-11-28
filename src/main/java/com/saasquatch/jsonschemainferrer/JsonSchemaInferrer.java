@@ -42,21 +42,19 @@ public final class JsonSchemaInferrer {
   private final IntegerTypePreference integerTypePreference;
   private final IntegerTypeCriterion integerTypeCriterion;
   private final FormatInferrer formatInferrer;
-  private final TitleGenerator titleGenerator;
-  private final DescriptionGenerator descriptionGenerator;
+  private final TitleDescriptionGenerator titleDescriptionGenerator;
   private final GenericSchemaFeature genericSchemaFeature;
 
   JsonSchemaInferrer(@Nonnull SpecVersion specVersion,
       @Nonnull IntegerTypePreference integerTypePreference,
       @Nonnull IntegerTypeCriterion integerTypeCriterion, @Nonnull FormatInferrer formatInferrer,
-      @Nonnull TitleGenerator titleGenerator, @Nonnull DescriptionGenerator descriptionGenerator,
+      @Nonnull TitleDescriptionGenerator titleDescriptionGenerator,
       @Nonnull GenericSchemaFeature genericSchemaFeature) {
     this.specVersion = specVersion;
     this.integerTypePreference = integerTypePreference;
     this.integerTypeCriterion = integerTypeCriterion;
     this.formatInferrer = formatInferrer;
-    this.titleGenerator = titleGenerator;
-    this.descriptionGenerator = descriptionGenerator;
+    this.titleDescriptionGenerator = titleDescriptionGenerator;
     this.genericSchemaFeature = genericSchemaFeature;
   }
 
@@ -141,8 +139,7 @@ public final class JsonSchemaInferrer {
       // Get the vals from samples that have the field name. vals cannot be empty.
       final Stream<JsonNode> samplesStream = getAllValuesForFieldName(objectNodes, fieldName);
       final ObjectNode newProperty = newObject();
-      handleTitleGeneration(newProperty, fieldName);
-      handleDescriptionGeneration(newProperty, fieldName);
+      handleTitleDescriptionGeneration(newProperty, fieldName);
       final Set<ObjectNode> anyOfs = getAnyOfsFromSamples(samplesStream);
       // anyOfs cannot be empty here, since we should have at least one match of the fieldName
       assert !anyOfs.isEmpty() : "empty anyOfs encountered";
@@ -348,8 +345,9 @@ public final class JsonSchemaInferrer {
     });
   }
 
-  private void handleTitleGeneration(@Nonnull ObjectNode schema, @Nullable String fieldName) {
-    final String title = titleGenerator.generateTitle(new TitleGeneratorInput() {
+  private void handleTitleDescriptionGeneration(@Nonnull ObjectNode schema,
+      @Nullable String fieldName) {
+    final TitleDescriptionGeneratorInput input = new TitleDescriptionGeneratorInput() {
 
       @Override
       public String getFieldName() {
@@ -361,27 +359,12 @@ public final class JsonSchemaInferrer {
         return specVersion;
       }
 
-    });
+    };
+    final String title = titleDescriptionGenerator.generateTitle(input);
     if (title != null) {
       schema.put(Consts.Fields.TITLE, title);
     }
-  }
-
-  private void handleDescriptionGeneration(@Nonnull ObjectNode schema, @Nullable String fieldName) {
-    final String description =
-        descriptionGenerator.generateDescription(new DescriptionGeneratorInput() {
-
-          @Override
-          public String getFieldName() {
-            return fieldName;
-          }
-
-          @Override
-          public SpecVersion getSpecVersion() {
-            return specVersion;
-          }
-
-        });
+    final String description = titleDescriptionGenerator.generateDescription(input);
     if (description != null) {
       schema.put(Consts.Fields.DESCRIPTION, description);
     }

@@ -251,9 +251,19 @@ public class JsonSchemaInferrerExamplesTest {
               .setNumberRangeFeatures(EnumSet.allOf(NumberRangeFeature.class))
               .setExamplesPolicy(ExamplesPolicies.useFirstSamples(10))
               .setDefaultPolicy(defaultPolicyIter.next())
-              .setTitleGenerator(TitleGenerators.useFieldNames())
-              .setDescriptionGenerator(DescriptionGeneratorInput::getFieldName)
-              .setAdditionalPropertiesPolicy(additionalPropPolicyIter.next())
+              .setTitleDescriptionGenerator(new TitleDescriptionGenerator() {
+
+                @Override
+                public String generateTitle(TitleDescriptionGeneratorInput input) {
+                  return input.getFieldName();
+                }
+
+                @Override
+                public String generateDescription(TitleDescriptionGeneratorInput input) {
+                  return input.getFieldName();
+                }
+
+              }).setAdditionalPropertiesPolicy(additionalPropPolicyIter.next())
               .setRequiredPolicy(requiredPolicyIter.next());
         }
         try {

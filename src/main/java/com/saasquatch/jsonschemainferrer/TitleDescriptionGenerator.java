@@ -8,10 +8,10 @@ import javax.annotation.Nullable;
  * safe.
  *
  * @author sli
- * @see TitleGenerators
+ * @see TitleDescriptionGenerators
  */
 @FunctionalInterface
-public interface TitleGenerator {
+public interface TitleDescriptionGenerator {
 
   /**
    * Generate a {@code title} based on the input
@@ -19,6 +19,10 @@ public interface TitleGenerator {
    * @return The generated title, or null if no title is generated
    */
   @Nullable
-  String generateTitle(@Nonnull TitleGeneratorInput input);
+  String generateTitle(@Nonnull TitleDescriptionGeneratorInput input);
+
+  default String generateDescription(@Nonnull TitleDescriptionGeneratorInput input) {
+    return null;
+  }
 
 }
