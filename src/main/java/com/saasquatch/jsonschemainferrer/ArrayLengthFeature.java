@@ -1,9 +1,8 @@
 package com.saasquatch.jsonschemainferrer;
 
-import java.util.Collection;
-import javax.annotation.Nonnull;
+import static com.saasquatch.jsonschemainferrer.JunkDrawer.newObject;
+import java.util.OptionalInt;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
@@ -11,16 +10,22 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  *
  * @author sli
  */
-public enum ArrayLengthFeature {
+public enum ArrayLengthFeature implements GenericSchemaAddOn {
 
   /**
    * {@code minItems}
    */
   MIN_ITEMS {
     @Override
-    void process(ObjectNode schema, Collection<ArrayNode> samples) {
-      samples.stream().mapToInt(JsonNode::size).min()
-          .ifPresent(minItems -> schema.put(Consts.Fields.MIN_ITEMS, minItems));
+    public ObjectNode getAddOn(GenericSchemaAddOnInput input) {
+      final OptionalInt optMinItems =
+          input.getSamples().stream().filter(JsonNode::isArray).mapToInt(JsonNode::size).min();
+      if (!optMinItems.isPresent()) {
+        return null;
+      }
+      final ObjectNode result = newObject();
+      result.put(Consts.Fields.MIN_ITEMS, optMinItems.getAsInt());
+      return result;
     }
   },
   /**
@@ -28,12 +33,16 @@ public enum ArrayLengthFeature {
    */
   MAX_ITEMS {
     @Override
-    void process(ObjectNode schema, Collection<ArrayNode> samples) {
-      samples.stream().mapToInt(JsonNode::size).max()
-          .ifPresent(maxItems -> schema.put(Consts.Fields.MAX_ITEMS, maxItems));
+    public ObjectNode getAddOn(GenericSchemaAddOnInput input) {
+      final OptionalInt optMaxItems =
+          input.getSamples().stream().filter(JsonNode::isArray).mapToInt(JsonNode::size).max();
+      if (!optMaxItems.isPresent()) {
+        return null;
+      }
+      final ObjectNode result = newObject();
+      result.put(Consts.Fields.MAX_ITEMS, optMaxItems.getAsInt());
+      return result;
     }
   },;
-
-  abstract void process(@Nonnull ObjectNode schema, @Nonnull Collection<ArrayNode> samples);
 
 }

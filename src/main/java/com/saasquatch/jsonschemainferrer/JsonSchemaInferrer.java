@@ -48,7 +48,6 @@ public final class JsonSchemaInferrer {
   private final DescriptionGenerator descriptionGenerator;
   private final MultipleOfPolicy multipleOfPolicy;
   private final GenericSchemaAddOn genericSchemaAddOn;
-  private final Set<ArrayLengthFeature> arrayLengthFeatures;
   private final Set<StringLengthFeature> stringLengthFeatures;
   private final Set<NumberRangeFeature> numberRangeFeatures;
 
@@ -58,7 +57,6 @@ public final class JsonSchemaInferrer {
       @Nonnull ExamplesPolicy examplesPolicy, @Nonnull FormatInferrer formatInferrer,
       @Nonnull TitleGenerator titleGenerator, @Nonnull DescriptionGenerator descriptionGenerator,
       @Nonnull MultipleOfPolicy multipleOfPolicy, @Nonnull GenericSchemaAddOn genericSchemaAddOn,
-      @Nonnull Set<ArrayLengthFeature> arrayLengthFeatures,
       @Nonnull Set<StringLengthFeature> stringLengthFeatures,
       @Nonnull Set<NumberRangeFeature> numberRangeFeatures) {
     this.specVersion = specVersion;
@@ -71,7 +69,6 @@ public final class JsonSchemaInferrer {
     this.descriptionGenerator = descriptionGenerator;
     this.multipleOfPolicy = multipleOfPolicy;
     this.genericSchemaAddOn = genericSchemaAddOn;
-    this.arrayLengthFeatures = arrayLengthFeatures;
     this.stringLengthFeatures = stringLengthFeatures;
     this.numberRangeFeatures = numberRangeFeatures;
   }
@@ -209,7 +206,6 @@ public final class JsonSchemaInferrer {
     if (items.size() > 0) {
       schema.set(Consts.Fields.ITEMS, items);
     }
-    processArrayLengthFeatures(schema, arrayNodes);
     processGenericSchemaAddOn(schema, arrayNodes, Consts.Types.ARRAY);
     return schema;
   }
@@ -515,13 +511,6 @@ public final class JsonSchemaInferrer {
     });
     if (addOn != null) {
       schema.setAll(addOn);
-    }
-  }
-
-  private void processArrayLengthFeatures(@Nonnull ObjectNode schema,
-      @Nonnull Collection<ArrayNode> arrayNodes) {
-    for (ArrayLengthFeature arrayLengthFeature : arrayLengthFeatures) {
-      arrayLengthFeature.process(schema, arrayNodes);
     }
   }
 
