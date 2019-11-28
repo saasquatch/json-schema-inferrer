@@ -41,7 +41,6 @@ public final class JsonSchemaInferrer {
   private final SpecVersion specVersion;
   private final IntegerTypePreference integerTypePreference;
   private final IntegerTypeCriterion integerTypeCriterion;
-  private final AdditionalPropertiesPolicy additionalPropertiesPolicy;
   private final RequiredPolicy requiredPolicy;
   private final DefaultPolicy defaultPolicy;
   private final ExamplesPolicy examplesPolicy;
@@ -58,7 +57,6 @@ public final class JsonSchemaInferrer {
   JsonSchemaInferrer(@Nonnull SpecVersion specVersion,
       @Nonnull IntegerTypePreference integerTypePreference,
       @Nonnull IntegerTypeCriterion integerTypeCriterion,
-      @Nonnull AdditionalPropertiesPolicy additionalPropertiesPolicy,
       @Nonnull RequiredPolicy requiredPolicy, @Nonnull DefaultPolicy defaultPolicy,
       @Nonnull ExamplesPolicy examplesPolicy, @Nonnull FormatInferrer formatInferrer,
       @Nonnull TitleGenerator titleGenerator, @Nonnull DescriptionGenerator descriptionGenerator,
@@ -70,7 +68,6 @@ public final class JsonSchemaInferrer {
     this.specVersion = specVersion;
     this.integerTypePreference = integerTypePreference;
     this.integerTypeCriterion = integerTypeCriterion;
-    this.additionalPropertiesPolicy = additionalPropertiesPolicy;
     this.requiredPolicy = requiredPolicy;
     this.defaultPolicy = defaultPolicy;
     this.examplesPolicy = examplesPolicy;
@@ -185,10 +182,9 @@ public final class JsonSchemaInferrer {
     if (properties.size() > 0) {
       schema.set(Consts.Fields.PROPERTIES, properties);
     }
-    processAdditionalProperties(schema);
     processRequired(schema, objectNodes);
     processObjectSizeFeatures(schema, objectNodes);
-    processGenericSchemaAddon(schema, objectNodes, Consts.Types.OBJECT);
+    processGenericSchemaAddOn(schema, objectNodes, Consts.Types.OBJECT);
     return schema;
   }
 
@@ -222,7 +218,7 @@ public final class JsonSchemaInferrer {
       schema.set(Consts.Fields.ITEMS, items);
     }
     processArrayLengthFeatures(schema, arrayNodes);
-    processGenericSchemaAddon(schema, arrayNodes, Consts.Types.ARRAY);
+    processGenericSchemaAddOn(schema, arrayNodes, Consts.Types.ARRAY);
     return schema;
   }
 
@@ -271,7 +267,7 @@ public final class JsonSchemaInferrer {
         processMultipleOf(anyOf, primitivesSummary, type);
         processNumberRangeFeatures(anyOf, primitivesSummary);
       }
-      processGenericSchemaAddon(anyOf, primitivesSummary.getSamples(), type);
+      processGenericSchemaAddOn(anyOf, primitivesSummary.getSamples(), type);
     }
     return anyOfs;
   }
@@ -425,26 +421,6 @@ public final class JsonSchemaInferrer {
     }
   }
 
-  private void processAdditionalProperties(@Nonnull ObjectNode schema) {
-    final JsonNode additionalProps =
-        additionalPropertiesPolicy.getAdditionalProperties(new AdditionalPropertiesPolicyInput() {
-
-          @Override
-          public ObjectNode getSchema() {
-            return schema;
-          }
-
-          @Override
-          public SpecVersion getSpecVersion() {
-            return specVersion;
-          }
-
-        });
-    if (additionalProps != null) {
-      schema.set(Consts.Fields.ADDITIONAL_PROPERTIES, additionalProps);
-    }
-  }
-
   private void processRequired(@Nonnull ObjectNode schema,
       @Nonnull Collection<ObjectNode> objectNodes) {
     final JsonNode required = requiredPolicy.getRequired(new RequiredPolicyInput() {
@@ -540,9 +516,14 @@ public final class JsonSchemaInferrer {
     }
   }
 
-  private void processGenericSchemaAddon(@Nonnull ObjectNode schema,
+  private void processGenericSchemaAddOn(@Nonnull ObjectNode schema,
       @Nonnull Collection<? extends JsonNode> samples, @Nullable String type) {
     final ObjectNode addOn = genericSchemaAddOn.getAddOn(new GenericSchemaAddOnInput() {
+
+      @Override
+      public ObjectNode getSchema() {
+        return schema;
+      }
 
       @Override
       public Collection<? extends JsonNode> getSamples() {

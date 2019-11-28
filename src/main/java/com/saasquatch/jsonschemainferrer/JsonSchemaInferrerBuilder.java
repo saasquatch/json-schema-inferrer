@@ -1,8 +1,12 @@
 package com.saasquatch.jsonschemainferrer;
 
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.unmodifiableEnumSet;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.EnumSet;
 import java.util.Objects;
+import java.util.function.Function;
+import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.NotThreadSafe;
 
@@ -27,7 +31,7 @@ public final class JsonSchemaInferrerBuilder {
   private TitleGenerator titleGenerator = TitleGenerators.noOp();
   private DescriptionGenerator descriptionGenerator = DescriptionGenerators.noOp();
   private MultipleOfPolicy multipleOfPolicy = MultipleOfPolicies.noOp();
-  private GenericSchemaAddOn genericSchemaAddOn = GenericSchemaAddOns.noOp();
+  private final Collection<GenericSchemaAddOn> genericSchemaAddOns = new ArrayList<>();
   private final EnumSet<ObjectSizeFeature> objectSizeFeatures =
       EnumSet.noneOf(ObjectSizeFeature.class);
   private final EnumSet<ArrayLengthFeature> arrayLengthFeatures =
@@ -166,15 +170,10 @@ public final class JsonSchemaInferrerBuilder {
     return this;
   }
 
-  /**
-   * Set the {@link GenericSchemaAddOn}. By default it is {@link GenericSchemaAddOns#noOp()}.
-   *
-   * @see GenericSchemaAddOn
-   * @see GenericSchemaAddOns
-   */
-  public JsonSchemaInferrerBuilder setGenericSchemaAddOn(
-      @Nonnull GenericSchemaAddOn genericSchemaAddOn) {
-    this.genericSchemaAddOn = Objects.requireNonNull(genericSchemaAddOn);
+  public JsonSchemaInferrerBuilder addGenericSchemaAddOns(@Nonnull GenericSchemaAddOn... addOns) {
+    for (GenericSchemaAddOn addOn : addOns) {
+      this.genericSchemaAddOns.add(Objects.requireNonNull(addOn));
+    }
     return this;
   }
 
@@ -263,9 +262,13 @@ public final class JsonSchemaInferrerBuilder {
    * @throws IllegalArgumentException if the spec version and features don't match up
    */
   public JsonSchemaInferrer build() {
+    final GenericSchemaAddOn[] genericSchemaAddOnsArray =
+        Stream.of(Stream.of(additionalPropertiesPolicy), genericSchemaAddOns.stream())
+            .flatMap(Function.identity()).toArray(GenericSchemaAddOn[]::new);
     return new JsonSchemaInferrer(specVersion, integerTypePreference, integerTypeCriterion,
-        additionalPropertiesPolicy, requiredPolicy, defaultPolicy, examplesPolicy, formatInferrer,
-        titleGenerator, descriptionGenerator, multipleOfPolicy, genericSchemaAddOn,
+        requiredPolicy, defaultPolicy, examplesPolicy, formatInferrer, titleGenerator,
+        descriptionGenerator, multipleOfPolicy,
+        GenericSchemaAddOns.chained(genericSchemaAddOnsArray),
         unmodifiableEnumSet(objectSizeFeatures), unmodifiableEnumSet(arrayLengthFeatures),
         unmodifiableEnumSet(stringLengthFeatures), unmodifiableEnumSet(numberRangeFeatures));
   }
