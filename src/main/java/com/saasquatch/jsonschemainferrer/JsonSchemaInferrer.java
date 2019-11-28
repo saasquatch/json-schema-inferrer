@@ -41,7 +41,6 @@ public final class JsonSchemaInferrer {
   private final SpecVersion specVersion;
   private final IntegerTypePreference integerTypePreference;
   private final IntegerTypeCriterion integerTypeCriterion;
-  private final DefaultPolicy defaultPolicy;
   private final FormatInferrer formatInferrer;
   private final TitleGenerator titleGenerator;
   private final DescriptionGenerator descriptionGenerator;
@@ -49,14 +48,12 @@ public final class JsonSchemaInferrer {
 
   JsonSchemaInferrer(@Nonnull SpecVersion specVersion,
       @Nonnull IntegerTypePreference integerTypePreference,
-      @Nonnull IntegerTypeCriterion integerTypeCriterion, @Nonnull DefaultPolicy defaultPolicy,
-      @Nonnull FormatInferrer formatInferrer, @Nonnull TitleGenerator titleGenerator,
-      @Nonnull DescriptionGenerator descriptionGenerator,
+      @Nonnull IntegerTypeCriterion integerTypeCriterion, @Nonnull FormatInferrer formatInferrer,
+      @Nonnull TitleGenerator titleGenerator, @Nonnull DescriptionGenerator descriptionGenerator,
       @Nonnull GenericSchemaFeature genericSchemaAddOn) {
     this.specVersion = specVersion;
     this.integerTypePreference = integerTypePreference;
     this.integerTypeCriterion = integerTypeCriterion;
-    this.defaultPolicy = defaultPolicy;
     this.formatInferrer = formatInferrer;
     this.titleGenerator = titleGenerator;
     this.descriptionGenerator = descriptionGenerator;
@@ -236,7 +233,6 @@ public final class JsonSchemaInferrer {
       @Nonnull
       final PrimitivesSummary primitivesSummary =
           primitivesSummaryMap.getPrimitivesSummary(type, format);
-      processDefault(anyOf, primitivesSummary);
       processGenericSchemaAddOn(anyOf, primitivesSummary.getSamples(), type);
     }
     return anyOfs;
@@ -388,36 +384,6 @@ public final class JsonSchemaInferrer {
         });
     if (description != null) {
       schema.put(Consts.Fields.DESCRIPTION, description);
-    }
-  }
-
-  private void processDefault(@Nonnull ObjectNode schema,
-      @Nonnull PrimitivesSummary primitivesSummary) {
-    final JsonNode defaultNode = defaultPolicy.getDefault(new DefaultPolicyInput() {
-
-      @Override
-      public JsonNode getFirstSample() {
-        return primitivesSummary.getFirstSample();
-      }
-
-      @Override
-      public JsonNode getLastSample() {
-        return primitivesSummary.getLastSample();
-      }
-
-      @Override
-      public Collection<? extends JsonNode> getSamples() {
-        return primitivesSummary.getSamples();
-      }
-
-      @Override
-      public SpecVersion getSpecVersion() {
-        return specVersion;
-      }
-
-    });
-    if (defaultNode != null) {
-      schema.set(Consts.Fields.DEFAULT, defaultNode);
     }
   }
 

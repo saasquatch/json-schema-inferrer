@@ -1,5 +1,8 @@
 package com.saasquatch.jsonschemainferrer;
 
+import java.util.Collection;
+import com.fasterxml.jackson.databind.JsonNode;
+
 /**
  * Utilities for {@link DefaultPolicy}
  *
@@ -20,14 +23,26 @@ public final class DefaultPolicies {
    * @return a singleton {@link DefaultPolicy} that always uses the first sample as {@code default}
    */
   public static DefaultPolicy useFirstSamples() {
-    return DefaultPolicyInput::getFirstSample;
+    return input -> {
+      final Collection<? extends JsonNode> samples = input.getSamples();
+      if (samples.isEmpty()) {
+        return null;
+      }
+      return samples.iterator().next();
+    };
   }
 
   /**
    * @return a singleton {@link DefaultPolicy} that always uses the last sample as {@code default}
    */
   public static DefaultPolicy useLastSamples() {
-    return DefaultPolicyInput::getLastSample;
+    return input -> {
+      final Collection<? extends JsonNode> samples = input.getSamples();
+      if (samples.isEmpty()) {
+        return null;
+      }
+      return samples.stream().skip(samples.size() - 1).findFirst().orElse(null);
+    };
   }
 
 }
