@@ -38,7 +38,7 @@ public final class JsonSchemaInferrerBuilder {
       EnumSet.noneOf(StringLengthFeature.class);
   private final EnumSet<NumberRangeFeature> numberRangeFeatures =
       EnumSet.noneOf(NumberRangeFeature.class);
-  private final Collection<GenericSchemaFeature> genericSchemaAddOns = new ArrayList<>();
+  private final Collection<GenericSchemaFeature> genericSchemaFeatures = new ArrayList<>();
 
   JsonSchemaInferrerBuilder() {}
 
@@ -249,9 +249,10 @@ public final class JsonSchemaInferrerBuilder {
     return this;
   }
 
-  public JsonSchemaInferrerBuilder addGenericSchemaAddOns(@Nonnull GenericSchemaFeature... addOns) {
-    for (GenericSchemaFeature addOn : addOns) {
-      this.genericSchemaAddOns.add(Objects.requireNonNull(addOn));
+  public JsonSchemaInferrerBuilder addGenericSchemaFeatures(
+      @Nonnull GenericSchemaFeature... features) {
+    for (GenericSchemaFeature feature : features) {
+      this.genericSchemaFeatures.add(Objects.requireNonNull(feature));
     }
     return this;
   }
@@ -261,15 +262,15 @@ public final class JsonSchemaInferrerBuilder {
    * @throws IllegalArgumentException if the spec version and features don't match up
    */
   public JsonSchemaInferrer build() {
-    final GenericSchemaFeature[] genericSchemaAddOnsArray = Stream
+    final GenericSchemaFeature[] genericSchemaFeaturesArray = Stream
         .of(Stream.of(additionalPropertiesPolicy), Stream.of(requiredPolicy),
             objectSizeFeatures.stream(), arrayLengthFeatures.stream(),
             stringLengthFeatures.stream(), numberRangeFeatures.stream(),
-            Stream.of(multipleOfPolicy), genericSchemaAddOns.stream())
+            Stream.of(multipleOfPolicy), genericSchemaFeatures.stream())
         .flatMap(Function.identity()).toArray(GenericSchemaFeature[]::new);
     return new JsonSchemaInferrer(specVersion, integerTypePreference, integerTypeCriterion,
         defaultPolicy, examplesPolicy, formatInferrer, titleGenerator, descriptionGenerator,
-        GenericSchemaFeatures.chained(genericSchemaAddOnsArray));
+        GenericSchemaFeatures.chained(genericSchemaFeaturesArray));
   }
 
 }
