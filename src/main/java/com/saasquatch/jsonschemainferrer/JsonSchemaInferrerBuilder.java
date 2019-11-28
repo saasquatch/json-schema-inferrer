@@ -31,7 +31,6 @@ public final class JsonSchemaInferrerBuilder {
   private TitleGenerator titleGenerator = TitleGenerators.noOp();
   private DescriptionGenerator descriptionGenerator = DescriptionGenerators.noOp();
   private MultipleOfPolicy multipleOfPolicy = MultipleOfPolicies.noOp();
-  private final Collection<GenericSchemaAddOn> genericSchemaAddOns = new ArrayList<>();
   private final EnumSet<ObjectSizeFeature> objectSizeFeatures =
       EnumSet.noneOf(ObjectSizeFeature.class);
   private final EnumSet<ArrayLengthFeature> arrayLengthFeatures =
@@ -40,6 +39,7 @@ public final class JsonSchemaInferrerBuilder {
       EnumSet.noneOf(StringLengthFeature.class);
   private final EnumSet<NumberRangeFeature> numberRangeFeatures =
       EnumSet.noneOf(NumberRangeFeature.class);
+  private final Collection<GenericSchemaAddOn> genericSchemaAddOns = new ArrayList<>();
 
   JsonSchemaInferrerBuilder() {}
 
@@ -170,13 +170,6 @@ public final class JsonSchemaInferrerBuilder {
     return this;
   }
 
-  public JsonSchemaInferrerBuilder addGenericSchemaAddOns(@Nonnull GenericSchemaAddOn... addOns) {
-    for (GenericSchemaAddOn addOn : addOns) {
-      this.genericSchemaAddOns.add(Objects.requireNonNull(addOn));
-    }
-    return this;
-  }
-
   /**
    * Enable {@link ObjectSizeFeature}s
    */
@@ -253,6 +246,13 @@ public final class JsonSchemaInferrerBuilder {
   public JsonSchemaInferrerBuilder disable(@Nonnull NumberRangeFeature... features) {
     for (NumberRangeFeature feature : features) {
       this.numberRangeFeatures.remove(Objects.requireNonNull(feature));
+    }
+    return this;
+  }
+
+  public JsonSchemaInferrerBuilder addGenericSchemaAddOns(@Nonnull GenericSchemaAddOn... addOns) {
+    for (GenericSchemaAddOn addOn : addOns) {
+      this.genericSchemaAddOns.add(Objects.requireNonNull(addOn));
     }
     return this;
   }
