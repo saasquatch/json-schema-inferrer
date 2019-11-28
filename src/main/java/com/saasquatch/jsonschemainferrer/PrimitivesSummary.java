@@ -1,10 +1,8 @@
 package com.saasquatch.jsonschemainferrer;
 
-import static com.saasquatch.jsonschemainferrer.JunkDrawer.getSerializedTextLength;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.OptionalInt;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.NotThreadSafe;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -18,8 +16,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 @NotThreadSafe
 final class PrimitivesSummary {
 
-  private int minStringLength = -1;
-  private int maxStringLength = -1;
   private final Collection<JsonNode> samples;
 
   public PrimitivesSummary() {
@@ -28,30 +24,11 @@ final class PrimitivesSummary {
 
   public void addSample(@Nonnull JsonNode sample) {
     samples.add(sample);
-    final int stringLength = getSerializedTextLength(sample);
-    if (stringLength >= 0) {
-      if (minStringLength < 0 || stringLength < minStringLength) {
-        minStringLength = stringLength;
-      }
-      if (maxStringLength < 0 || stringLength > maxStringLength) {
-        maxStringLength = stringLength;
-      }
-    }
   }
 
   @Nonnull
   public Collection<JsonNode> getSamples() {
     return Collections.unmodifiableCollection(samples);
-  }
-
-  @Nonnull
-  public OptionalInt getMinStringLength() {
-    return minStringLength < 0 ? OptionalInt.empty() : OptionalInt.of(minStringLength);
-  }
-
-  @Nonnull
-  public OptionalInt getMaxStringLength() {
-    return maxStringLength < 0 ? OptionalInt.empty() : OptionalInt.of(maxStringLength);
   }
 
 }

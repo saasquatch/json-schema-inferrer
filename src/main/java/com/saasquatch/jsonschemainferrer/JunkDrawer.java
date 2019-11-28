@@ -6,7 +6,6 @@ import java.util.AbstractMap;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Locale;
@@ -73,15 +72,6 @@ final class JunkDrawer {
   @SafeVarargs
   static <E> Set<E> unmodifiableSetOf(E... elements) {
     return Collections.unmodifiableSet(new HashSet<>(Arrays.asList(elements)));
-  }
-
-  /**
-   * Create an unmodifiable {@link Set} possibly backed by a defensive copy of the given
-   * {@link EnumSet}.
-   */
-  static <E extends Enum<E>> Set<E> unmodifiableEnumSet(@Nonnull EnumSet<E> enumSet) {
-    return enumSet.isEmpty() ? Collections.emptySet()
-        : Collections.unmodifiableSet(EnumSet.copyOf(enumSet));
   }
 
   static <E extends Enum<E>, R> R unrecognizedEnumError(E enumVal) {

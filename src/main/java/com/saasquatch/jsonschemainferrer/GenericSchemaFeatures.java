@@ -2,9 +2,7 @@ package com.saasquatch.jsonschemainferrer;
 
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.newObject;
 import java.util.Objects;
-import java.util.OptionalInt;
 import javax.annotation.Nonnull;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
@@ -21,34 +19,6 @@ public final class GenericSchemaFeatures {
    */
   public static GenericSchemaFeature noOp() {
     return input -> null;
-  }
-
-  /**
-   * @return A singleton {@link GenericSchemaFeature} that infers {@code minProperties}.
-   */
-  public static GenericSchemaFeature minProperties() {
-    return input -> {
-      final OptionalInt optMinProps = input.getSamples().stream().mapToInt(JsonNode::size).min();
-      if (!optMinProps.isPresent()) {
-        return null;
-      }
-      final int minProps = optMinProps.getAsInt();
-      return newObject().put(Consts.Fields.MIN_PROPERTIES, minProps);
-    };
-  }
-
-  /**
-   * @return A singleton {@link GenericSchemaFeature} that infers {@code maxProperties}.
-   */
-  public static GenericSchemaFeature maxProperties() {
-    return input -> {
-      final OptionalInt optMaxProps = input.getSamples().stream().mapToInt(JsonNode::size).max();
-      if (!optMaxProps.isPresent()) {
-        return null;
-      }
-      final int maxProps = optMaxProps.getAsInt();
-      return newObject().put(Consts.Fields.MAX_PROPERTIES, maxProps);
-    };
   }
 
   /**

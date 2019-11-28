@@ -29,6 +29,15 @@ import com.google.common.collect.ImmutableSet;
 public class JsonSchemaInferrerOptionsTest {
 
   @Test
+  public void testNoOp() {
+    assertNull(RequiredPolicies.noOp().getRequired(null));
+    assertNull(DefaultPolicies.noOp().getDefault(null));
+    assertNull(MultipleOfPolicies.noOp().getMultipleOf(null));
+    assertNull(ExamplesPolicies.noOp().getExamples(null));
+    assertNull(AdditionalPropertiesPolicies.noOp().getAdditionalProperties(null));
+  }
+
+  @Test
   public void testJsonTypeInference() {
     final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder().build();
     final List<? extends JsonNode> unexpectedNodes =
