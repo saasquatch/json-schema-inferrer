@@ -40,7 +40,7 @@ public final class RequiredPolicies {
   }
 
   @Nullable
-  private static JsonNode handleCommonFields(@Nonnull GenericSchemaValidationFeatureInput input,
+  private static JsonNode handleCommonFields(@Nonnull GenericSchemaFeatureInput input,
       boolean nonNull) {
     final Set<String> commonFieldNames = getCommonFieldNames(input.getSamples(), nonNull);
     if (commonFieldNames.isEmpty()) {

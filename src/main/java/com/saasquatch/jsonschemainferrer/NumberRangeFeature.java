@@ -10,14 +10,14 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  *
  * @author sli
  */
-public enum NumberRangeFeature implements GenericSchemaValidationFeature {
+public enum NumberRangeFeature implements GenericSchemaFeature {
 
   /**
    * {@code minimum}
    */
   MINIMUM {
     @Override
-    public ObjectNode getFeatureResult(GenericSchemaValidationFeatureInput input) {
+    public ObjectNode getFeatureResult(GenericSchemaFeatureInput input) {
       return input.getSamples().stream().filter(JsonNode::isNumber).min(NUM_VALUE_COMPARATOR)
           .map(minNode -> {
             final ObjectNode result = newObject();
@@ -31,7 +31,7 @@ public enum NumberRangeFeature implements GenericSchemaValidationFeature {
    */
   MAXIMUM {
     @Override
-    public ObjectNode getFeatureResult(GenericSchemaValidationFeatureInput input) {
+    public ObjectNode getFeatureResult(GenericSchemaFeatureInput input) {
       return input.getSamples().stream().filter(JsonNode::isNumber).max(NUM_VALUE_COMPARATOR)
           .map(maxNode -> {
             final ObjectNode result = newObject();

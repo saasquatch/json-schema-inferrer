@@ -6,30 +6,29 @@ import javax.annotation.Nonnull;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
- * Utilities for {@link GenericSchemaValidationFeature}
+ * Utilities for {@link GenericSchemaFeature}
  *
  * @author sli
  */
-public final class GenericSchemaValidationFeatures {
+public final class GenericSchemaFeatures {
 
-  private GenericSchemaValidationFeatures() {}
+  private GenericSchemaFeatures() {}
 
   /**
-   * @return A singleton {@link GenericSchemaValidationFeature} that does nothing.
+   * @return A singleton {@link GenericSchemaFeature} that does nothing.
    */
-  public static GenericSchemaValidationFeature noOp() {
+  public static GenericSchemaFeature noOp() {
     return input -> null;
   }
 
   /**
-   * @return An {@link GenericSchemaValidationFeature} that uses the given
-   *         {@link GenericSchemaValidationFeature}s in the given order, overwriting previous
-   *         results if add-ons with the same field names exist.
+   * @return An {@link GenericSchemaFeature} that uses the given {@link GenericSchemaFeature}s in
+   *         the given order, overwriting previous results if add-ons with the same field names
+   *         exist.
    * @throws NullPointerException if the input has null elements
    */
-  public static GenericSchemaValidationFeature chained(
-      @Nonnull GenericSchemaValidationFeature... features) {
-    for (GenericSchemaValidationFeature feature : features) {
+  public static GenericSchemaFeature chained(@Nonnull GenericSchemaFeature... features) {
+    for (GenericSchemaFeature feature : features) {
       Objects.requireNonNull(feature);
     }
     switch (features.length) {
@@ -43,11 +42,10 @@ public final class GenericSchemaValidationFeatures {
     return _chained(features.clone());
   }
 
-  private static GenericSchemaValidationFeature _chained(
-      @Nonnull GenericSchemaValidationFeature[] features) {
+  private static GenericSchemaFeature _chained(@Nonnull GenericSchemaFeature[] features) {
     return input -> {
       final ObjectNode result = newObject();
-      for (GenericSchemaValidationFeature feature : features) {
+      for (GenericSchemaFeature feature : features) {
         final ObjectNode featureResult = feature.getFeatureResult(input);
         if (featureResult != null) {
           result.setAll(featureResult);

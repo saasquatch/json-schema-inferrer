@@ -35,8 +35,7 @@ public final class JsonSchemaInferrerBuilder {
   private Set<ArrayLengthFeature> arrayLengthFeatures = Collections.emptySet();
   private Set<StringLengthFeature> stringLengthFeatures = Collections.emptySet();
   private Set<NumberRangeFeature> numberRangeFeatures = Collections.emptySet();
-  private final Collection<GenericSchemaValidationFeature> additionalSchemaValidationFeatures =
-      new ArrayList<>();
+  private final Collection<GenericSchemaFeature> additionalSchemaFeatures = new ArrayList<>();
 
   JsonSchemaInferrerBuilder() {}
 
@@ -203,16 +202,16 @@ public final class JsonSchemaInferrerBuilder {
     return this;
   }
 
-  public JsonSchemaInferrerBuilder addAdditionalSchemaValidationFeatures(
-      @Nonnull GenericSchemaValidationFeature... features) {
-    for (GenericSchemaValidationFeature feature : features) {
-      this.additionalSchemaValidationFeatures.add(Objects.requireNonNull(feature));
+  public JsonSchemaInferrerBuilder addAdditionalSchemaFeatures(
+      @Nonnull GenericSchemaFeature... features) {
+    for (GenericSchemaFeature feature : features) {
+      this.additionalSchemaFeatures.add(Objects.requireNonNull(feature));
     }
     return this;
   }
 
-  private GenericSchemaValidationFeature getCombinedGenericSchemaValidationFeature() {
-    final List<GenericSchemaValidationFeature> features = new ArrayList<>();
+  private GenericSchemaFeature getCombinedGenericSchemaFeature() {
+    final List<GenericSchemaFeature> features = new ArrayList<>();
     if (additionalPropertiesPolicy != AdditionalPropertiesPolicies.noOp()) {
       features.add(additionalPropertiesPolicy);
     }
@@ -232,10 +231,9 @@ public final class JsonSchemaInferrerBuilder {
     features.addAll(arrayLengthFeatures);
     features.addAll(stringLengthFeatures);
     features.addAll(numberRangeFeatures);
-    features.addAll(additionalSchemaValidationFeatures);
-    final GenericSchemaValidationFeature[] featuresArray =
-        features.toArray(new GenericSchemaValidationFeature[0]);
-    return GenericSchemaValidationFeatures.chained(featuresArray);
+    features.addAll(additionalSchemaFeatures);
+    final GenericSchemaFeature[] featuresArray = features.toArray(new GenericSchemaFeature[0]);
+    return GenericSchemaFeatures.chained(featuresArray);
   }
 
   /**
@@ -244,8 +242,7 @@ public final class JsonSchemaInferrerBuilder {
    */
   public JsonSchemaInferrer build() {
     return new JsonSchemaInferrer(specVersion, integerTypePreference, integerTypeCriterion,
-        formatInferrer, titleGenerator, descriptionGenerator,
-        getCombinedGenericSchemaValidationFeature());
+        formatInferrer, titleGenerator, descriptionGenerator, getCombinedGenericSchemaFeature());
   }
 
 }

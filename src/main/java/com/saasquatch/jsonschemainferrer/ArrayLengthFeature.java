@@ -10,14 +10,14 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  *
  * @author sli
  */
-public enum ArrayLengthFeature implements GenericSchemaValidationFeature {
+public enum ArrayLengthFeature implements GenericSchemaFeature {
 
   /**
    * {@code minItems}
    */
   MIN_ITEMS {
     @Override
-    public ObjectNode getFeatureResult(GenericSchemaValidationFeatureInput input) {
+    public ObjectNode getFeatureResult(GenericSchemaFeatureInput input) {
       final OptionalInt optMinItems =
           input.getSamples().stream().filter(JsonNode::isArray).mapToInt(JsonNode::size).min();
       if (!optMinItems.isPresent()) {
@@ -33,7 +33,7 @@ public enum ArrayLengthFeature implements GenericSchemaValidationFeature {
    */
   MAX_ITEMS {
     @Override
-    public ObjectNode getFeatureResult(GenericSchemaValidationFeatureInput input) {
+    public ObjectNode getFeatureResult(GenericSchemaFeatureInput input) {
       final OptionalInt optMaxItems =
           input.getSamples().stream().filter(JsonNode::isArray).mapToInt(JsonNode::size).max();
       if (!optMaxItems.isPresent()) {
