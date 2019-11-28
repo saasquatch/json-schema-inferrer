@@ -1,6 +1,5 @@
 package com.saasquatch.jsonschemainferrer;
 
-import static com.saasquatch.jsonschemainferrer.JunkDrawer.unmodifiableEnumSet;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
@@ -265,12 +264,12 @@ public final class JsonSchemaInferrerBuilder {
     final GenericSchemaAddOn[] genericSchemaAddOnsArray = Stream
         .of(Stream.of(additionalPropertiesPolicy), Stream.of(requiredPolicy),
             objectSizeFeatures.stream(), arrayLengthFeatures.stream(),
-            stringLengthFeatures.stream(), genericSchemaAddOns.stream())
+            stringLengthFeatures.stream(), numberRangeFeatures.stream(),
+            genericSchemaAddOns.stream())
         .flatMap(Function.identity()).toArray(GenericSchemaAddOn[]::new);
     return new JsonSchemaInferrer(specVersion, integerTypePreference, integerTypeCriterion,
         defaultPolicy, examplesPolicy, formatInferrer, titleGenerator, descriptionGenerator,
-        multipleOfPolicy, GenericSchemaAddOns.chained(genericSchemaAddOnsArray),
-        unmodifiableEnumSet(numberRangeFeatures));
+        multipleOfPolicy, GenericSchemaAddOns.chained(genericSchemaAddOnsArray));
   }
 
 }

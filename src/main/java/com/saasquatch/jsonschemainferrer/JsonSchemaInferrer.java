@@ -48,15 +48,13 @@ public final class JsonSchemaInferrer {
   private final DescriptionGenerator descriptionGenerator;
   private final MultipleOfPolicy multipleOfPolicy;
   private final GenericSchemaAddOn genericSchemaAddOn;
-  private final Set<NumberRangeFeature> numberRangeFeatures;
 
   JsonSchemaInferrer(@Nonnull SpecVersion specVersion,
       @Nonnull IntegerTypePreference integerTypePreference,
       @Nonnull IntegerTypeCriterion integerTypeCriterion, @Nonnull DefaultPolicy defaultPolicy,
       @Nonnull ExamplesPolicy examplesPolicy, @Nonnull FormatInferrer formatInferrer,
       @Nonnull TitleGenerator titleGenerator, @Nonnull DescriptionGenerator descriptionGenerator,
-      @Nonnull MultipleOfPolicy multipleOfPolicy, @Nonnull GenericSchemaAddOn genericSchemaAddOn,
-      @Nonnull Set<NumberRangeFeature> numberRangeFeatures) {
+      @Nonnull MultipleOfPolicy multipleOfPolicy, @Nonnull GenericSchemaAddOn genericSchemaAddOn) {
     this.specVersion = specVersion;
     this.integerTypePreference = integerTypePreference;
     this.integerTypeCriterion = integerTypeCriterion;
@@ -67,7 +65,6 @@ public final class JsonSchemaInferrer {
     this.descriptionGenerator = descriptionGenerator;
     this.multipleOfPolicy = multipleOfPolicy;
     this.genericSchemaAddOn = genericSchemaAddOn;
-    this.numberRangeFeatures = numberRangeFeatures;
   }
 
   /**
@@ -247,7 +244,6 @@ public final class JsonSchemaInferrer {
       processExamples(anyOf, primitivesSummary, type, format);
       if (Consts.Types.NUMBER_TYPES.contains(type)) {
         processMultipleOf(anyOf, primitivesSummary, type);
-        processNumberRangeFeatures(anyOf, primitivesSummary);
       }
       processGenericSchemaAddOn(anyOf, primitivesSummary.getSamples(), type);
     }
@@ -505,13 +501,6 @@ public final class JsonSchemaInferrer {
     });
     if (addOn != null) {
       schema.setAll(addOn);
-    }
-  }
-
-  private void processNumberRangeFeatures(@Nonnull ObjectNode schema,
-      @Nonnull PrimitivesSummary primitivesSummary) {
-    for (NumberRangeFeature numberRangeFeature : numberRangeFeatures) {
-      numberRangeFeature.process(schema, primitivesSummary);
     }
   }
 

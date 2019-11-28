@@ -1,7 +1,7 @@
 package com.saasquatch.jsonschemainferrer;
 
+import static com.saasquatch.jsonschemainferrer.JunkDrawer.newObject;
 import java.util.Comparator;
-import javax.annotation.Nonnull;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
@@ -10,16 +10,20 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  *
  * @author sli
  */
-public enum NumberRangeFeature {
+public enum NumberRangeFeature implements GenericSchemaAddOn {
 
   /**
    * {@code minimum}
    */
   MINIMUM {
     @Override
-    void process(ObjectNode schema, PrimitivesSummary primitivesSummary) {
-      primitivesSummary.getSamples().stream().filter(JsonNode::isNumber).min(NUM_VALUE_COMPARATOR)
-          .ifPresent(minNode -> schema.set(Consts.Fields.MINIMUM, minNode));
+    public ObjectNode getAddOn(GenericSchemaAddOnInput input) {
+      return input.getSamples().stream().filter(JsonNode::isNumber).min(NUM_VALUE_COMPARATOR)
+          .map(minNode -> {
+            final ObjectNode result = newObject();
+            result.set(Consts.Fields.MINIMUM, minNode);
+            return result;
+          }).orElse(null);
     }
   },
   /**
@@ -27,15 +31,17 @@ public enum NumberRangeFeature {
    */
   MAXIMUM {
     @Override
-    void process(ObjectNode schema, PrimitivesSummary primitivesSummary) {
-      primitivesSummary.getSamples().stream().filter(JsonNode::isNumber).max(NUM_VALUE_COMPARATOR)
-          .ifPresent(maxNode -> schema.set(Consts.Fields.MAXIMUM, maxNode));
+    public ObjectNode getAddOn(GenericSchemaAddOnInput input) {
+      return input.getSamples().stream().filter(JsonNode::isNumber).max(NUM_VALUE_COMPARATOR)
+          .map(maxNode -> {
+            final ObjectNode result = newObject();
+            result.set(Consts.Fields.MAXIMUM, maxNode);
+            return result;
+          }).orElse(null);
     }
   },;
 
   private static final Comparator<JsonNode> NUM_VALUE_COMPARATOR =
       Comparator.comparing(JsonNode::decimalValue);
-
-  abstract void process(@Nonnull ObjectNode schema, @Nonnull PrimitivesSummary primitivesSummary);
 
 }
