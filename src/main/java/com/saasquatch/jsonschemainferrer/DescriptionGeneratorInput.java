@@ -2,12 +2,14 @@ package com.saasquatch.jsonschemainferrer;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import com.saasquatch.jsonschemainferrer.annotations.NoExternalImpl;
 
 /**
  * Input for {@link DescriptionGenerator}
  *
  * @author sli
  */
+@NoExternalImpl
 public interface DescriptionGeneratorInput {
 
   /**
