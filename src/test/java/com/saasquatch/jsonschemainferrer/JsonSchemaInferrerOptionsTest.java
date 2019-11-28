@@ -12,7 +12,6 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.Instant;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
@@ -257,8 +256,8 @@ public class JsonSchemaInferrerOptionsTest {
   public void testTitleAndDescriptionGenerator() {
     final JsonNode sample = jnf.objectNode().put("fieldName", "value");
     {
-      final JsonSchemaInferrer inferrer =
-          JsonSchemaInferrer.newBuilder().setTitleDescriptionGenerator(TitleDescriptionGenerators.noOp()).build();
+      final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
+          .setTitleDescriptionGenerator(TitleDescriptionGenerators.noOp()).build();
       assertNull(inferrer.inferForSample(sample).path("properties").path("fieldName").get("title"));
       assertNull(
           inferrer.inferForSample(sample).path("properties").path("fieldName").get("description"));
@@ -270,8 +269,8 @@ public class JsonSchemaInferrerOptionsTest {
           .get("title").textValue());
     }
     {
-      final JsonSchemaInferrer inferrer =
-          JsonSchemaInferrer.newBuilder().setTitleDescriptionGenerator(new TitleDescriptionGenerator() {
+      final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
+          .setTitleDescriptionGenerator(new TitleDescriptionGenerator() {
 
             @Override
             public String generateTitle(TitleDescriptionGeneratorInput input) {
@@ -299,8 +298,8 @@ public class JsonSchemaInferrerOptionsTest {
           .get("title").textValue());
     }
     {
-      final JsonSchemaInferrer inferrer =
-          JsonSchemaInferrer.newBuilder().setTitleDescriptionGenerator(new TitleDescriptionGenerator() {
+      final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
+          .setTitleDescriptionGenerator(new TitleDescriptionGenerator() {
 
             @Override
             public String generateTitle(TitleDescriptionGeneratorInput input) {
@@ -379,29 +378,8 @@ public class JsonSchemaInferrerOptionsTest {
     }
     {
       final JsonNode examples =
-          ExamplesPolicies.useFirstSamples(1).getExamples(new GenericSchemaFeatureInput() {
-
-            @Override
-            public String getType() {
-              return "string";
-            }
-
-            @Override
-            public SpecVersion getSpecVersion() {
-              return SpecVersion.DRAFT_07;
-            }
-
-            @Override
-            public Collection<JsonNode> getSamples() {
-              return Collections.emptyList();
-            }
-
-            @Override
-            public ObjectNode getSchema() {
-              return jnf.objectNode();
-            }
-
-          });
+          ExamplesPolicies.useFirstSamples(1).getExamples(GenericSchemaFeatures
+              .inputOf(jnf.objectNode(), Collections.emptyList(), "string", SpecVersion.DRAFT_07));
       assertNull(examples);
     }
     {

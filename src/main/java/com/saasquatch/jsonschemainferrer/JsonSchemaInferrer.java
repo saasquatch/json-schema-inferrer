@@ -313,53 +313,18 @@ public final class JsonSchemaInferrer {
   }
 
   private boolean isInteger(@Nonnull JsonNode sample) {
-    return integerTypeCriterion.isInteger(new IntegerTypeCriterionInput() {
-
-      @Override
-      public JsonNode getSample() {
-        return sample;
-      }
-
-      @Override
-      public SpecVersion getSpecVersion() {
-        return specVersion;
-      }
-
-    });
+    return integerTypeCriterion.isInteger(IntegerTypeCriteria.inputOf(sample, specVersion));
   }
 
   @Nullable
   private String inferFormat(@Nonnull JsonNode sample) {
-    return formatInferrer.inferFormat(new FormatInferrerInput() {
-
-      @Override
-      public JsonNode getSample() {
-        return sample;
-      }
-
-      @Override
-      public SpecVersion getSpecVersion() {
-        return specVersion;
-      }
-
-    });
+    return formatInferrer.inferFormat(FormatInferrers.inputOf(sample, specVersion));
   }
 
   private void handleTitleDescriptionGeneration(@Nonnull ObjectNode schema,
       @Nullable String fieldName) {
-    final TitleDescriptionGeneratorInput input = new TitleDescriptionGeneratorInput() {
-
-      @Override
-      public String getFieldName() {
-        return fieldName;
-      }
-
-      @Override
-      public SpecVersion getSpecVersion() {
-        return specVersion;
-      }
-
-    };
+    final TitleDescriptionGeneratorInput input =
+        TitleDescriptionGenerators.inputOf(schema, fieldName, specVersion);
     final String title = titleDescriptionGenerator.generateTitle(input);
     if (title != null) {
       schema.put(Consts.Fields.TITLE, title);
@@ -372,30 +337,8 @@ public final class JsonSchemaInferrer {
 
   private void processGenericSchemaFeature(@Nonnull ObjectNode schema,
       @Nonnull Collection<? extends JsonNode> samples, @Nullable String type) {
-    final ObjectNode featureResult =
-        genericSchemaFeature.getFeatureResult(new GenericSchemaFeatureInput() {
-
-          @Override
-          public ObjectNode getSchema() {
-            return schema;
-          }
-
-          @Override
-          public Collection<? extends JsonNode> getSamples() {
-            return Collections.unmodifiableCollection(samples);
-          }
-
-          @Override
-          public String getType() {
-            return type;
-          }
-
-          @Override
-          public SpecVersion getSpecVersion() {
-            return specVersion;
-          }
-
-        });
+    final ObjectNode featureResult = genericSchemaFeature
+        .getFeatureResult(GenericSchemaFeatures.inputOf(schema, samples, type, specVersion));
     if (featureResult != null) {
       schema.setAll(featureResult);
     }

@@ -14,19 +14,8 @@ public class IntegerTypeCriterionTest {
   @Test
   public void testNonFloatingPoint() {
     final Predicate<JsonNode> cr = j -> {
-      return IntegerTypeCriteria.nonFloatingPoint().isInteger(new IntegerTypeCriterionInput() {
-
-        @Override
-        public JsonNode getSample() {
-          return j;
-        }
-
-        @Override
-        public SpecVersion getSpecVersion() {
-          return SpecVersion.DRAFT_06;
-        }
-
-      });
+      return IntegerTypeCriteria.nonFloatingPoint()
+          .isInteger(IntegerTypeCriteria.inputOf(j, SpecVersion.DRAFT_06));
     };
     assertFalse(cr.test(jnf.textNode("")));
     assertTrue(cr.test(jnf.numberNode(1)));
@@ -48,19 +37,8 @@ public class IntegerTypeCriterionTest {
   @Test
   public void testMathematicalInteger() {
     final Predicate<JsonNode> cr = j -> {
-      return IntegerTypeCriteria.mathematicalInteger().isInteger(new IntegerTypeCriterionInput() {
-
-        @Override
-        public JsonNode getSample() {
-          return j;
-        }
-
-        @Override
-        public SpecVersion getSpecVersion() {
-          return SpecVersion.DRAFT_06;
-        }
-
-      });
+      return IntegerTypeCriteria.mathematicalInteger()
+          .isInteger(IntegerTypeCriteria.inputOf(j, SpecVersion.DRAFT_06));
     };
     assertFalse(cr.test(jnf.textNode("")));
     assertTrue(cr.test(jnf.numberNode(1)));

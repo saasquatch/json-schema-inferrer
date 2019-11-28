@@ -1,8 +1,12 @@
 package com.saasquatch.jsonschemainferrer;
 
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.newObject;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Objects;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
@@ -52,6 +56,34 @@ public final class GenericSchemaFeatures {
         }
       }
       return result.isEmpty() ? null : result;
+    };
+  }
+
+  static GenericSchemaFeatureInput inputOf(@Nonnull ObjectNode schema,
+      @Nonnull Collection<? extends JsonNode> samples, @Nullable String type,
+      @Nonnull SpecVersion specVersion) {
+    return new GenericSchemaFeatureInput() {
+
+      @Override
+      public ObjectNode getSchema() {
+        return schema;
+      }
+
+      @Override
+      public Collection<? extends JsonNode> getSamples() {
+        return Collections.unmodifiableCollection(samples);
+      }
+
+      @Override
+      public String getType() {
+        return type;
+      }
+
+      @Override
+      public SpecVersion getSpecVersion() {
+        return specVersion;
+      }
+
     };
   }
 

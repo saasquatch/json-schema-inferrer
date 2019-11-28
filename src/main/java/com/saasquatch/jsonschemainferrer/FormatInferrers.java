@@ -2,6 +2,7 @@ package com.saasquatch.jsonschemainferrer;
 
 import java.util.Objects;
 import javax.annotation.Nonnull;
+import com.fasterxml.jackson.databind.JsonNode;
 
 /**
  * Utilities for {@link FormatInferrer}s
@@ -73,6 +74,22 @@ public final class FormatInferrers {
         }
       }
       return null;
+    };
+  }
+
+  static FormatInferrerInput inputOf(@Nonnull JsonNode sample, @Nonnull SpecVersion specVersion) {
+    return new FormatInferrerInput() {
+
+      @Override
+      public JsonNode getSample() {
+        return sample;
+      }
+
+      @Override
+      public SpecVersion getSpecVersion() {
+        return specVersion;
+      }
+
     };
   }
 
