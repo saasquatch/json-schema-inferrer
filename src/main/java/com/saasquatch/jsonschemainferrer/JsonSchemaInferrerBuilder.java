@@ -1,9 +1,9 @@
 package com.saasquatch.jsonschemainferrer;
 
+import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Objects;
-import java.util.function.Function;
-import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.NotThreadSafe;
 
@@ -197,14 +197,30 @@ public final class JsonSchemaInferrerBuilder {
   }
 
   private GenericSchemaFeature getCombinedGenericSchemaFeature() {
-    final GenericSchemaFeature[] genericSchemaFeaturesArray = Stream
-        .of(Stream.of(additionalPropertiesPolicy), Stream.of(requiredPolicy),
-            Stream.of(defaultPolicy), Stream.of(examplesPolicy), objectSizeFeatures.stream(),
-            arrayLengthFeatures.stream(), stringLengthFeatures.stream(),
-            numberRangeFeatures.stream(), Stream.of(multipleOfPolicy),
-            Stream.of(genericSchemaFeature))
-        .flatMap(Function.identity()).toArray(GenericSchemaFeature[]::new);
-    return GenericSchemaFeatures.chained(genericSchemaFeaturesArray);
+    final List<GenericSchemaFeature> features = new ArrayList<>();
+    if (additionalPropertiesPolicy != AdditionalPropertiesPolicies.noOp()) {
+      features.add(additionalPropertiesPolicy);
+    }
+    if (requiredPolicy != RequiredPolicies.noOp()) {
+      features.add(requiredPolicy);
+    }
+    if (defaultPolicy != DefaultPolicies.noOp()) {
+      features.add(defaultPolicy);
+    }
+    if (examplesPolicy != ExamplesPolicies.noOp()) {
+      features.add(examplesPolicy);
+    }
+    features.addAll(objectSizeFeatures);
+    features.addAll(arrayLengthFeatures);
+    features.addAll(stringLengthFeatures);
+    features.addAll(numberRangeFeatures);
+    if (multipleOfPolicy != MultipleOfPolicies.noOp()) {
+      features.add(multipleOfPolicy);
+    }
+    if (genericSchemaFeature != GenericSchemaFeatures.noOp()) {
+      features.add(genericSchemaFeature);
+    }
+    return GenericSchemaFeatures.chained(features.toArray(new GenericSchemaFeature[0]));
   }
 
   /**
