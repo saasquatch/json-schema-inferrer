@@ -15,9 +15,9 @@ public class Example {
   private static final ObjectMapper mapper = new ObjectMapper();
   private static final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
       .setSpecVersion(SpecVersion.DRAFT_06)
-      .setFormatInferrer(FormatInferrers.chained(
+      .addFormatInferrers(
           // Requires commons-validator
-          FormatInferrers.email(), FormatInferrers.ip()))
+          FormatInferrers.email(), FormatInferrers.ip())
       .setAdditionalPropertiesPolicy(AdditionalPropertiesPolicies.notAllowed())
       .setRequiredPolicy(RequiredPolicies.nonNullCommonFields())
       .build();

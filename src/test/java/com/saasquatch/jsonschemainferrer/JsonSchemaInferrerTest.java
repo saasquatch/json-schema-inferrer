@@ -66,7 +66,7 @@ public class JsonSchemaInferrerTest {
     }
     {
       final ObjectNode schema = JsonSchemaInferrer.newBuilder()
-          .setFormatInferrer(FormatInferrers.dateTime()).build().inferForSample(simple);
+          .addFormatInferrers(FormatInferrers.dateTime()).build().inferForSample(simple);
       assertTrue(schema.hasNonNull("properties"));
       assertTrue(schema.path("properties").isObject());
       assertEquals("integer", schema.path("properties").path("id").path("type").textValue());

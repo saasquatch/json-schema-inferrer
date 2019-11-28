@@ -32,8 +32,8 @@ public class Example2 {
       .setAdditionalPropertiesPolicy(AdditionalPropertiesPolicies.existingTypes())
       .setRequiredPolicy(RequiredPolicies.nonNullCommonFields())
       .setTitleDescriptionGenerator(TitleDescriptionGenerators.useFieldNamesAsTitles())
-      .setFormatInferrer(FormatInferrers.chained(FormatInferrers.email(),
-          FormatInferrers.dateTime(), FormatInferrers.ip(), Example2::absoluteUriFormatInferrer))
+      .addFormatInferrers(FormatInferrers.email(), FormatInferrers.dateTime(), FormatInferrers.ip(),
+          Example2::absoluteUriFormatInferrer)
       .setMultipleOfPolicy(MultipleOfPolicies.gcd())
       .setArrayLengthFeatures(EnumSet.allOf(ArrayLengthFeature.class))
       .setObjectSizeFeatures(EnumSet.allOf(ObjectSizeFeature.class))

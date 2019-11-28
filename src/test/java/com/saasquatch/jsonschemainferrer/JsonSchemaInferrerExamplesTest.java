@@ -242,8 +242,8 @@ public class JsonSchemaInferrerExamplesTest {
              * Skip tests for inferring format with draft-07 due to a disagreement between Java time
              * and the schema library on what a valid time string is.
              */
-            builder.setFormatInferrer(FormatInferrers.chained(FormatInferrers.dateTime(),
-                FormatInferrers.email(), FormatInferrers.ip()));
+            builder.addFormatInferrers(FormatInferrers.dateTime(), FormatInferrers.email(),
+                FormatInferrers.ip());
           }
           builder.setArrayLengthFeatures(EnumSet.allOf(ArrayLengthFeature.class))
               .setObjectSizeFeatures(EnumSet.allOf(ObjectSizeFeature.class))

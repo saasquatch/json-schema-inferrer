@@ -75,33 +75,33 @@ public class JsonSchemaInferrerOptionsTest {
     assertThrows(NullPointerException.class,
         () -> FormatInferrers.chained(FormatInferrers.dateTime(), null));
     assertSame(FormatInferrers.dateTime(), FormatInferrers.chained(FormatInferrers.dateTime()));
-    assertNull(JsonSchemaInferrer.newBuilder().setFormatInferrer(FormatInferrers.dateTime())
+    assertNull(JsonSchemaInferrer.newBuilder().addFormatInferrers(FormatInferrers.dateTime())
         .setSpecVersion(SpecVersion.DRAFT_07).build().inferForSample(jnf.textNode("aaaaaaaaa"))
         .path("format").textValue());
     assertEquals("date-time",
-        JsonSchemaInferrer.newBuilder().setFormatInferrer(FormatInferrers.dateTime()).build()
+        JsonSchemaInferrer.newBuilder().addFormatInferrers(FormatInferrers.dateTime()).build()
             .inferForSample(jnf.textNode(Instant.now().toString())).path("format").textValue());
-    assertNull(JsonSchemaInferrer.newBuilder().setFormatInferrer(FormatInferrers.dateTime())
+    assertNull(JsonSchemaInferrer.newBuilder().addFormatInferrers(FormatInferrers.dateTime())
         .setSpecVersion(SpecVersion.DRAFT_06).build().inferForSample(jnf.textNode("1900-01-01"))
         .path("format").textValue());
     assertEquals("date",
-        JsonSchemaInferrer.newBuilder().setFormatInferrer(FormatInferrers.dateTime())
+        JsonSchemaInferrer.newBuilder().addFormatInferrers(FormatInferrers.dateTime())
             .setSpecVersion(SpecVersion.DRAFT_07).build().inferForSample(jnf.textNode("1900-01-01"))
             .path("format").textValue());
-    assertNull(JsonSchemaInferrer.newBuilder().setFormatInferrer(FormatInferrers.dateTime())
+    assertNull(JsonSchemaInferrer.newBuilder().addFormatInferrers(FormatInferrers.dateTime())
         .setSpecVersion(SpecVersion.DRAFT_06).build().inferForSample(jnf.textNode("20:20:39"))
         .path("format").textValue());
     assertEquals("time",
-        JsonSchemaInferrer.newBuilder().setFormatInferrer(FormatInferrers.dateTime())
+        JsonSchemaInferrer.newBuilder().addFormatInferrers(FormatInferrers.dateTime())
             .setSpecVersion(SpecVersion.DRAFT_07).build().inferForSample(jnf.textNode("20:20:39"))
             .path("format").textValue());
     assertEquals("time",
-        JsonSchemaInferrer.newBuilder().setFormatInferrer(FormatInferrers.dateTime())
+        JsonSchemaInferrer.newBuilder().addFormatInferrers(FormatInferrers.dateTime())
             .setSpecVersion(SpecVersion.DRAFT_07).build()
             .inferForSample(jnf.textNode("20:20:39+00:00")).path("format").textValue());
     {
       final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
-          .setFormatInferrer(
+          .addFormatInferrers(
               FormatInferrers.chained(FormatInferrers.dateTime(), testStrLenFormatInferrer))
           .build();
       assertEquals("date-time", inferrer.inferForSample(jnf.textNode(Instant.now().toString()))
@@ -110,7 +110,7 @@ public class JsonSchemaInferrerOptionsTest {
     }
     {
       final JsonSchemaInferrer inferrer =
-          JsonSchemaInferrer.newBuilder().setFormatInferrer(FormatInferrers.ip()).build();
+          JsonSchemaInferrer.newBuilder().addFormatInferrers(FormatInferrers.ip()).build();
       assertEquals("ipv4",
           inferrer.inferForSample(jnf.textNode("12.34.56.78")).path("format").textValue());
       assertEquals("ipv6",
@@ -123,15 +123,16 @@ public class JsonSchemaInferrerOptionsTest {
     }
     {
       final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
-          .setFormatInferrer(FormatInferrers.chained(FormatInferrers.noOp(), FormatInferrers.noOp(),
-              FormatInferrers.noOp(), FormatInferrers.ip(), FormatInferrers.email()))
+          .addFormatInferrers(
+              FormatInferrers.chained(FormatInferrers.noOp(), FormatInferrers.noOp(),
+                  FormatInferrers.noOp(), FormatInferrers.ip(), FormatInferrers.email()))
           .build();
       assertNull(inferrer.inferForSample(jnf.textNode(Instant.now().toString())).get("format"));
     }
     {
       final String dateTimeString = Instant.now().toString();
       final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
-          .setFormatInferrer(
+          .addFormatInferrers(
               FormatInferrers.chained(testStrLenFormatInferrer, FormatInferrers.dateTime()))
           .build();
       assertEquals("" + dateTimeString.length(),
@@ -549,7 +550,7 @@ public class JsonSchemaInferrerOptionsTest {
     final List<JsonNode> samples = ImmutableList.of(jnf.textNode(dateTimeString));
     final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
         .setStringLengthFeatures(EnumSet.allOf(StringLengthFeature.class))
-        .setFormatInferrer(FormatInferrers.dateTime()).build();
+        .addFormatInferrers(FormatInferrers.dateTime()).build();
     final ObjectNode schema = inferrer.inferForSamples(samples);
     assertEquals(dateTimeString.length(), schema.path("minLength").intValue());
     assertEquals(dateTimeString.length(), schema.path("maxLength").intValue());
@@ -589,6 +590,10 @@ public class JsonSchemaInferrerOptionsTest {
         return result;
       }
     };
+    assertSame(GenericSchemaFeatures.noOp(), GenericSchemaFeatures.chained());
+    assertThrows(NullPointerException.class,
+        () -> GenericSchemaFeatures.chained(GenericSchemaFeatures.noOp(), null));
+    assertSame(fakeFeature, GenericSchemaFeatures.chained(fakeFeature));
     final JsonSchemaInferrer inferrer =
         JsonSchemaInferrer.newBuilder().addAdditionalSchemaFeatures(fakeFeature).build();
     final ObjectNode schema = inferrer.inferForSample(null);

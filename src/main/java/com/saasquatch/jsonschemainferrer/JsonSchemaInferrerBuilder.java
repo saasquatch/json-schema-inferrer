@@ -22,7 +22,7 @@ public final class JsonSchemaInferrerBuilder {
   private SpecVersion specVersion = SpecVersion.DRAFT_04;
   private IntegerTypePreference integerTypePreference = IntegerTypePreference.IF_ALL;
   private IntegerTypeCriterion integerTypeCriterion = IntegerTypeCriteria.nonFloatingPoint();
-  private FormatInferrer formatInferrer = FormatInferrers.noOp();
+  private final Collection<FormatInferrer> formatInferrers = new ArrayList<>();
   private TitleDescriptionGenerator titleDescriptionGenerator = TitleDescriptionGenerators.noOp();
   private AdditionalPropertiesPolicy additionalPropertiesPolicy =
       AdditionalPropertiesPolicies.noOp();
@@ -66,7 +66,7 @@ public final class JsonSchemaInferrerBuilder {
   }
 
   /**
-   * Set the {@link FormatInferrer} for inferring the <a href=
+   * Add a {@link FormatInferrer} for inferring the <a href=
    * "https://json-schema.org/understanding-json-schema/reference/string.html#format">format</a> of
    * strings. By default it uses {@link FormatInferrers#noOp()}. An example of a possible custom
    * implementation is available at {@link FormatInferrers#dateTime()}, which you can potentially
@@ -78,8 +78,10 @@ public final class JsonSchemaInferrerBuilder {
    * @see FormatInferrer
    * @see FormatInferrers
    */
-  public JsonSchemaInferrerBuilder setFormatInferrer(@Nonnull FormatInferrer formatInferrer) {
-    this.formatInferrer = Objects.requireNonNull(formatInferrer);
+  public JsonSchemaInferrerBuilder addFormatInferrers(@Nonnull FormatInferrer... formatInferrers) {
+    for (FormatInferrer formatInferrer : formatInferrers) {
+      this.formatInferrers.add(Objects.requireNonNull(formatInferrer));
+    }
     return this;
   }
 
@@ -229,6 +231,8 @@ public final class JsonSchemaInferrerBuilder {
    * @throws IllegalArgumentException if the spec version and features don't match up
    */
   public JsonSchemaInferrer build() {
+    final FormatInferrer formatInferrer =
+        FormatInferrers.chained(formatInferrers.toArray(new FormatInferrer[0]));
     return new JsonSchemaInferrer(specVersion, integerTypePreference, integerTypeCriterion,
         formatInferrer, titleDescriptionGenerator, getCombinedGenericSchemaFeature());
   }
