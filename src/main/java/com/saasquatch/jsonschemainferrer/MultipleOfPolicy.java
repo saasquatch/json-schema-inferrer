@@ -19,10 +19,10 @@ public interface MultipleOfPolicy extends GenericSchemaFeature {
    * @return the appropriate {@code multipleOf} {@link JsonNode} for the given input
    */
   @Nullable
-  JsonNode getMultipleOf(@Nonnull GenericSchemaAddOnInput input);
+  JsonNode getMultipleOf(@Nonnull GenericSchemaFeatureInput input);
 
   @Override
-  default ObjectNode getResult(GenericSchemaAddOnInput input) {
+  default ObjectNode getFeatureResult(GenericSchemaFeatureInput input) {
     final JsonNode multipleOf = getMultipleOf(input);
     if (multipleOf == null) {
       return null;

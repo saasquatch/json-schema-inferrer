@@ -17,7 +17,7 @@ public enum ObjectSizeFeature implements GenericSchemaFeature {
    */
   MIN_PROPERTIES {
     @Override
-    public ObjectNode getResult(GenericSchemaAddOnInput input) {
+    public ObjectNode getFeatureResult(GenericSchemaFeatureInput input) {
       final OptionalInt optMinProps =
           input.getSamples().stream().filter(JsonNode::isObject).mapToInt(JsonNode::size).min();
       if (!optMinProps.isPresent()) {
@@ -33,7 +33,7 @@ public enum ObjectSizeFeature implements GenericSchemaFeature {
    */
   MAX_PROPERTIES {
     @Override
-    public ObjectNode getResult(GenericSchemaAddOnInput input) {
+    public ObjectNode getFeatureResult(GenericSchemaFeatureInput input) {
       final OptionalInt optMaxProps =
           input.getSamples().stream().filter(JsonNode::isObject).mapToInt(JsonNode::size).max();
       if (!optMaxProps.isPresent()) {

@@ -351,7 +351,7 @@ public class JsonSchemaInferrerOptionsTest {
     }
     {
       final JsonNode examples =
-          ExamplesPolicies.useFirstSamples(1).getExamples(new ExamplesPolicyInput() {
+          ExamplesPolicies.useFirstSamples(1).getExamples(new GenericSchemaFeatureInput() {
 
             @Override
             public String getType() {
@@ -366,6 +366,11 @@ public class JsonSchemaInferrerOptionsTest {
             @Override
             public Collection<JsonNode> getSamples() {
               return Collections.emptyList();
+            }
+
+            @Override
+            public ObjectNode getSchema() {
+              return jnf.objectNode();
             }
 
           });

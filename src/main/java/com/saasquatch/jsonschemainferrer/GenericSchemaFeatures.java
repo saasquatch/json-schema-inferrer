@@ -75,7 +75,7 @@ public final class GenericSchemaFeatures {
     return input -> {
       final ObjectNode result = newObject();
       for (GenericSchemaFeature addOn : addOns) {
-        final ObjectNode addOnObj = addOn.getResult(input);
+        final ObjectNode addOnObj = addOn.getFeatureResult(input);
         if (addOnObj != null) {
           result.setAll(addOnObj);
         }

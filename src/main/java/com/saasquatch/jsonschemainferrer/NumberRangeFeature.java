@@ -17,7 +17,7 @@ public enum NumberRangeFeature implements GenericSchemaFeature {
    */
   MINIMUM {
     @Override
-    public ObjectNode getResult(GenericSchemaAddOnInput input) {
+    public ObjectNode getFeatureResult(GenericSchemaFeatureInput input) {
       return input.getSamples().stream().filter(JsonNode::isNumber).min(NUM_VALUE_COMPARATOR)
           .map(minNode -> {
             final ObjectNode result = newObject();
@@ -31,7 +31,7 @@ public enum NumberRangeFeature implements GenericSchemaFeature {
    */
   MAXIMUM {
     @Override
-    public ObjectNode getResult(GenericSchemaAddOnInput input) {
+    public ObjectNode getFeatureResult(GenericSchemaFeatureInput input) {
       return input.getSamples().stream().filter(JsonNode::isNumber).max(NUM_VALUE_COMPARATOR)
           .map(maxNode -> {
             final ObjectNode result = newObject();

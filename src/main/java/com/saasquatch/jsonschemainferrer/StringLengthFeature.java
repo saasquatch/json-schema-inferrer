@@ -17,7 +17,7 @@ public enum StringLengthFeature implements GenericSchemaFeature {
    */
   MIN_LENGTH {
     @Override
-    public ObjectNode getResult(GenericSchemaAddOnInput input) {
+    public ObjectNode getFeatureResult(GenericSchemaFeatureInput input) {
       final OptionalInt optMinLength = input.getSamples().stream()
           .mapToInt(j -> getSerializedTextLength(j)).filter(len -> len >= 0).min();
       if (!optMinLength.isPresent()) {
@@ -33,7 +33,7 @@ public enum StringLengthFeature implements GenericSchemaFeature {
    */
   MAX_LENGTH {
     @Override
-    public ObjectNode getResult(GenericSchemaAddOnInput input) {
+    public ObjectNode getFeatureResult(GenericSchemaFeatureInput input) {
       final OptionalInt optMaxLength = input.getSamples().stream()
           .mapToInt(j -> getSerializedTextLength(j)).filter(len -> len >= 0).max();
       if (!optMaxLength.isPresent()) {

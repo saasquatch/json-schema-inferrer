@@ -17,7 +17,7 @@ public enum ArrayLengthFeature implements GenericSchemaFeature {
    */
   MIN_ITEMS {
     @Override
-    public ObjectNode getResult(GenericSchemaAddOnInput input) {
+    public ObjectNode getFeatureResult(GenericSchemaFeatureInput input) {
       final OptionalInt optMinItems =
           input.getSamples().stream().filter(JsonNode::isArray).mapToInt(JsonNode::size).min();
       if (!optMinItems.isPresent()) {
@@ -33,7 +33,7 @@ public enum ArrayLengthFeature implements GenericSchemaFeature {
    */
   MAX_ITEMS {
     @Override
-    public ObjectNode getResult(GenericSchemaAddOnInput input) {
+    public ObjectNode getFeatureResult(GenericSchemaFeatureInput input) {
       final OptionalInt optMaxItems =
           input.getSamples().stream().filter(JsonNode::isArray).mapToInt(JsonNode::size).max();
       if (!optMaxItems.isPresent()) {

@@ -13,7 +13,7 @@ import com.saasquatch.jsonschemainferrer.annotations.NoExternalImpl;
  * @author sli
  */
 @NoExternalImpl
-public interface GenericSchemaAddOnInput {
+public interface GenericSchemaFeatureInput {
 
   /**
    * @return The current schema. Note that {@link GenericSchemaFeature}s are not supposed to mutate

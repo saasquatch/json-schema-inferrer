@@ -21,10 +21,10 @@ public interface AdditionalPropertiesPolicy extends GenericSchemaFeature {
    * method should not modify the original input.
    */
   @Nullable
-  JsonNode getAdditionalProperties(@Nonnull GenericSchemaAddOnInput input);
+  JsonNode getAdditionalProperties(@Nonnull GenericSchemaFeatureInput input);
 
   @Override
-  default ObjectNode getResult(@Nonnull GenericSchemaAddOnInput input) {
+  default ObjectNode getFeatureResult(@Nonnull GenericSchemaFeatureInput input) {
     if (!Consts.Types.OBJECT.equals(input.getType())) {
       return null;
     }

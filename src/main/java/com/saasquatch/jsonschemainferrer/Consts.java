@@ -51,6 +51,7 @@ interface Consts {
     String NUMBER = "number";
     String NULL = "null";
     Set<String> NUMBER_TYPES = unmodifiableSetOf(NUMBER, INTEGER);
+    Set<String> CONTAINER_TYPES = unmodifiableSetOf(OBJECT, ARRAY);
   }
 
 }

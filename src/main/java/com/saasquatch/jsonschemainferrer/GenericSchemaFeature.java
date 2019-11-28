@@ -16,6 +16,6 @@ public interface GenericSchemaFeature {
    * Get the add-on result to be merged in with the schema
    */
   @Nullable
-  ObjectNode getResult(@Nonnull GenericSchemaAddOnInput input);
+  ObjectNode getFeatureResult(@Nonnull GenericSchemaFeatureInput input);
 
 }

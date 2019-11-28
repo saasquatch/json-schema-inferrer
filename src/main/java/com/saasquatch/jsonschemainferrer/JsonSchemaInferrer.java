@@ -42,7 +42,6 @@ public final class JsonSchemaInferrer {
   private final IntegerTypePreference integerTypePreference;
   private final IntegerTypeCriterion integerTypeCriterion;
   private final DefaultPolicy defaultPolicy;
-  private final ExamplesPolicy examplesPolicy;
   private final FormatInferrer formatInferrer;
   private final TitleGenerator titleGenerator;
   private final DescriptionGenerator descriptionGenerator;
@@ -51,14 +50,13 @@ public final class JsonSchemaInferrer {
   JsonSchemaInferrer(@Nonnull SpecVersion specVersion,
       @Nonnull IntegerTypePreference integerTypePreference,
       @Nonnull IntegerTypeCriterion integerTypeCriterion, @Nonnull DefaultPolicy defaultPolicy,
-      @Nonnull ExamplesPolicy examplesPolicy, @Nonnull FormatInferrer formatInferrer,
-      @Nonnull TitleGenerator titleGenerator, @Nonnull DescriptionGenerator descriptionGenerator,
+      @Nonnull FormatInferrer formatInferrer, @Nonnull TitleGenerator titleGenerator,
+      @Nonnull DescriptionGenerator descriptionGenerator,
       @Nonnull GenericSchemaFeature genericSchemaAddOn) {
     this.specVersion = specVersion;
     this.integerTypePreference = integerTypePreference;
     this.integerTypeCriterion = integerTypeCriterion;
     this.defaultPolicy = defaultPolicy;
-    this.examplesPolicy = examplesPolicy;
     this.formatInferrer = formatInferrer;
     this.titleGenerator = titleGenerator;
     this.descriptionGenerator = descriptionGenerator;
@@ -239,7 +237,6 @@ public final class JsonSchemaInferrer {
       final PrimitivesSummary primitivesSummary =
           primitivesSummaryMap.getPrimitivesSummary(type, format);
       processDefault(anyOf, primitivesSummary);
-      processExamples(anyOf, primitivesSummary, type, format);
       processGenericSchemaAddOn(anyOf, primitivesSummary.getSamples(), type);
     }
     return anyOfs;
@@ -424,34 +421,9 @@ public final class JsonSchemaInferrer {
     }
   }
 
-  private void processExamples(@Nonnull ObjectNode schema,
-      @Nonnull PrimitivesSummary primitivesSummary, @Nonnull String type, @Nullable String format) {
-    final JsonNode examples = examplesPolicy.getExamples(new ExamplesPolicyInput() {
-
-      @Override
-      public Collection<? extends JsonNode> getSamples() {
-        return primitivesSummary.getSamples();
-      }
-
-      @Override
-      public String getType() {
-        return type;
-      }
-
-      @Override
-      public SpecVersion getSpecVersion() {
-        return specVersion;
-      }
-
-    });
-    if (examples != null) {
-      schema.set(Consts.Fields.EXAMPLES, examples);
-    }
-  }
-
   private void processGenericSchemaAddOn(@Nonnull ObjectNode schema,
       @Nonnull Collection<? extends JsonNode> samples, @Nullable String type) {
-    final ObjectNode addOn = genericSchemaAddOn.getResult(new GenericSchemaAddOnInput() {
+    final ObjectNode addOn = genericSchemaAddOn.getFeatureResult(new GenericSchemaFeatureInput() {
 
       @Override
       public ObjectNode getSchema() {
