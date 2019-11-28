@@ -28,12 +28,10 @@ public final class MultipleOfPolicies {
   public static MultipleOfPolicy gcd() {
     return input -> {
       // Only proceed if all numbers are integers
-      if (!Consts.Types.INTEGER.equals(input.getType())) {
-        final boolean allNumbersAreMathematicalIntegers = input.getSamples().stream()
-            .filter(JsonNode::isNumber).allMatch(j -> isMathematicalIntegerNode(j));
-        if (!allNumbersAreMathematicalIntegers) {
-          return null;
-        }
+      final boolean allNumbersAreMathematicalIntegers = input.getSamples().stream()
+          .filter(JsonNode::isNumber).allMatch(j -> isMathematicalIntegerNode(j));
+      if (!allNumbersAreMathematicalIntegers) {
+        return null;
       }
       return input.getSamples().stream()
           .filter(JsonNode::isNumber)

@@ -17,7 +17,7 @@ public interface RequiredPolicyInput {
    * @return The original samples
    */
   @Nonnull
-  Collection<JsonNode> getSamples();
+  Collection<? extends JsonNode> getSamples();
 
   @Nonnull
   SpecVersion getSpecVersion();

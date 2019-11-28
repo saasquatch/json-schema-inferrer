@@ -17,10 +17,7 @@ public interface MultipleOfPolicyInput {
    * @return The number samples
    */
   @Nonnull
-  Collection<JsonNode> getSamples();
-
-  @Nonnull
-  String getType();
+  Collection<? extends JsonNode> getSamples();
 
   @Nonnull
   SpecVersion getSpecVersion();

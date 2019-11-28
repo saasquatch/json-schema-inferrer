@@ -413,7 +413,6 @@ public class JsonSchemaInferrerOptionsTest {
       final JsonSchemaInferrer inferrer =
           JsonSchemaInferrer.newBuilder().setMultipleOfPolicy(input -> {
             assertNotNull(input.getSamples());
-            assertNotNull(input.getType());
             assertNotNull(input.getSpecVersion());
             return null;
           }).setIntegerTypePreference(IntegerTypePreference.NEVER).build();

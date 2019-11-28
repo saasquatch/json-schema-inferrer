@@ -1,5 +1,6 @@
 package com.saasquatch.jsonschemainferrer;
 
+import java.util.Collection;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -24,6 +25,8 @@ public interface DefaultPolicyInput {
    */
   @Nullable
   JsonNode getLastSample();
+
+  @Nonnull Collection<? extends JsonNode> getSamples();
 
   @Nonnull
   SpecVersion getSpecVersion();

@@ -2,7 +2,6 @@ package com.saasquatch.jsonschemainferrer;
 
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.getCommonFieldNames;
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.stringColToArrayDistinct;
-import java.util.Collection;
 import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -42,8 +41,7 @@ public final class RequiredPolicies {
 
   @Nullable
   private static JsonNode handleCommonFields(@Nonnull RequiredPolicyInput input, boolean nonNull) {
-    final Collection<JsonNode> samples = input.getSamples();
-    final Set<String> commonFieldNames = getCommonFieldNames(samples, nonNull);
+    final Set<String> commonFieldNames = getCommonFieldNames(input.getSamples(), nonNull);
     if (commonFieldNames.isEmpty()) {
       return null;
     }

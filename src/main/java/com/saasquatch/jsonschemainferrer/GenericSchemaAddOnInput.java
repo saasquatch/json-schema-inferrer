@@ -2,29 +2,33 @@ package com.saasquatch.jsonschemainferrer;
 
 import java.util.Collection;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.saasquatch.jsonschemainferrer.annotations.NoExternalImpl;
 
 /**
- * Input for {@link ExamplesPolicy}
+ * Input for {@link GenericSchemaAddOn}
  *
  * @author sli
  */
 @NoExternalImpl
-public interface ExamplesPolicyInput {
+public interface GenericSchemaAddOnInput {
 
   /**
-   * @return The samples for the current type
+   * @return The current samples
    */
   @Nonnull
   Collection<? extends JsonNode> getSamples();
 
   /**
-   * @return The {@code type} for the current inferred schema
+   * @return The current type, if available
    */
-  @Nonnull
+  @Nullable
   String getType();
 
+  /**
+   * @return The current {@link SpecVersion}
+   */
   @Nonnull
   SpecVersion getSpecVersion();
 

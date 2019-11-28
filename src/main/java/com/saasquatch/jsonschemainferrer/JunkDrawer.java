@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
@@ -73,6 +74,15 @@ final class JunkDrawer {
   @SafeVarargs
   static <E> Set<E> unmodifiableSetOf(E... elements) {
     return Collections.unmodifiableSet(new HashSet<>(Arrays.asList(elements)));
+  }
+
+  /**
+   * Create an unmodifiable {@link List} with a defensive copy.
+   */
+  static <E> List<E> unmodifiableList(@Nonnull Collection<E> col) {
+    @SuppressWarnings("unchecked")
+    final List<E> defensiveCopy = (List<E>) Arrays.asList(col.toArray());
+    return Collections.unmodifiableList(defensiveCopy);
   }
 
   /**

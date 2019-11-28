@@ -27,6 +27,7 @@ public final class JsonSchemaInferrerBuilder {
   private TitleGenerator titleGenerator = TitleGenerators.noOp();
   private DescriptionGenerator descriptionGenerator = DescriptionGenerators.noOp();
   private MultipleOfPolicy multipleOfPolicy = MultipleOfPolicies.noOp();
+  private GenericSchemaAddOn genericSchemaAddOn = GenericSchemaAddOns.noOp();
   private final EnumSet<ObjectSizeFeature> objectSizeFeatures =
       EnumSet.noneOf(ObjectSizeFeature.class);
   private final EnumSet<ArrayLengthFeature> arrayLengthFeatures =
@@ -146,6 +147,7 @@ public final class JsonSchemaInferrerBuilder {
    * Set the {@link DescriptionGenerator}. By default it is {@link DescriptionGenerators#noOp()}.
    *
    * @see DescriptionGenerator
+   * @see DescriptionGenerators
    */
   public JsonSchemaInferrerBuilder setDescriptionGenerator(
       @Nonnull DescriptionGenerator descriptionGenerator) {
@@ -157,9 +159,22 @@ public final class JsonSchemaInferrerBuilder {
    * Set the {@link MultipleOfPolicy}. By default it is {@link MultipleOfPolicies#noOp()}.
    *
    * @see MultipleOfPolicy
+   * @see MultipleOfPolicies
    */
   public JsonSchemaInferrerBuilder setMultipleOfPolicy(@Nonnull MultipleOfPolicy multipleOfPolicy) {
     this.multipleOfPolicy = Objects.requireNonNull(multipleOfPolicy);
+    return this;
+  }
+
+  /**
+   * Set the {@link GenericSchemaAddOn}. By default it is {@link GenericSchemaAddOns#noOp()}.
+   *
+   * @see GenericSchemaAddOn
+   * @see GenericSchemaAddOns
+   */
+  public JsonSchemaInferrerBuilder setGenericSchemaAddOn(
+      @Nonnull GenericSchemaAddOn genericSchemaAddOn) {
+    this.genericSchemaAddOn = Objects.requireNonNull(genericSchemaAddOn);
     return this;
   }
 
@@ -250,7 +265,7 @@ public final class JsonSchemaInferrerBuilder {
   public JsonSchemaInferrer build() {
     return new JsonSchemaInferrer(specVersion, integerTypePreference, integerTypeCriterion,
         additionalPropertiesPolicy, requiredPolicy, defaultPolicy, examplesPolicy, formatInferrer,
-        titleGenerator, descriptionGenerator, multipleOfPolicy,
+        titleGenerator, descriptionGenerator, multipleOfPolicy, genericSchemaAddOn,
         unmodifiableEnumSet(objectSizeFeatures), unmodifiableEnumSet(arrayLengthFeatures),
         unmodifiableEnumSet(stringLengthFeatures), unmodifiableEnumSet(numberRangeFeatures));
   }

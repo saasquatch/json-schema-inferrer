@@ -8,25 +8,25 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
- * Utilities for {@link ObjectSchemaAddOn}
+ * Utilities for {@link GenericSchemaAddOn}
  *
  * @author sli
  */
-public final class ObjectSchemaAddOns {
+public final class GenericSchemaAddOns {
 
-  private ObjectSchemaAddOns() {}
+  private GenericSchemaAddOns() {}
 
   /**
-   * @return A singleton {@link ObjectSchemaAddOn} that does nothing.
+   * @return A singleton {@link GenericSchemaAddOn} that does nothing.
    */
-  public static ObjectSchemaAddOn noOp() {
+  public static GenericSchemaAddOn noOp() {
     return input -> null;
   }
 
   /**
-   * @return A singleton {@link ObjectSchemaAddOn} that infers {@code minProperties}.
+   * @return A singleton {@link GenericSchemaAddOn} that infers {@code minProperties}.
    */
-  public static ObjectSchemaAddOn minProperties() {
+  public static GenericSchemaAddOn minProperties() {
     return input -> {
       final OptionalInt optMinProps = input.getSamples().stream().mapToInt(JsonNode::size).min();
       if (!optMinProps.isPresent()) {
@@ -38,9 +38,9 @@ public final class ObjectSchemaAddOns {
   }
 
   /**
-   * @return A singleton {@link ObjectSchemaAddOn} that infers {@code maxProperties}.
+   * @return A singleton {@link GenericSchemaAddOn} that infers {@code maxProperties}.
    */
-  public static ObjectSchemaAddOn maxProperties() {
+  public static GenericSchemaAddOn maxProperties() {
     return input -> {
       final OptionalInt optMaxProps = input.getSamples().stream().mapToInt(JsonNode::size).max();
       if (!optMaxProps.isPresent()) {
@@ -52,12 +52,12 @@ public final class ObjectSchemaAddOns {
   }
 
   /**
-   * @return An {@link ObjectSchemaAddOn} that uses the given {@link ObjectSchemaAddOn}s in the
+   * @return An {@link GenericSchemaAddOn} that uses the given {@link GenericSchemaAddOn}s in the
    *         given order, overwriting previous results if add-ons with the same field names exist.
    * @throws NullPointerException if the input has null elements
    */
-  public static ObjectSchemaAddOn chained(@Nonnull ObjectSchemaAddOn... addOns) {
-    for (ObjectSchemaAddOn addOn : addOns) {
+  public static GenericSchemaAddOn chained(@Nonnull GenericSchemaAddOn... addOns) {
+    for (GenericSchemaAddOn addOn : addOns) {
       Objects.requireNonNull(addOn);
     }
     switch (addOns.length) {
@@ -71,10 +71,10 @@ public final class ObjectSchemaAddOns {
     return _chained(addOns.clone());
   }
 
-  private static ObjectSchemaAddOn _chained(@Nonnull ObjectSchemaAddOn[] addOns) {
+  private static GenericSchemaAddOn _chained(@Nonnull GenericSchemaAddOn[] addOns) {
     return input -> {
       final ObjectNode result = newObject();
-      for (ObjectSchemaAddOn addOn : addOns) {
+      for (GenericSchemaAddOn addOn : addOns) {
         final ObjectNode addOnObj = addOn.getAddOn(input);
         if (addOnObj != null) {
           result.setAll(addOnObj);
