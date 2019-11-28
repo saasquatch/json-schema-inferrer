@@ -12,16 +12,16 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  * @see RequiredPolicies
  */
 @FunctionalInterface
-public interface RequiredPolicy extends GenericSchemaFeature {
+public interface RequiredPolicy extends GenericSchemaValidationFeature {
 
   /**
    * Get the appropriate {@code required} field for the input. Note that this method should not
    * modify the input.
    */
-  JsonNode getRequired(@Nonnull GenericSchemaFeatureInput input);
+  JsonNode getRequired(@Nonnull GenericSchemaValidationFeatureInput input);
 
   @Override
-  default ObjectNode getFeatureResult(GenericSchemaFeatureInput input) {
+  default ObjectNode getFeatureResult(GenericSchemaValidationFeatureInput input) {
     if (!Consts.Types.OBJECT.equals(input.getType())) {
       return null;
     }

@@ -44,20 +44,20 @@ public final class JsonSchemaInferrer {
   private final FormatInferrer formatInferrer;
   private final TitleGenerator titleGenerator;
   private final DescriptionGenerator descriptionGenerator;
-  private final GenericSchemaFeature genericSchemaAddOn;
+  private final GenericSchemaValidationFeature genericSchemaValidationFeature;
 
   JsonSchemaInferrer(@Nonnull SpecVersion specVersion,
       @Nonnull IntegerTypePreference integerTypePreference,
       @Nonnull IntegerTypeCriterion integerTypeCriterion, @Nonnull FormatInferrer formatInferrer,
       @Nonnull TitleGenerator titleGenerator, @Nonnull DescriptionGenerator descriptionGenerator,
-      @Nonnull GenericSchemaFeature genericSchemaAddOn) {
+      @Nonnull GenericSchemaValidationFeature genericSchemaValidationFeature) {
     this.specVersion = specVersion;
     this.integerTypePreference = integerTypePreference;
     this.integerTypeCriterion = integerTypeCriterion;
     this.formatInferrer = formatInferrer;
     this.titleGenerator = titleGenerator;
     this.descriptionGenerator = descriptionGenerator;
-    this.genericSchemaAddOn = genericSchemaAddOn;
+    this.genericSchemaValidationFeature = genericSchemaValidationFeature;
   }
 
   /**
@@ -160,7 +160,7 @@ public final class JsonSchemaInferrer {
     if (properties.size() > 0) {
       schema.set(Consts.Fields.PROPERTIES, properties);
     }
-    processGenericSchemaAddOn(schema, objectNodes, Consts.Types.OBJECT);
+    processGenericSchemaValidationFeature(schema, objectNodes, Consts.Types.OBJECT);
     return schema;
   }
 
@@ -193,7 +193,7 @@ public final class JsonSchemaInferrer {
     if (items.size() > 0) {
       schema.set(Consts.Fields.ITEMS, items);
     }
-    processGenericSchemaAddOn(schema, arrayNodes, Consts.Types.ARRAY);
+    processGenericSchemaValidationFeature(schema, arrayNodes, Consts.Types.ARRAY);
     return schema;
   }
 
@@ -233,7 +233,7 @@ public final class JsonSchemaInferrer {
       @Nonnull
       final PrimitivesSummary primitivesSummary =
           primitivesSummaryMap.getPrimitivesSummary(type, format);
-      processGenericSchemaAddOn(anyOf, primitivesSummary.getSamples(), type);
+      processGenericSchemaValidationFeature(anyOf, primitivesSummary.getSamples(), type);
     }
     return anyOfs;
   }
@@ -387,33 +387,34 @@ public final class JsonSchemaInferrer {
     }
   }
 
-  private void processGenericSchemaAddOn(@Nonnull ObjectNode schema,
+  private void processGenericSchemaValidationFeature(@Nonnull ObjectNode schema,
       @Nonnull Collection<? extends JsonNode> samples, @Nullable String type) {
-    final ObjectNode addOn = genericSchemaAddOn.getFeatureResult(new GenericSchemaFeatureInput() {
+    final ObjectNode featureResult =
+        genericSchemaValidationFeature.getFeatureResult(new GenericSchemaValidationFeatureInput() {
 
-      @Override
-      public ObjectNode getSchema() {
-        return schema;
-      }
+          @Override
+          public ObjectNode getSchema() {
+            return schema;
+          }
 
-      @Override
-      public Collection<? extends JsonNode> getSamples() {
-        return Collections.unmodifiableCollection(samples);
-      }
+          @Override
+          public Collection<? extends JsonNode> getSamples() {
+            return Collections.unmodifiableCollection(samples);
+          }
 
-      @Override
-      public String getType() {
-        return type;
-      }
+          @Override
+          public String getType() {
+            return type;
+          }
 
-      @Override
-      public SpecVersion getSpecVersion() {
-        return specVersion;
-      }
+          @Override
+          public SpecVersion getSpecVersion() {
+            return specVersion;
+          }
 
-    });
-    if (addOn != null) {
-      schema.setAll(addOn);
+        });
+    if (featureResult != null) {
+      schema.setAll(featureResult);
     }
   }
 

@@ -8,14 +8,14 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  * For generating add-on fields (things like maxProperties) for a schema.
  *
  * @author sli
- * @see GenericSchemaFeatures
+ * @see GenericSchemaValidationFeatures
  */
-public interface GenericSchemaFeature {
+public interface GenericSchemaValidationFeature {
 
   /**
    * Get the add-on result to be merged in with the schema
    */
   @Nullable
-  ObjectNode getFeatureResult(@Nonnull GenericSchemaFeatureInput input);
+  ObjectNode getFeatureResult(@Nonnull GenericSchemaValidationFeatureInput input);
 
 }

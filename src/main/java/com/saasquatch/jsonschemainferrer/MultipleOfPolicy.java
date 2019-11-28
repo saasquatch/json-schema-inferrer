@@ -13,16 +13,16 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  * @see MultipleOfPolicies
  */
 @FunctionalInterface
-public interface MultipleOfPolicy extends GenericSchemaFeature {
+public interface MultipleOfPolicy extends GenericSchemaValidationFeature {
 
   /**
    * @return the appropriate {@code multipleOf} {@link JsonNode} for the given input
    */
   @Nullable
-  JsonNode getMultipleOf(@Nonnull GenericSchemaFeatureInput input);
+  JsonNode getMultipleOf(@Nonnull GenericSchemaValidationFeatureInput input);
 
   @Override
-  default ObjectNode getFeatureResult(GenericSchemaFeatureInput input) {
+  default ObjectNode getFeatureResult(GenericSchemaValidationFeatureInput input) {
     final JsonNode multipleOf = getMultipleOf(input);
     if (multipleOf == null) {
       return null;

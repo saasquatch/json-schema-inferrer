@@ -8,16 +8,16 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.saasquatch.jsonschemainferrer.annotations.NoExternalImpl;
 
 /**
- * Input for {@link GenericSchemaFeature}
+ * Input for {@link GenericSchemaValidationFeature}
  *
  * @author sli
  */
 @NoExternalImpl
-public interface GenericSchemaFeatureInput {
+public interface GenericSchemaValidationFeatureInput {
 
   /**
-   * @return The current schema. Note that {@link GenericSchemaFeature}s are not supposed to mutate
-   *         the schema.
+   * @return The current schema. Note that {@link GenericSchemaValidationFeature}s are not supposed
+   *         to mutate the schema.
    */
   @Nonnull
   ObjectNode getSchema();

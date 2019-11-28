@@ -360,8 +360,8 @@ public class JsonSchemaInferrerOptionsTest {
       assertNull(schema.get("examples"));
     }
     {
-      final JsonNode examples =
-          ExamplesPolicies.useFirstSamples(1).getExamples(new GenericSchemaFeatureInput() {
+      final JsonNode examples = ExamplesPolicies.useFirstSamples(1)
+          .getExamples(new GenericSchemaValidationFeatureInput() {
 
             @Override
             public String getType() {
@@ -585,16 +585,16 @@ public class JsonSchemaInferrerOptionsTest {
   @Test
   public void testFakeGenericFeature() {
     // Fake feature that always attaches {"foo":"bar"}
-    final GenericSchemaFeature fakeFeature = new GenericSchemaFeature() {
+    final GenericSchemaValidationFeature fakeFeature = new GenericSchemaValidationFeature() {
       @Override
-      public ObjectNode getFeatureResult(GenericSchemaFeatureInput input) {
+      public ObjectNode getFeatureResult(GenericSchemaValidationFeatureInput input) {
         final ObjectNode result = jnf.objectNode();
         result.put("foo", "bar");
         return result;
       }
     };
     final JsonSchemaInferrer inferrer =
-        JsonSchemaInferrer.newBuilder().setGenericSchemaFeature(fakeFeature).build();
+        JsonSchemaInferrer.newBuilder().addAdditionalSchemaValidationFeatures(fakeFeature).build();
     final ObjectNode schema = inferrer.inferForSample(null);
     assertEquals("bar", schema.path("foo").textValue());
   }

@@ -12,16 +12,16 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  * @author sli
  */
 @FunctionalInterface
-public interface DefaultPolicy extends GenericSchemaFeature {
+public interface DefaultPolicy extends GenericSchemaValidationFeature {
 
   /**
    * Get the appropriate {@code default} from the given input.
    */
   @Nullable
-  JsonNode getDefault(@Nonnull GenericSchemaFeatureInput input);
+  JsonNode getDefault(@Nonnull GenericSchemaValidationFeatureInput input);
 
   @Override
-  default ObjectNode getFeatureResult(GenericSchemaFeatureInput input) {
+  default ObjectNode getFeatureResult(GenericSchemaValidationFeatureInput input) {
     if (Consts.Types.CONTAINER_TYPES.contains(input.getType())) {
       return null;
     }
