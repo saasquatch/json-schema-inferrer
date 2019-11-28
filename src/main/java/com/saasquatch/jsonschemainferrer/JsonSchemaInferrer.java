@@ -46,7 +46,6 @@ public final class JsonSchemaInferrer {
   private final FormatInferrer formatInferrer;
   private final TitleGenerator titleGenerator;
   private final DescriptionGenerator descriptionGenerator;
-  private final MultipleOfPolicy multipleOfPolicy;
   private final GenericSchemaAddOn genericSchemaAddOn;
 
   JsonSchemaInferrer(@Nonnull SpecVersion specVersion,
@@ -54,7 +53,7 @@ public final class JsonSchemaInferrer {
       @Nonnull IntegerTypeCriterion integerTypeCriterion, @Nonnull DefaultPolicy defaultPolicy,
       @Nonnull ExamplesPolicy examplesPolicy, @Nonnull FormatInferrer formatInferrer,
       @Nonnull TitleGenerator titleGenerator, @Nonnull DescriptionGenerator descriptionGenerator,
-      @Nonnull MultipleOfPolicy multipleOfPolicy, @Nonnull GenericSchemaAddOn genericSchemaAddOn) {
+      @Nonnull GenericSchemaAddOn genericSchemaAddOn) {
     this.specVersion = specVersion;
     this.integerTypePreference = integerTypePreference;
     this.integerTypeCriterion = integerTypeCriterion;
@@ -63,7 +62,6 @@ public final class JsonSchemaInferrer {
     this.formatInferrer = formatInferrer;
     this.titleGenerator = titleGenerator;
     this.descriptionGenerator = descriptionGenerator;
-    this.multipleOfPolicy = multipleOfPolicy;
     this.genericSchemaAddOn = genericSchemaAddOn;
   }
 
@@ -242,9 +240,6 @@ public final class JsonSchemaInferrer {
           primitivesSummaryMap.getPrimitivesSummary(type, format);
       processDefault(anyOf, primitivesSummary);
       processExamples(anyOf, primitivesSummary, type, format);
-      if (Consts.Types.NUMBER_TYPES.contains(type)) {
-        processMultipleOf(anyOf, primitivesSummary, type);
-      }
       processGenericSchemaAddOn(anyOf, primitivesSummary.getSamples(), type);
     }
     return anyOfs;
@@ -451,26 +446,6 @@ public final class JsonSchemaInferrer {
     });
     if (examples != null) {
       schema.set(Consts.Fields.EXAMPLES, examples);
-    }
-  }
-
-  private void processMultipleOf(@Nonnull ObjectNode schema,
-      @Nonnull PrimitivesSummary primitivesSummary, @Nonnull String type) {
-    final JsonNode multipleOf = multipleOfPolicy.getMultipleOf(new MultipleOfPolicyInput() {
-
-      @Override
-      public Collection<? extends JsonNode> getSamples() {
-        return primitivesSummary.getSamples();
-      }
-
-      @Override
-      public SpecVersion getSpecVersion() {
-        return specVersion;
-      }
-
-    });
-    if (multipleOf != null) {
-      schema.set(Consts.Fields.MULTIPLE_OF, multipleOf);
     }
   }
 
