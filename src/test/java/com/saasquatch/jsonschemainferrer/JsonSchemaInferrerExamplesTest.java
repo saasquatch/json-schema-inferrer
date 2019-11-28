@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -244,8 +245,10 @@ public class JsonSchemaInferrerExamplesTest {
             builder.setFormatInferrer(FormatInferrers.chained(FormatInferrers.dateTime(),
                 FormatInferrers.email(), FormatInferrers.ip()));
           }
-          builder.enable(ArrayLengthFeature.values()).enable(ObjectSizeFeature.values())
-              .enable(StringLengthFeature.values()).enable(NumberRangeFeature.values())
+          builder.setArrayLengthFeatures(EnumSet.allOf(ArrayLengthFeature.class))
+              .setObjectSizeFeatures(EnumSet.allOf(ObjectSizeFeature.class))
+              .setStringLengthFeatures(EnumSet.allOf(StringLengthFeature.class))
+              .setNumberRangeFeatures(EnumSet.allOf(NumberRangeFeature.class))
               .setExamplesPolicy(ExamplesPolicies.useFirstSamples(10))
               .setDefaultPolicy(defaultPolicyIter.next())
               .setTitleGenerator(TitleGenerators.useFieldNames())

@@ -1,7 +1,5 @@
 package com.saasquatch.jsonschemainferrer;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.EnumSet;
 import java.util.Objects;
 import java.util.function.Function;
@@ -30,15 +28,14 @@ public final class JsonSchemaInferrerBuilder {
   private TitleGenerator titleGenerator = TitleGenerators.noOp();
   private DescriptionGenerator descriptionGenerator = DescriptionGenerators.noOp();
   private MultipleOfPolicy multipleOfPolicy = MultipleOfPolicies.noOp();
-  private final EnumSet<ObjectSizeFeature> objectSizeFeatures =
-      EnumSet.noneOf(ObjectSizeFeature.class);
-  private final EnumSet<ArrayLengthFeature> arrayLengthFeatures =
+  private EnumSet<ObjectSizeFeature> objectSizeFeatures = EnumSet.noneOf(ObjectSizeFeature.class);
+  private EnumSet<ArrayLengthFeature> arrayLengthFeatures =
       EnumSet.noneOf(ArrayLengthFeature.class);
-  private final EnumSet<StringLengthFeature> stringLengthFeatures =
+  private EnumSet<StringLengthFeature> stringLengthFeatures =
       EnumSet.noneOf(StringLengthFeature.class);
-  private final EnumSet<NumberRangeFeature> numberRangeFeatures =
+  private EnumSet<NumberRangeFeature> numberRangeFeatures =
       EnumSet.noneOf(NumberRangeFeature.class);
-  private final Collection<GenericSchemaFeature> genericSchemaFeatures = new ArrayList<>();
+  private GenericSchemaFeature genericSchemaFeature = GenericSchemaFeatures.noOp();
 
   JsonSchemaInferrerBuilder() {}
 
@@ -169,91 +166,33 @@ public final class JsonSchemaInferrerBuilder {
     return this;
   }
 
-  /**
-   * Enable {@link ObjectSizeFeature}s
-   */
-  public JsonSchemaInferrerBuilder enable(@Nonnull ObjectSizeFeature... features) {
-    for (ObjectSizeFeature feature : features) {
-      this.objectSizeFeatures.add(Objects.requireNonNull(feature));
-    }
+  public JsonSchemaInferrerBuilder setObjectSizeFeatures(
+      @Nonnull EnumSet<ObjectSizeFeature> objectSizeFeatures) {
+    this.objectSizeFeatures = Objects.requireNonNull(objectSizeFeatures);
     return this;
   }
 
-  /**
-   * Disable {@link ObjectSizeFeature}s.
-   */
-  public JsonSchemaInferrerBuilder disable(@Nonnull ObjectSizeFeature... features) {
-    for (ObjectSizeFeature feature : features) {
-      this.objectSizeFeatures.remove(Objects.requireNonNull(feature));
-    }
+  public JsonSchemaInferrerBuilder setArrayLengthFeatures(
+      @Nonnull EnumSet<ArrayLengthFeature> arrayLengthFeatures) {
+    this.arrayLengthFeatures = Objects.requireNonNull(arrayLengthFeatures);
     return this;
   }
 
-  /**
-   * Enable {@link ArrayLengthFeature}s
-   */
-  public JsonSchemaInferrerBuilder enable(@Nonnull ArrayLengthFeature... features) {
-    for (ArrayLengthFeature feature : features) {
-      this.arrayLengthFeatures.add(Objects.requireNonNull(feature));
-    }
+  public JsonSchemaInferrerBuilder setStringLengthFeatures(
+      @Nonnull EnumSet<StringLengthFeature> stringLengthFeatures) {
+    this.stringLengthFeatures = Objects.requireNonNull(stringLengthFeatures);
     return this;
   }
 
-  /**
-   * Disable {@link ArrayLengthFeature}s
-   */
-  public JsonSchemaInferrerBuilder disable(@Nonnull ArrayLengthFeature... features) {
-    for (ArrayLengthFeature feature : features) {
-      this.arrayLengthFeatures.remove(Objects.requireNonNull(feature));
-    }
+  public JsonSchemaInferrerBuilder setNumberRangeFeatures(
+      @Nonnull EnumSet<NumberRangeFeature> numberRangeFeatures) {
+    this.numberRangeFeatures = Objects.requireNonNull(numberRangeFeatures);
     return this;
   }
 
-  /**
-   * Enable {@link StringLengthFeature}s
-   */
-  public JsonSchemaInferrerBuilder enable(@Nonnull StringLengthFeature... features) {
-    for (StringLengthFeature feature : features) {
-      this.stringLengthFeatures.add(Objects.requireNonNull(feature));
-    }
-    return this;
-  }
-
-  /**
-   * Disable {@link StringLengthFeature}s.
-   */
-  public JsonSchemaInferrerBuilder disable(@Nonnull StringLengthFeature... features) {
-    for (StringLengthFeature feature : features) {
-      this.stringLengthFeatures.remove(Objects.requireNonNull(feature));
-    }
-    return this;
-  }
-
-  /**
-   * Enable {@link NumberRangeFeature}s
-   */
-  public JsonSchemaInferrerBuilder enable(@Nonnull NumberRangeFeature... features) {
-    for (NumberRangeFeature feature : features) {
-      this.numberRangeFeatures.add(Objects.requireNonNull(feature));
-    }
-    return this;
-  }
-
-  /**
-   * Disable {@link NumberRangeFeature}s.
-   */
-  public JsonSchemaInferrerBuilder disable(@Nonnull NumberRangeFeature... features) {
-    for (NumberRangeFeature feature : features) {
-      this.numberRangeFeatures.remove(Objects.requireNonNull(feature));
-    }
-    return this;
-  }
-
-  public JsonSchemaInferrerBuilder addGenericSchemaFeatures(
-      @Nonnull GenericSchemaFeature... features) {
-    for (GenericSchemaFeature feature : features) {
-      this.genericSchemaFeatures.add(Objects.requireNonNull(feature));
-    }
+  public JsonSchemaInferrerBuilder setGenericSchemaFeature(
+      @Nonnull GenericSchemaFeature genericSchemaFeature) {
+    this.genericSchemaFeature = Objects.requireNonNull(genericSchemaFeature);
     return this;
   }
 
@@ -263,7 +202,7 @@ public final class JsonSchemaInferrerBuilder {
             Stream.of(defaultPolicy), Stream.of(examplesPolicy), objectSizeFeatures.stream(),
             arrayLengthFeatures.stream(), stringLengthFeatures.stream(),
             numberRangeFeatures.stream(), Stream.of(multipleOfPolicy),
-            genericSchemaFeatures.stream())
+            Stream.of(genericSchemaFeature))
         .flatMap(Function.identity()).toArray(GenericSchemaFeature[]::new);
     return GenericSchemaFeatures.chained(genericSchemaFeaturesArray);
   }

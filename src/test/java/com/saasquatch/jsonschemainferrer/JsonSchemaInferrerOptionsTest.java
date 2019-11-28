@@ -14,6 +14,7 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -468,14 +469,15 @@ public class JsonSchemaInferrerOptionsTest {
         jnf.objectNode().put("4", 4).put("1", "one"));
     {
       final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
-          .enable(ObjectSizeFeature.MIN_PROPERTIES).disable(ObjectSizeFeature.values()).build();
+          .setObjectSizeFeatures(EnumSet.of(ObjectSizeFeature.MIN_PROPERTIES))
+          .setObjectSizeFeatures(EnumSet.noneOf(ObjectSizeFeature.class)).build();
       final ObjectNode schema = inferrer.inferForSamples(samples);
       assertNull(schema.get("minProperties"));
       assertNull(schema.get("maxProperties"));
     }
     {
-      final JsonSchemaInferrer inferrer =
-          JsonSchemaInferrer.newBuilder().enable(ObjectSizeFeature.values()).build();
+      final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
+          .setObjectSizeFeatures(EnumSet.allOf(ObjectSizeFeature.class)).build();
       final ObjectNode schema = inferrer.inferForSamples(samples);
       assertEquals(0, schema.path("minProperties").intValue());
       assertEquals(3, schema.path("maxProperties").intValue());
@@ -490,14 +492,15 @@ public class JsonSchemaInferrerOptionsTest {
             jnf.arrayNode().add(1).add("2").add(true).add((String) null).add((String) null));
     {
       final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
-          .enable(ArrayLengthFeature.MAX_ITEMS).disable(ArrayLengthFeature.values()).build();
+          .setArrayLengthFeatures(EnumSet.of(ArrayLengthFeature.MAX_ITEMS))
+          .setArrayLengthFeatures(EnumSet.noneOf(ArrayLengthFeature.class)).build();
       final ObjectNode schema = inferrer.inferForSamples(samples);
       assertNull(schema.get("minItems"));
       assertNull(schema.get("maxItems"));
     }
     {
-      final JsonSchemaInferrer inferrer =
-          JsonSchemaInferrer.newBuilder().enable(ArrayLengthFeature.values()).build();
+      final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
+          .setArrayLengthFeatures(EnumSet.allOf(ArrayLengthFeature.class)).build();
       final ObjectNode schema = inferrer.inferForSamples(samples);
       assertEquals(0, schema.path("minItems").intValue());
       assertEquals(5, schema.path("maxItems").intValue());
@@ -510,14 +513,15 @@ public class JsonSchemaInferrerOptionsTest {
         ImmutableList.of(jnf.textNode(""), jnf.textNode("a"), jnf.textNode("foobar"));
     {
       final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
-          .enable(StringLengthFeature.MIN_LENGTH).disable(StringLengthFeature.values()).build();
+          .setStringLengthFeatures(EnumSet.of(StringLengthFeature.MIN_LENGTH))
+          .setStringLengthFeatures(EnumSet.noneOf(StringLengthFeature.class)).build();
       final ObjectNode schema = inferrer.inferForSamples(samples);
       assertNull(schema.get("minLength"));
       assertNull(schema.get("maxLength"));
     }
     {
-      final JsonSchemaInferrer inferrer =
-          JsonSchemaInferrer.newBuilder().enable(StringLengthFeature.values()).build();
+      final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
+          .setStringLengthFeatures(EnumSet.allOf(StringLengthFeature.class)).build();
       final ObjectNode schema = inferrer.inferForSamples(samples);
       assertEquals(0, schema.path("minLength").intValue());
       assertEquals(6, schema.path("maxLength").intValue());
@@ -526,8 +530,8 @@ public class JsonSchemaInferrerOptionsTest {
         jnf.numberNode(Double.NEGATIVE_INFINITY), jnf.numberNode(Double.POSITIVE_INFINITY),
         jnf.numberNode(Float.NaN), jnf.numberNode(Float.NEGATIVE_INFINITY),
         jnf.numberNode(Float.POSITIVE_INFINITY), jnf.binaryNode("abc".getBytes(UTF_8)))) {
-      final JsonSchemaInferrer inferrer =
-          JsonSchemaInferrer.newBuilder().enable(StringLengthFeature.values()).build();
+      final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
+          .setStringLengthFeatures(EnumSet.allOf(StringLengthFeature.class)).build();
       final ObjectNode schema = inferrer.inferForSample(shouldBeText);
       assertEquals(shouldBeText.asText().length(), schema.path("minLength").intValue());
       assertEquals(shouldBeText.asText().length(), schema.path("maxLength").intValue());
@@ -539,7 +543,8 @@ public class JsonSchemaInferrerOptionsTest {
     final String dateTimeString = Instant.now().toString();
     final List<JsonNode> samples = ImmutableList.of(jnf.textNode(dateTimeString));
     final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
-        .enable(StringLengthFeature.values()).setFormatInferrer(FormatInferrers.dateTime()).build();
+        .setStringLengthFeatures(EnumSet.allOf(StringLengthFeature.class))
+        .setFormatInferrer(FormatInferrers.dateTime()).build();
     final ObjectNode schema = inferrer.inferForSamples(samples);
     assertEquals(dateTimeString.length(), schema.path("minLength").intValue());
     assertEquals(dateTimeString.length(), schema.path("maxLength").intValue());
@@ -553,14 +558,15 @@ public class JsonSchemaInferrerOptionsTest {
         jnf.numberNode((byte) 5), jnf.numberNode(7.5));
     {
       final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
-          .enable(NumberRangeFeature.MAXIMUM).disable(NumberRangeFeature.values()).build();
+          .setNumberRangeFeatures(EnumSet.of(NumberRangeFeature.MAXIMUM))
+          .setNumberRangeFeatures(EnumSet.noneOf(NumberRangeFeature.class)).build();
       final ObjectNode schema = inferrer.inferForSamples(samples);
       assertNull(schema.get("minimum"));
       assertNull(schema.get("maximum"));
     }
     {
-      final JsonSchemaInferrer inferrer =
-          JsonSchemaInferrer.newBuilder().enable(NumberRangeFeature.values()).build();
+      final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
+          .setNumberRangeFeatures(EnumSet.allOf(NumberRangeFeature.class)).build();
       final ObjectNode schema = inferrer.inferForSamples(samples);
       assertEquals(BigDecimal.valueOf(1L), schema.path("minimum").decimalValue());
       assertEquals(BigDecimal.valueOf(7.5), schema.path("maximum").decimalValue());

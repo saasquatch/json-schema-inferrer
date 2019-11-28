@@ -25,10 +25,7 @@ public final class DefaultPolicies {
   public static DefaultPolicy useFirstSamples() {
     return input -> {
       final Collection<? extends JsonNode> samples = input.getSamples();
-      if (samples.isEmpty()) {
-        return null;
-      }
-      return samples.iterator().next();
+      return samples.stream().findFirst().orElse(null);
     };
   }
 
@@ -38,10 +35,7 @@ public final class DefaultPolicies {
   public static DefaultPolicy useLastSamples() {
     return input -> {
       final Collection<? extends JsonNode> samples = input.getSamples();
-      if (samples.isEmpty()) {
-        return null;
-      }
-      return samples.stream().skip(samples.size() - 1).findFirst().orElse(null);
+      return samples.stream().skip(Math.max(0, samples.size() - 1)).findFirst().orElse(null);
     };
   }
 

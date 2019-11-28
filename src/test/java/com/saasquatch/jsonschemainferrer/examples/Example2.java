@@ -2,6 +2,7 @@ package com.saasquatch.jsonschemainferrer.examples;
 
 import java.net.URI;
 import java.net.URL;
+import java.util.EnumSet;
 import javax.annotation.Nonnull;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -34,10 +35,10 @@ public class Example2 {
       .setFormatInferrer(FormatInferrers.chained(FormatInferrers.email(),
           FormatInferrers.dateTime(), FormatInferrers.ip(), Example2::absoluteUriFormatInferrer))
       .setMultipleOfPolicy(MultipleOfPolicies.gcd())
-      .enable(ArrayLengthFeature.MIN_ITEMS, ArrayLengthFeature.MAX_ITEMS)
-      .enable(ObjectSizeFeature.MIN_PROPERTIES, ObjectSizeFeature.MAX_PROPERTIES)
-      .enable(StringLengthFeature.MIN_LENGTH, StringLengthFeature.MAX_LENGTH)
-      .enable(NumberRangeFeature.MINIMUM, NumberRangeFeature.MAXIMUM)
+      .setArrayLengthFeatures(EnumSet.allOf(ArrayLengthFeature.class))
+      .setObjectSizeFeatures(EnumSet.allOf(ObjectSizeFeature.class))
+      .setStringLengthFeatures(EnumSet.allOf(StringLengthFeature.class))
+      .setNumberRangeFeatures(EnumSet.allOf(NumberRangeFeature.class))
       .build();
 
   private static String absoluteUriFormatInferrer(@Nonnull FormatInferrerInput input) {
