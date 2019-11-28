@@ -41,7 +41,6 @@ public final class JsonSchemaInferrer {
   private final SpecVersion specVersion;
   private final IntegerTypePreference integerTypePreference;
   private final IntegerTypeCriterion integerTypeCriterion;
-  private final RequiredPolicy requiredPolicy;
   private final DefaultPolicy defaultPolicy;
   private final ExamplesPolicy examplesPolicy;
   private final FormatInferrer formatInferrer;
@@ -56,8 +55,7 @@ public final class JsonSchemaInferrer {
 
   JsonSchemaInferrer(@Nonnull SpecVersion specVersion,
       @Nonnull IntegerTypePreference integerTypePreference,
-      @Nonnull IntegerTypeCriterion integerTypeCriterion,
-      @Nonnull RequiredPolicy requiredPolicy, @Nonnull DefaultPolicy defaultPolicy,
+      @Nonnull IntegerTypeCriterion integerTypeCriterion, @Nonnull DefaultPolicy defaultPolicy,
       @Nonnull ExamplesPolicy examplesPolicy, @Nonnull FormatInferrer formatInferrer,
       @Nonnull TitleGenerator titleGenerator, @Nonnull DescriptionGenerator descriptionGenerator,
       @Nonnull MultipleOfPolicy multipleOfPolicy, @Nonnull GenericSchemaAddOn genericSchemaAddOn,
@@ -68,7 +66,6 @@ public final class JsonSchemaInferrer {
     this.specVersion = specVersion;
     this.integerTypePreference = integerTypePreference;
     this.integerTypeCriterion = integerTypeCriterion;
-    this.requiredPolicy = requiredPolicy;
     this.defaultPolicy = defaultPolicy;
     this.examplesPolicy = examplesPolicy;
     this.formatInferrer = formatInferrer;
@@ -182,7 +179,6 @@ public final class JsonSchemaInferrer {
     if (properties.size() > 0) {
       schema.set(Consts.Fields.PROPERTIES, properties);
     }
-    processRequired(schema, objectNodes);
     processObjectSizeFeatures(schema, objectNodes);
     processGenericSchemaAddOn(schema, objectNodes, Consts.Types.OBJECT);
     return schema;
@@ -418,26 +414,6 @@ public final class JsonSchemaInferrer {
         });
     if (description != null) {
       schema.put(Consts.Fields.DESCRIPTION, description);
-    }
-  }
-
-  private void processRequired(@Nonnull ObjectNode schema,
-      @Nonnull Collection<ObjectNode> objectNodes) {
-    final JsonNode required = requiredPolicy.getRequired(new RequiredPolicyInput() {
-
-      @Override
-      public Collection<? extends JsonNode> getSamples() {
-        return Collections.unmodifiableCollection(objectNodes);
-      }
-
-      @Override
-      public SpecVersion getSpecVersion() {
-        return specVersion;
-      }
-
-    });
-    if (required != null) {
-      schema.set(Consts.Fields.REQUIRED, required);
     }
   }
 

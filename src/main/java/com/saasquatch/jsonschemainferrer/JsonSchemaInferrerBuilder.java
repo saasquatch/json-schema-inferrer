@@ -262,13 +262,13 @@ public final class JsonSchemaInferrerBuilder {
    * @throws IllegalArgumentException if the spec version and features don't match up
    */
   public JsonSchemaInferrer build() {
-    final GenericSchemaAddOn[] genericSchemaAddOnsArray =
-        Stream.of(Stream.of(additionalPropertiesPolicy), genericSchemaAddOns.stream())
-            .flatMap(Function.identity()).toArray(GenericSchemaAddOn[]::new);
+    final GenericSchemaAddOn[] genericSchemaAddOnsArray = Stream
+        .of(Stream.of(additionalPropertiesPolicy), Stream.of(requiredPolicy),
+            genericSchemaAddOns.stream())
+        .flatMap(Function.identity()).toArray(GenericSchemaAddOn[]::new);
     return new JsonSchemaInferrer(specVersion, integerTypePreference, integerTypeCriterion,
-        requiredPolicy, defaultPolicy, examplesPolicy, formatInferrer, titleGenerator,
-        descriptionGenerator, multipleOfPolicy,
-        GenericSchemaAddOns.chained(genericSchemaAddOnsArray),
+        defaultPolicy, examplesPolicy, formatInferrer, titleGenerator, descriptionGenerator,
+        multipleOfPolicy, GenericSchemaAddOns.chained(genericSchemaAddOnsArray),
         unmodifiableEnumSet(objectSizeFeatures), unmodifiableEnumSet(arrayLengthFeatures),
         unmodifiableEnumSet(stringLengthFeatures), unmodifiableEnumSet(numberRangeFeatures));
   }
