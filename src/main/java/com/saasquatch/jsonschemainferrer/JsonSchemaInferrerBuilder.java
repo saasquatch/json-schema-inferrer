@@ -257,11 +257,7 @@ public final class JsonSchemaInferrerBuilder {
     return this;
   }
 
-  /**
-   * @return the {@link JsonSchemaInferrer} built
-   * @throws IllegalArgumentException if the spec version and features don't match up
-   */
-  public JsonSchemaInferrer build() {
+  private GenericSchemaFeature getCombinedGenericSchemaFeature() {
     final GenericSchemaFeature[] genericSchemaFeaturesArray = Stream
         .of(Stream.of(additionalPropertiesPolicy), Stream.of(requiredPolicy),
             Stream.of(defaultPolicy), Stream.of(examplesPolicy), objectSizeFeatures.stream(),
@@ -269,9 +265,16 @@ public final class JsonSchemaInferrerBuilder {
             numberRangeFeatures.stream(), Stream.of(multipleOfPolicy),
             genericSchemaFeatures.stream())
         .flatMap(Function.identity()).toArray(GenericSchemaFeature[]::new);
+    return GenericSchemaFeatures.chained(genericSchemaFeaturesArray);
+  }
+
+  /**
+   * @return the {@link JsonSchemaInferrer} built
+   * @throws IllegalArgumentException if the spec version and features don't match up
+   */
+  public JsonSchemaInferrer build() {
     return new JsonSchemaInferrer(specVersion, integerTypePreference, integerTypeCriterion,
-        formatInferrer, titleGenerator, descriptionGenerator,
-        GenericSchemaFeatures.chained(genericSchemaFeaturesArray));
+        formatInferrer, titleGenerator, descriptionGenerator, getCombinedGenericSchemaFeature());
   }
 
 }
