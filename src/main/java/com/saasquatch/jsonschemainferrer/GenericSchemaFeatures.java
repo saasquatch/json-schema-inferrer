@@ -8,25 +8,25 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
- * Utilities for {@link GenericSchemaAddOn}
+ * Utilities for {@link GenericSchemaFeature}
  *
  * @author sli
  */
-public final class GenericSchemaAddOns {
+public final class GenericSchemaFeatures {
 
-  private GenericSchemaAddOns() {}
+  private GenericSchemaFeatures() {}
 
   /**
-   * @return A singleton {@link GenericSchemaAddOn} that does nothing.
+   * @return A singleton {@link GenericSchemaFeature} that does nothing.
    */
-  public static GenericSchemaAddOn noOp() {
+  public static GenericSchemaFeature noOp() {
     return input -> null;
   }
 
   /**
-   * @return A singleton {@link GenericSchemaAddOn} that infers {@code minProperties}.
+   * @return A singleton {@link GenericSchemaFeature} that infers {@code minProperties}.
    */
-  public static GenericSchemaAddOn minProperties() {
+  public static GenericSchemaFeature minProperties() {
     return input -> {
       final OptionalInt optMinProps = input.getSamples().stream().mapToInt(JsonNode::size).min();
       if (!optMinProps.isPresent()) {
@@ -38,9 +38,9 @@ public final class GenericSchemaAddOns {
   }
 
   /**
-   * @return A singleton {@link GenericSchemaAddOn} that infers {@code maxProperties}.
+   * @return A singleton {@link GenericSchemaFeature} that infers {@code maxProperties}.
    */
-  public static GenericSchemaAddOn maxProperties() {
+  public static GenericSchemaFeature maxProperties() {
     return input -> {
       final OptionalInt optMaxProps = input.getSamples().stream().mapToInt(JsonNode::size).max();
       if (!optMaxProps.isPresent()) {
@@ -52,12 +52,12 @@ public final class GenericSchemaAddOns {
   }
 
   /**
-   * @return An {@link GenericSchemaAddOn} that uses the given {@link GenericSchemaAddOn}s in the
+   * @return An {@link GenericSchemaFeature} that uses the given {@link GenericSchemaFeature}s in the
    *         given order, overwriting previous results if add-ons with the same field names exist.
    * @throws NullPointerException if the input has null elements
    */
-  public static GenericSchemaAddOn chained(@Nonnull GenericSchemaAddOn... addOns) {
-    for (GenericSchemaAddOn addOn : addOns) {
+  public static GenericSchemaFeature chained(@Nonnull GenericSchemaFeature... addOns) {
+    for (GenericSchemaFeature addOn : addOns) {
       Objects.requireNonNull(addOn);
     }
     switch (addOns.length) {
@@ -71,11 +71,11 @@ public final class GenericSchemaAddOns {
     return _chained(addOns.clone());
   }
 
-  private static GenericSchemaAddOn _chained(@Nonnull GenericSchemaAddOn[] addOns) {
+  private static GenericSchemaFeature _chained(@Nonnull GenericSchemaFeature[] addOns) {
     return input -> {
       final ObjectNode result = newObject();
-      for (GenericSchemaAddOn addOn : addOns) {
-        final ObjectNode addOnObj = addOn.getAddOn(input);
+      for (GenericSchemaFeature addOn : addOns) {
+        final ObjectNode addOnObj = addOn.getResult(input);
         if (addOnObj != null) {
           result.setAll(addOnObj);
         }

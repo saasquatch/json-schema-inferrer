@@ -38,7 +38,7 @@ public final class JsonSchemaInferrerBuilder {
       EnumSet.noneOf(StringLengthFeature.class);
   private final EnumSet<NumberRangeFeature> numberRangeFeatures =
       EnumSet.noneOf(NumberRangeFeature.class);
-  private final Collection<GenericSchemaAddOn> genericSchemaAddOns = new ArrayList<>();
+  private final Collection<GenericSchemaFeature> genericSchemaAddOns = new ArrayList<>();
 
   JsonSchemaInferrerBuilder() {}
 
@@ -249,8 +249,8 @@ public final class JsonSchemaInferrerBuilder {
     return this;
   }
 
-  public JsonSchemaInferrerBuilder addGenericSchemaAddOns(@Nonnull GenericSchemaAddOn... addOns) {
-    for (GenericSchemaAddOn addOn : addOns) {
+  public JsonSchemaInferrerBuilder addGenericSchemaAddOns(@Nonnull GenericSchemaFeature... addOns) {
+    for (GenericSchemaFeature addOn : addOns) {
       this.genericSchemaAddOns.add(Objects.requireNonNull(addOn));
     }
     return this;
@@ -261,15 +261,15 @@ public final class JsonSchemaInferrerBuilder {
    * @throws IllegalArgumentException if the spec version and features don't match up
    */
   public JsonSchemaInferrer build() {
-    final GenericSchemaAddOn[] genericSchemaAddOnsArray = Stream
+    final GenericSchemaFeature[] genericSchemaAddOnsArray = Stream
         .of(Stream.of(additionalPropertiesPolicy), Stream.of(requiredPolicy),
             objectSizeFeatures.stream(), arrayLengthFeatures.stream(),
             stringLengthFeatures.stream(), numberRangeFeatures.stream(),
             Stream.of(multipleOfPolicy), genericSchemaAddOns.stream())
-        .flatMap(Function.identity()).toArray(GenericSchemaAddOn[]::new);
+        .flatMap(Function.identity()).toArray(GenericSchemaFeature[]::new);
     return new JsonSchemaInferrer(specVersion, integerTypePreference, integerTypeCriterion,
         defaultPolicy, examplesPolicy, formatInferrer, titleGenerator, descriptionGenerator,
-        GenericSchemaAddOns.chained(genericSchemaAddOnsArray));
+        GenericSchemaFeatures.chained(genericSchemaAddOnsArray));
   }
 
 }

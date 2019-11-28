@@ -46,14 +46,14 @@ public final class JsonSchemaInferrer {
   private final FormatInferrer formatInferrer;
   private final TitleGenerator titleGenerator;
   private final DescriptionGenerator descriptionGenerator;
-  private final GenericSchemaAddOn genericSchemaAddOn;
+  private final GenericSchemaFeature genericSchemaAddOn;
 
   JsonSchemaInferrer(@Nonnull SpecVersion specVersion,
       @Nonnull IntegerTypePreference integerTypePreference,
       @Nonnull IntegerTypeCriterion integerTypeCriterion, @Nonnull DefaultPolicy defaultPolicy,
       @Nonnull ExamplesPolicy examplesPolicy, @Nonnull FormatInferrer formatInferrer,
       @Nonnull TitleGenerator titleGenerator, @Nonnull DescriptionGenerator descriptionGenerator,
-      @Nonnull GenericSchemaAddOn genericSchemaAddOn) {
+      @Nonnull GenericSchemaFeature genericSchemaAddOn) {
     this.specVersion = specVersion;
     this.integerTypePreference = integerTypePreference;
     this.integerTypeCriterion = integerTypeCriterion;
@@ -451,7 +451,7 @@ public final class JsonSchemaInferrer {
 
   private void processGenericSchemaAddOn(@Nonnull ObjectNode schema,
       @Nonnull Collection<? extends JsonNode> samples, @Nullable String type) {
-    final ObjectNode addOn = genericSchemaAddOn.getAddOn(new GenericSchemaAddOnInput() {
+    final ObjectNode addOn = genericSchemaAddOn.getResult(new GenericSchemaAddOnInput() {
 
       @Override
       public ObjectNode getSchema() {

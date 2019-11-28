@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.saasquatch.jsonschemainferrer.annotations.NoExternalImpl;
 
 /**
- * Input for {@link GenericSchemaAddOn}
+ * Input for {@link GenericSchemaFeature}
  *
  * @author sli
  */
@@ -16,7 +16,7 @@ import com.saasquatch.jsonschemainferrer.annotations.NoExternalImpl;
 public interface GenericSchemaAddOnInput {
 
   /**
-   * @return The current schema. Note that {@link GenericSchemaAddOn}s are not supposed to mutate
+   * @return The current schema. Note that {@link GenericSchemaFeature}s are not supposed to mutate
    *         the schema.
    */
   @Nonnull

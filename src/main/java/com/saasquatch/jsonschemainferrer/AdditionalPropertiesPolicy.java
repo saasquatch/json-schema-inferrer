@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  * @see AdditionalPropertiesPolicies
  */
 @FunctionalInterface
-public interface AdditionalPropertiesPolicy extends GenericSchemaAddOn {
+public interface AdditionalPropertiesPolicy extends GenericSchemaFeature {
 
   /**
    * Get the appropriate {@code additionalProperties} field based on the input. Note that this
@@ -24,7 +24,7 @@ public interface AdditionalPropertiesPolicy extends GenericSchemaAddOn {
   JsonNode getAdditionalProperties(@Nonnull GenericSchemaAddOnInput input);
 
   @Override
-  default ObjectNode getAddOn(@Nonnull GenericSchemaAddOnInput input) {
+  default ObjectNode getResult(@Nonnull GenericSchemaAddOnInput input) {
     if (!Consts.Types.OBJECT.equals(input.getType())) {
       return null;
     }
