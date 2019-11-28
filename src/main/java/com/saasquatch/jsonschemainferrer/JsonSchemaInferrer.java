@@ -48,7 +48,6 @@ public final class JsonSchemaInferrer {
   private final DescriptionGenerator descriptionGenerator;
   private final MultipleOfPolicy multipleOfPolicy;
   private final GenericSchemaAddOn genericSchemaAddOn;
-  private final Set<ObjectSizeFeature> objectSizeFeatures;
   private final Set<ArrayLengthFeature> arrayLengthFeatures;
   private final Set<StringLengthFeature> stringLengthFeatures;
   private final Set<NumberRangeFeature> numberRangeFeatures;
@@ -59,7 +58,6 @@ public final class JsonSchemaInferrer {
       @Nonnull ExamplesPolicy examplesPolicy, @Nonnull FormatInferrer formatInferrer,
       @Nonnull TitleGenerator titleGenerator, @Nonnull DescriptionGenerator descriptionGenerator,
       @Nonnull MultipleOfPolicy multipleOfPolicy, @Nonnull GenericSchemaAddOn genericSchemaAddOn,
-      @Nonnull Set<ObjectSizeFeature> objectSizeFeatures,
       @Nonnull Set<ArrayLengthFeature> arrayLengthFeatures,
       @Nonnull Set<StringLengthFeature> stringLengthFeatures,
       @Nonnull Set<NumberRangeFeature> numberRangeFeatures) {
@@ -73,7 +71,6 @@ public final class JsonSchemaInferrer {
     this.descriptionGenerator = descriptionGenerator;
     this.multipleOfPolicy = multipleOfPolicy;
     this.genericSchemaAddOn = genericSchemaAddOn;
-    this.objectSizeFeatures = objectSizeFeatures;
     this.arrayLengthFeatures = arrayLengthFeatures;
     this.stringLengthFeatures = stringLengthFeatures;
     this.numberRangeFeatures = numberRangeFeatures;
@@ -179,7 +176,6 @@ public final class JsonSchemaInferrer {
     if (properties.size() > 0) {
       schema.set(Consts.Fields.PROPERTIES, properties);
     }
-    processObjectSizeFeatures(schema, objectNodes);
     processGenericSchemaAddOn(schema, objectNodes, Consts.Types.OBJECT);
     return schema;
   }
@@ -519,13 +515,6 @@ public final class JsonSchemaInferrer {
     });
     if (addOn != null) {
       schema.setAll(addOn);
-    }
-  }
-
-  private void processObjectSizeFeatures(@Nonnull ObjectNode schema,
-      @Nonnull Collection<ObjectNode> objectNodes) {
-    for (ObjectSizeFeature objectSizeFeature : objectSizeFeatures) {
-      objectSizeFeature.process(schema, objectNodes);
     }
   }
 
