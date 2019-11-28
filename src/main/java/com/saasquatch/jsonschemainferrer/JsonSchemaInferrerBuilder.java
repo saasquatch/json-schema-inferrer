@@ -264,12 +264,13 @@ public final class JsonSchemaInferrerBuilder {
   public JsonSchemaInferrer build() {
     final GenericSchemaAddOn[] genericSchemaAddOnsArray = Stream
         .of(Stream.of(additionalPropertiesPolicy), Stream.of(requiredPolicy),
-            objectSizeFeatures.stream(), arrayLengthFeatures.stream(), genericSchemaAddOns.stream())
+            objectSizeFeatures.stream(), arrayLengthFeatures.stream(),
+            stringLengthFeatures.stream(), genericSchemaAddOns.stream())
         .flatMap(Function.identity()).toArray(GenericSchemaAddOn[]::new);
     return new JsonSchemaInferrer(specVersion, integerTypePreference, integerTypeCriterion,
         defaultPolicy, examplesPolicy, formatInferrer, titleGenerator, descriptionGenerator,
         multipleOfPolicy, GenericSchemaAddOns.chained(genericSchemaAddOnsArray),
-        unmodifiableEnumSet(stringLengthFeatures), unmodifiableEnumSet(numberRangeFeatures));
+        unmodifiableEnumSet(numberRangeFeatures));
   }
 
 }

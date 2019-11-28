@@ -48,7 +48,6 @@ public final class JsonSchemaInferrer {
   private final DescriptionGenerator descriptionGenerator;
   private final MultipleOfPolicy multipleOfPolicy;
   private final GenericSchemaAddOn genericSchemaAddOn;
-  private final Set<StringLengthFeature> stringLengthFeatures;
   private final Set<NumberRangeFeature> numberRangeFeatures;
 
   JsonSchemaInferrer(@Nonnull SpecVersion specVersion,
@@ -57,7 +56,6 @@ public final class JsonSchemaInferrer {
       @Nonnull ExamplesPolicy examplesPolicy, @Nonnull FormatInferrer formatInferrer,
       @Nonnull TitleGenerator titleGenerator, @Nonnull DescriptionGenerator descriptionGenerator,
       @Nonnull MultipleOfPolicy multipleOfPolicy, @Nonnull GenericSchemaAddOn genericSchemaAddOn,
-      @Nonnull Set<StringLengthFeature> stringLengthFeatures,
       @Nonnull Set<NumberRangeFeature> numberRangeFeatures) {
     this.specVersion = specVersion;
     this.integerTypePreference = integerTypePreference;
@@ -69,7 +67,6 @@ public final class JsonSchemaInferrer {
     this.descriptionGenerator = descriptionGenerator;
     this.multipleOfPolicy = multipleOfPolicy;
     this.genericSchemaAddOn = genericSchemaAddOn;
-    this.stringLengthFeatures = stringLengthFeatures;
     this.numberRangeFeatures = numberRangeFeatures;
   }
 
@@ -248,9 +245,6 @@ public final class JsonSchemaInferrer {
           primitivesSummaryMap.getPrimitivesSummary(type, format);
       processDefault(anyOf, primitivesSummary);
       processExamples(anyOf, primitivesSummary, type, format);
-      if (Consts.Types.STRING.equals(type)) {
-        processStringLengthFeatures(anyOf, primitivesSummary);
-      }
       if (Consts.Types.NUMBER_TYPES.contains(type)) {
         processMultipleOf(anyOf, primitivesSummary, type);
         processNumberRangeFeatures(anyOf, primitivesSummary);
@@ -511,13 +505,6 @@ public final class JsonSchemaInferrer {
     });
     if (addOn != null) {
       schema.setAll(addOn);
-    }
-  }
-
-  private void processStringLengthFeatures(@Nonnull ObjectNode schema,
-      @Nonnull PrimitivesSummary primitivesSummary) {
-    for (StringLengthFeature stringLengthFeature : stringLengthFeatures) {
-      stringLengthFeature.process(schema, primitivesSummary);
     }
   }
 

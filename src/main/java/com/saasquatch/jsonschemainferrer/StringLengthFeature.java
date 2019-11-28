@@ -1,6 +1,8 @@
 package com.saasquatch.jsonschemainferrer;
 
-import javax.annotation.Nonnull;
+import static com.saasquatch.jsonschemainferrer.JunkDrawer.getSerializedTextLength;
+import static com.saasquatch.jsonschemainferrer.JunkDrawer.newObject;
+import java.util.OptionalInt;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
@@ -8,16 +10,22 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  *
  * @author sli
  */
-public enum StringLengthFeature {
+public enum StringLengthFeature implements GenericSchemaAddOn {
 
   /**
    * {@code minLength}
    */
   MIN_LENGTH {
     @Override
-    void process(ObjectNode schema, PrimitivesSummary primitivesSummary) {
-      primitivesSummary.getMinStringLength()
-          .ifPresent(minLength -> schema.put(Consts.Fields.MIN_LENGTH, minLength));
+    public ObjectNode getAddOn(GenericSchemaAddOnInput input) {
+      final OptionalInt optMinLength = input.getSamples().stream()
+          .mapToInt(j -> getSerializedTextLength(j)).filter(len -> len >= 0).min();
+      if (!optMinLength.isPresent()) {
+        return null;
+      }
+      final ObjectNode result = newObject();
+      result.put(Consts.Fields.MIN_LENGTH, optMinLength.getAsInt());
+      return result;
     }
   },
   /**
@@ -25,12 +33,17 @@ public enum StringLengthFeature {
    */
   MAX_LENGTH {
     @Override
-    void process(ObjectNode schema, PrimitivesSummary primitivesSummary) {
-      primitivesSummary.getMaxStringLength()
-          .ifPresent(maxLength -> schema.put(Consts.Fields.MAX_LENGTH, maxLength));
+    public ObjectNode getAddOn(GenericSchemaAddOnInput input) {
+      final OptionalInt optMaxLength = input.getSamples().stream()
+          .mapToInt(j -> getSerializedTextLength(j)).filter(len -> len >= 0).max();
+      if (!optMaxLength.isPresent()) {
+        return null;
+      }
+      final ObjectNode result = newObject();
+      result.put(Consts.Fields.MAX_LENGTH, optMaxLength.getAsInt());
+      return result;
     }
   },;
 
-  abstract void process(@Nonnull ObjectNode schema, @Nonnull PrimitivesSummary primitivesSummary);
 
 }
