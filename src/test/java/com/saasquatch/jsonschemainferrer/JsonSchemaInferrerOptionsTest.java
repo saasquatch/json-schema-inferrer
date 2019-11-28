@@ -582,4 +582,21 @@ public class JsonSchemaInferrerOptionsTest {
     }
   }
 
+  @Test
+  public void testFakeGenericFeature() {
+    // Fake feature that always attaches {"foo":"bar"}
+    final GenericSchemaFeature fakeFeature = new GenericSchemaFeature() {
+      @Override
+      public ObjectNode getFeatureResult(GenericSchemaFeatureInput input) {
+        final ObjectNode result = jnf.objectNode();
+        result.put("foo", "bar");
+        return result;
+      }
+    };
+    final JsonSchemaInferrer inferrer =
+        JsonSchemaInferrer.newBuilder().setGenericSchemaFeature(fakeFeature).build();
+    final ObjectNode schema = inferrer.inferForSample(null);
+    assertEquals("bar", schema.path("foo").textValue());
+  }
+
 }
