@@ -23,6 +23,9 @@ public interface MultipleOfPolicy extends GenericSchemaFeature {
 
   @Override
   default ObjectNode getFeatureResult(GenericSchemaFeatureInput input) {
+    if (!Consts.Types.NUMBER_TYPES.contains(input.getType())) {
+      return null;
+    }
     final JsonNode multipleOf = getMultipleOf(input);
     if (multipleOf == null) {
       return null;

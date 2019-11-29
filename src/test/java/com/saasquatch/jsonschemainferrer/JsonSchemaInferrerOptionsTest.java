@@ -421,6 +421,8 @@ public class JsonSchemaInferrerOptionsTest {
         ImmutableList.of(jnf.numberNode(0), jnf.numberNode(0), jnf.numberNode(0));
     final List<JsonNode> samples4 =
         ImmutableList.of(jnf.numberNode(2), jnf.numberNode(4), jnf.numberNode(6.5));
+    final List<JsonNode> samples5 =
+        ImmutableList.of(jnf.textNode("foo"), jnf.textNode("bar"));
     {
       final JsonSchemaInferrer inferrer =
           JsonSchemaInferrer.newBuilder().setMultipleOfPolicy(input -> {
@@ -464,6 +466,13 @@ public class JsonSchemaInferrerOptionsTest {
           JsonSchemaInferrer.newBuilder().setMultipleOfPolicy(MultipleOfPolicies.gcd())
               .setIntegerTypePreference(IntegerTypePreference.NEVER).build();
       final ObjectNode schema = inferrer.inferForSamples(samples4);
+      assertNull(schema.get("multipleOf"));
+    }
+    {
+      final JsonSchemaInferrer inferrer =
+          JsonSchemaInferrer.newBuilder().setMultipleOfPolicy(MultipleOfPolicies.gcd())
+              .setIntegerTypeCriterion(IntegerTypeCriteria.mathematicalInteger()).build();
+      final ObjectNode schema = inferrer.inferForSamples(samples5);
       assertNull(schema.get("multipleOf"));
     }
   }
