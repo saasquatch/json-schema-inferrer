@@ -313,12 +313,14 @@ public final class JsonSchemaInferrer {
   }
 
   private boolean isInteger(@Nonnull JsonNode sample) {
-    return integerTypeCriterion.isInteger(IntegerTypeCriteria.inputOf(sample, specVersion));
+    final IntegerTypeCriterionInput input = IntegerTypeCriteria.inputOf(sample, specVersion);
+    return integerTypeCriterion.isInteger(input);
   }
 
   @Nullable
   private String inferFormat(@Nonnull JsonNode sample) {
-    return formatInferrer.inferFormat(FormatInferrers.inputOf(sample, specVersion));
+    final FormatInferrerInput input = FormatInferrers.inputOf(sample, specVersion);
+    return formatInferrer.inferFormat(input);
   }
 
   private void handleTitleDescriptionGeneration(@Nonnull ObjectNode schema,
@@ -337,8 +339,9 @@ public final class JsonSchemaInferrer {
 
   private void processGenericSchemaFeature(@Nonnull ObjectNode schema,
       @Nonnull Collection<? extends JsonNode> samples, @Nullable String type) {
-    final ObjectNode featureResult = genericSchemaFeature
-        .getFeatureResult(GenericSchemaFeatures.inputOf(schema, samples, type, specVersion));
+    final GenericSchemaFeatureInput input =
+        GenericSchemaFeatures.inputOf(schema, samples, type, specVersion);
+    final ObjectNode featureResult = genericSchemaFeature.getFeatureResult(input);
     if (featureResult != null) {
       schema.setAll(featureResult);
     }

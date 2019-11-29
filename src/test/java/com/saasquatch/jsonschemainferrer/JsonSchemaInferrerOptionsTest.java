@@ -421,8 +421,7 @@ public class JsonSchemaInferrerOptionsTest {
         ImmutableList.of(jnf.numberNode(0), jnf.numberNode(0), jnf.numberNode(0));
     final List<JsonNode> samples4 =
         ImmutableList.of(jnf.numberNode(2), jnf.numberNode(4), jnf.numberNode(6.5));
-    final List<JsonNode> samples5 =
-        ImmutableList.of(jnf.textNode("foo"), jnf.textNode("bar"));
+    final List<JsonNode> samples5 = ImmutableList.of(jnf.textNode("foo"), jnf.textNode("bar"));
     {
       final JsonSchemaInferrer inferrer =
           JsonSchemaInferrer.newBuilder().setMultipleOfPolicy(input -> {
