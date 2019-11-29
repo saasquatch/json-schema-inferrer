@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
 
 /**
@@ -22,7 +23,8 @@ public final class JsonSchemaInferrerBuilder {
   private SpecVersion specVersion = SpecVersion.DRAFT_04;
   private IntegerTypePreference integerTypePreference = IntegerTypePreference.IF_ALL;
   private IntegerTypeCriterion integerTypeCriterion = IntegerTypeCriteria.nonFloatingPoint();
-  private final Collection<FormatInferrer> formatInferrers = new ArrayList<>();
+  @Nullable
+  private Collection<FormatInferrer> formatInferrers;
   private TitleDescriptionGenerator titleDescriptionGenerator = TitleDescriptionGenerators.noOp();
   private AdditionalPropertiesPolicy additionalPropertiesPolicy =
       AdditionalPropertiesPolicies.noOp();
@@ -34,7 +36,8 @@ public final class JsonSchemaInferrerBuilder {
   private Set<ArrayLengthFeature> arrayLengthFeatures = Collections.emptySet();
   private Set<StringLengthFeature> stringLengthFeatures = Collections.emptySet();
   private Set<NumberRangeFeature> numberRangeFeatures = Collections.emptySet();
-  private final Collection<GenericSchemaFeature> additionalSchemaFeatures = new ArrayList<>();
+  @Nullable
+  private Collection<GenericSchemaFeature> additionalSchemaFeatures;
 
   JsonSchemaInferrerBuilder() {}
 
@@ -79,6 +82,9 @@ public final class JsonSchemaInferrerBuilder {
    * @see FormatInferrers
    */
   public JsonSchemaInferrerBuilder addFormatInferrers(@Nonnull FormatInferrer... formatInferrers) {
+    if (this.formatInferrers == null) {
+      this.formatInferrers = new ArrayList<>();
+    }
     for (FormatInferrer formatInferrer : formatInferrers) {
       this.formatInferrers.add(Objects.requireNonNull(formatInferrer));
     }
@@ -194,12 +200,24 @@ public final class JsonSchemaInferrerBuilder {
 
   public JsonSchemaInferrerBuilder addAdditionalSchemaFeatures(
       @Nonnull GenericSchemaFeature... features) {
+    if (this.additionalSchemaFeatures == null) {
+      this.additionalSchemaFeatures = new ArrayList<>();
+    }
     for (GenericSchemaFeature feature : features) {
       this.additionalSchemaFeatures.add(Objects.requireNonNull(feature));
     }
     return this;
   }
 
+  @Nonnull
+  private FormatInferrer getCombinedFormatInferrer() {
+    if (formatInferrers == null) {
+      return FormatInferrers.noOp();
+    }
+    return FormatInferrers.chained(formatInferrers.toArray(new FormatInferrer[0]));
+  }
+
+  @Nonnull
   private GenericSchemaFeature getCombinedGenericSchemaFeature() {
     final List<GenericSchemaFeature> features = new ArrayList<>();
     if (additionalPropertiesPolicy != AdditionalPropertiesPolicies.noOp()) {
@@ -221,7 +239,9 @@ public final class JsonSchemaInferrerBuilder {
     features.addAll(arrayLengthFeatures);
     features.addAll(stringLengthFeatures);
     features.addAll(numberRangeFeatures);
-    features.addAll(additionalSchemaFeatures);
+    if (additionalSchemaFeatures != null) {
+      features.addAll(additionalSchemaFeatures);
+    }
     final GenericSchemaFeature[] featuresArray = features.toArray(new GenericSchemaFeature[0]);
     return GenericSchemaFeatures.chained(featuresArray);
   }
@@ -231,10 +251,8 @@ public final class JsonSchemaInferrerBuilder {
    * @throws IllegalArgumentException if the spec version and features don't match up
    */
   public JsonSchemaInferrer build() {
-    final FormatInferrer formatInferrer =
-        FormatInferrers.chained(formatInferrers.toArray(new FormatInferrer[0]));
     return new JsonSchemaInferrer(specVersion, integerTypePreference, integerTypeCriterion,
-        formatInferrer, titleDescriptionGenerator, getCombinedGenericSchemaFeature());
+        getCombinedFormatInferrer(), titleDescriptionGenerator, getCombinedGenericSchemaFeature());
   }
 
 }
