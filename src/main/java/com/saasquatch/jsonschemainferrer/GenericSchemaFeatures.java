@@ -1,8 +1,10 @@
 package com.saasquatch.jsonschemainferrer;
 
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.newObject;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -26,30 +28,33 @@ public final class GenericSchemaFeatures {
   }
 
   /**
+   * Convenience method for {@link #chained(List)}
+   */
+  public static GenericSchemaFeature chained(@Nonnull GenericSchemaFeature... features) {
+    return chained(Arrays.asList(features));
+  }
+
+  /**
    * @return An {@link GenericSchemaFeature} that uses the given {@link GenericSchemaFeature}s in
    *         the given order, overwriting previous results if add-ons with the same field names
    *         exist.
    * @throws NullPointerException if the input has null elements
    */
-  public static GenericSchemaFeature chained(@Nonnull GenericSchemaFeature... features) {
-    for (GenericSchemaFeature feature : features) {
-      Objects.requireNonNull(feature);
-    }
-    switch (features.length) {
+  public static GenericSchemaFeature chained(@Nonnull List<GenericSchemaFeature> features) {
+    features.forEach(Objects::requireNonNull);
+    switch (features.size()) {
       case 0:
         return noOp();
       case 1:
-        return features[0];
+        return features.get(0);
       default:
         break;
     }
-    return _chained(features.clone());
-  }
-
-  private static GenericSchemaFeature _chained(@Nonnull GenericSchemaFeature[] features) {
+    // Defensive copy
+    final GenericSchemaFeature[] featuresArray = features.toArray(new GenericSchemaFeature[0]);
     return input -> {
       final ObjectNode result = newObject();
-      for (GenericSchemaFeature feature : features) {
+      for (GenericSchemaFeature feature : featuresArray) {
         final ObjectNode featureResult = feature.getFeatureResult(input);
         if (featureResult != null) {
           result.setAll(featureResult);

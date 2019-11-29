@@ -1,7 +1,6 @@
 package com.saasquatch.jsonschemainferrer;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
@@ -24,7 +23,7 @@ public final class JsonSchemaInferrerBuilder {
   private IntegerTypePreference integerTypePreference = IntegerTypePreference.IF_ALL;
   private IntegerTypeCriterion integerTypeCriterion = IntegerTypeCriteria.nonFloatingPoint();
   @Nullable
-  private Collection<FormatInferrer> formatInferrers;
+  private List<FormatInferrer> formatInferrers;
   private TitleDescriptionGenerator titleDescriptionGenerator = TitleDescriptionGenerators.noOp();
   private AdditionalPropertiesPolicy additionalPropertiesPolicy =
       AdditionalPropertiesPolicies.noOp();
@@ -37,7 +36,7 @@ public final class JsonSchemaInferrerBuilder {
   private Set<StringLengthFeature> stringLengthFeatures = Collections.emptySet();
   private Set<NumberRangeFeature> numberRangeFeatures = Collections.emptySet();
   @Nullable
-  private Collection<GenericSchemaFeature> additionalSchemaFeatures;
+  private List<GenericSchemaFeature> additionalSchemaFeatures;
 
   JsonSchemaInferrerBuilder() {}
 
@@ -214,7 +213,7 @@ public final class JsonSchemaInferrerBuilder {
     if (formatInferrers == null) {
       return FormatInferrers.noOp();
     }
-    return FormatInferrers.chained(formatInferrers.toArray(new FormatInferrer[0]));
+    return FormatInferrers.chained(formatInferrers);
   }
 
   @Nonnull
@@ -242,8 +241,7 @@ public final class JsonSchemaInferrerBuilder {
     if (additionalSchemaFeatures != null) {
       features.addAll(additionalSchemaFeatures);
     }
-    final GenericSchemaFeature[] featuresArray = features.toArray(new GenericSchemaFeature[0]);
-    return GenericSchemaFeatures.chained(featuresArray);
+    return GenericSchemaFeatures.chained(features);
   }
 
   /**
