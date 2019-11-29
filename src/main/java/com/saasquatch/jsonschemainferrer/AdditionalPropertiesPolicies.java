@@ -16,7 +16,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  *
  * @author sli
  */
-public class AdditionalPropertiesPolicies {
+public final class AdditionalPropertiesPolicies {
 
   private AdditionalPropertiesPolicies() {}
 

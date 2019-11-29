@@ -2,23 +2,33 @@ package com.saasquatch.jsonschemainferrer;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import com.saasquatch.jsonschemainferrer.annotations.NoExternalImpl;
 
 /**
  * The input for {@link TitleDescriptionGenerator}
  *
  * @author sli
  */
-@NoExternalImpl
-public interface TitleDescriptionGeneratorInput {
+public final class TitleDescriptionGeneratorInput {
+
+  private final String fieldName;
+  private final SpecVersion specVersion;
+
+  TitleDescriptionGeneratorInput(@Nullable String fieldName, @Nonnull SpecVersion specVersion) {
+    this.fieldName = fieldName;
+    this.specVersion = specVersion;
+  }
 
   /**
    * @return The current field name, or null if it's not in an object.
    */
   @Nullable
-  String getFieldName();
+  public String getFieldName() {
+    return fieldName;
+  }
 
   @Nonnull
-  SpecVersion getSpecVersion();
+  public SpecVersion getSpecVersion() {
+    return specVersion;
+  }
 
 }

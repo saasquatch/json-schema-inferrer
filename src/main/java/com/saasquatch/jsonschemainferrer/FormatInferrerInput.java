@@ -2,23 +2,33 @@ package com.saasquatch.jsonschemainferrer;
 
 import javax.annotation.Nonnull;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.saasquatch.jsonschemainferrer.annotations.NoExternalImpl;
 
 /**
  * The input for {@link FormatInferrer}
  *
  * @author sli
  */
-@NoExternalImpl
-public interface FormatInferrerInput {
+public final class FormatInferrerInput {
+
+  private final JsonNode sample;
+  private final SpecVersion specVersion;
+
+  FormatInferrerInput(@Nonnull JsonNode sample, @Nonnull SpecVersion specVersion) {
+    this.sample = sample;
+    this.specVersion = specVersion;
+  }
 
   /**
    * @return The input text value for inference
    */
   @Nonnull
-  JsonNode getSample();
+  public JsonNode getSample() {
+    return sample;
+  }
 
   @Nonnull
-  SpecVersion getSpecVersion();
+  public SpecVersion getSpecVersion() {
+    return specVersion;
+  }
 
 }

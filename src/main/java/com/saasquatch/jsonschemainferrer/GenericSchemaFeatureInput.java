@@ -5,39 +5,59 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.saasquatch.jsonschemainferrer.annotations.NoExternalImpl;
 
 /**
  * Input for {@link GenericSchemaFeature}
  *
  * @author sli
  */
-@NoExternalImpl
-public interface GenericSchemaFeatureInput {
+public final class GenericSchemaFeatureInput {
+
+  private ObjectNode schema;
+  private Collection<? extends JsonNode> samples;
+  private String type;
+  private SpecVersion specVersion;
+
+  GenericSchemaFeatureInput(@Nonnull ObjectNode schema,
+      @Nonnull Collection<? extends JsonNode> samples, @Nullable String type,
+      @Nonnull SpecVersion specVersion) {
+    this.schema = schema;
+    this.samples = samples;
+    this.type = type;
+    this.specVersion = specVersion;
+  }
 
   /**
    * @return The current schema. Note that {@link GenericSchemaFeature}s are not supposed to mutate
    *         the schema.
    */
   @Nonnull
-  ObjectNode getSchema();
+  public ObjectNode getSchema() {
+    return schema;
+  }
 
   /**
    * @return The current samples
    */
   @Nonnull
-  Collection<? extends JsonNode> getSamples();
+  public Collection<? extends JsonNode> getSamples() {
+    return samples;
+  }
 
   /**
    * @return The current type, if available
    */
   @Nullable
-  String getType();
+  public String getType() {
+    return type;
+  }
 
   /**
    * @return The current {@link SpecVersion}
    */
   @Nonnull
-  SpecVersion getSpecVersion();
+  public SpecVersion getSpecVersion() {
+    return specVersion;
+  }
 
 }

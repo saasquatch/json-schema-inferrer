@@ -379,8 +379,8 @@ public class JsonSchemaInferrerOptionsTest {
     }
     {
       final JsonNode examples =
-          ExamplesPolicies.useFirstSamples(1).getExamples(GenericSchemaFeatures
-              .inputOf(jnf.objectNode(), Collections.emptyList(), "string", SpecVersion.DRAFT_07));
+          ExamplesPolicies.useFirstSamples(1).getExamples(new GenericSchemaFeatureInput(
+              jnf.objectNode(), Collections.emptyList(), "string", SpecVersion.DRAFT_07));
       assertNull(examples);
     }
     {

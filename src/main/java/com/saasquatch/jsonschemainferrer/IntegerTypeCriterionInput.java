@@ -2,20 +2,30 @@ package com.saasquatch.jsonschemainferrer;
 
 import javax.annotation.Nonnull;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.saasquatch.jsonschemainferrer.annotations.NoExternalImpl;
 
 /**
  * Input for {@link IntegerTypeCriterion}
  *
  * @author sli
  */
-@NoExternalImpl
-public interface IntegerTypeCriterionInput {
+public final class IntegerTypeCriterionInput {
+
+  private final JsonNode sample;
+  private final SpecVersion specVersion;
+
+  IntegerTypeCriterionInput(@Nonnull JsonNode sample, @Nonnull SpecVersion specVersion) {
+    this.sample = sample;
+    this.specVersion = specVersion;
+  }
 
   @Nonnull
-  JsonNode getSample();
+  public JsonNode getSample() {
+    return sample;
+  }
 
   @Nonnull
-  SpecVersion getSpecVersion();
+  public SpecVersion getSpecVersion() {
+    return specVersion;
+  }
 
 }

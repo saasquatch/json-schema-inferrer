@@ -1,8 +1,6 @@
 package com.saasquatch.jsonschemainferrer;
 
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.isMathematicalIntegerNode;
-import javax.annotation.Nonnull;
-import com.fasterxml.jackson.databind.JsonNode;
 
 /**
  * Utilities for {@link IntegerTypeCriterion}
@@ -27,23 +25,6 @@ public final class IntegerTypeCriteria {
    */
   public static IntegerTypeCriterion mathematicalInteger() {
     return input -> isMathematicalIntegerNode(input.getSample());
-  }
-
-  static IntegerTypeCriterionInput inputOf(@Nonnull JsonNode sample,
-      @Nonnull SpecVersion specVersion) {
-    return new IntegerTypeCriterionInput() {
-
-      @Override
-      public JsonNode getSample() {
-        return sample;
-      }
-
-      @Override
-      public SpecVersion getSpecVersion() {
-        return specVersion;
-      }
-
-    };
   }
 
 }
