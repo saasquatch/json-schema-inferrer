@@ -197,6 +197,9 @@ public final class JsonSchemaInferrerBuilder {
     return this;
   }
 
+  /**
+   * Add custom implementations of {@link GenericSchemaFeature}s.
+   */
   public JsonSchemaInferrerBuilder addAdditionalSchemaFeatures(
       @Nonnull GenericSchemaFeature... features) {
     if (this.additionalSchemaFeatures == null) {
