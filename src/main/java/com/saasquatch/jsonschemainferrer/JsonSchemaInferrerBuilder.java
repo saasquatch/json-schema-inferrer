@@ -22,9 +22,10 @@ public final class JsonSchemaInferrerBuilder {
   private SpecVersion specVersion = SpecVersion.DRAFT_04;
   private IntegerTypePreference integerTypePreference = IntegerTypePreference.IF_ALL;
   private IntegerTypeCriterion integerTypeCriterion = IntegerTypeCriteria.nonFloatingPoint();
+  private EnumCriterion enumCriterion = EnumCriteria.noOp();
+  private DescriptionGenerator descriptionGenerator = DescriptionGenerators.noOp();
   @Nullable
   private List<FormatInferrer> formatInferrers;
-  private DescriptionGenerator descriptionGenerator = DescriptionGenerators.noOp();
   private AdditionalPropertiesPolicy additionalPropertiesPolicy =
       AdditionalPropertiesPolicies.noOp();
   private RequiredPolicy requiredPolicy = RequiredPolicies.noOp();
@@ -68,6 +69,31 @@ public final class JsonSchemaInferrerBuilder {
   }
 
   /**
+   * Set the {@link EnumCriterion}. The default is {@link EnumCriteria#noOp()}.
+   *
+   * @see EnumCriterion
+   * @see EnumCriteria
+   */
+  public JsonSchemaInferrerBuilder setEnumCriterion(@Nonnull EnumCriterion enumCriterion) {
+    this.enumCriterion = Objects.requireNonNull(enumCriterion);
+    return this;
+  }
+
+  /**
+   * Set the {@link DescriptionGenerator} for this inferrer. By default it is
+   * {@link DescriptionGenerators#noOp()}. You can provide your custom implementations and transform
+   * the field names however you see fit.
+   *
+   * @see DescriptionGenerator
+   * @see DescriptionGenerators
+   */
+  public JsonSchemaInferrerBuilder setDescriptionGenerator(
+      @Nonnull DescriptionGenerator descriptionGenerator) {
+    this.descriptionGenerator = Objects.requireNonNull(descriptionGenerator);
+    return this;
+  }
+
+  /**
    * Add a {@link FormatInferrer} for inferring the <a href=
    * "https://json-schema.org/understanding-json-schema/reference/string.html#format">format</a> of
    * strings. By default it uses {@link FormatInferrers#noOp()}. An example of a possible custom
@@ -87,20 +113,6 @@ public final class JsonSchemaInferrerBuilder {
     for (FormatInferrer formatInferrer : formatInferrers) {
       this.formatInferrers.add(Objects.requireNonNull(formatInferrer));
     }
-    return this;
-  }
-
-  /**
-   * Set the {@link DescriptionGenerator} for this inferrer. By default it is
-   * {@link DescriptionGenerators#noOp()}. You can provide your custom implementations and transform
-   * the field names however you see fit.
-   *
-   * @see DescriptionGenerator
-   * @see DescriptionGenerators
-   */
-  public JsonSchemaInferrerBuilder setDescriptionGenerator(
-      @Nonnull DescriptionGenerator descriptionGenerator) {
-    this.descriptionGenerator = Objects.requireNonNull(descriptionGenerator);
     return this;
   }
 
@@ -253,7 +265,8 @@ public final class JsonSchemaInferrerBuilder {
    */
   public JsonSchemaInferrer build() {
     return new JsonSchemaInferrer(specVersion, integerTypePreference, integerTypeCriterion,
-        getCombinedFormatInferrer(), descriptionGenerator, getCombinedGenericSchemaFeature());
+        enumCriterion, descriptionGenerator, getCombinedFormatInferrer(),
+        getCombinedGenericSchemaFeature());
   }
 
 }

@@ -37,6 +37,7 @@ interface Consts {
     String MAXIMUM = "maximum";
     String MULTIPLE_OF = "multipleOf";
     String DOLLAR_COMMENT = "$comment";
+    String ENUM = "enum";
     Set<String> SINGLETON_TYPE = Collections.singleton(TYPE);
   }
 

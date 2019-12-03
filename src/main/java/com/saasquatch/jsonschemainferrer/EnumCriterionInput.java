@@ -20,6 +20,9 @@ public final class EnumCriterionInput {
     this.specVersion = specVersion;
   }
 
+  /**
+   * @return The current samples. Guaranteed to be non-empty.
+   */
   @Nonnull
   public Collection<? extends JsonNode> getSamples() {
     return samples;
