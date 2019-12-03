@@ -129,6 +129,7 @@ final class JunkDrawer {
   static Set<String> getAllFieldNames(@Nonnull Iterable<? extends JsonNode> objectNodes) {
     return stream(objectNodes)
         .flatMap(j -> stream(j.fieldNames()))
+        .filter(Objects::nonNull)
         .collect(Collectors.toSet());
   }
 
@@ -154,8 +155,9 @@ final class JunkDrawer {
     Set<String> commonFieldNames = null;
     for (JsonNode sample : samples) {
       final Set<String> fieldNames = stream(sample.fieldNames())
+          .filter(Objects::nonNull)
           .filter(requireNonNull
-              ? fieldName -> !isNull(sample.get(fieldName))
+              ? fieldName -> nonNull(sample.get(fieldName))
               : fieldName -> true)
           .collect(Collectors.toSet());
       if (commonFieldNames == null) {
@@ -254,6 +256,10 @@ final class JunkDrawer {
       return ((POJONode) j).getPojo() == null;
     }
     return false;
+  }
+
+  static boolean nonNull(@Nullable JsonNode j) {
+    return !isNull(j);
   }
 
 }
