@@ -27,6 +27,7 @@ import com.fasterxml.jackson.databind.node.BigIntegerNode;
 import com.fasterxml.jackson.databind.node.BinaryNode;
 import com.fasterxml.jackson.databind.node.DecimalNode;
 import com.fasterxml.jackson.databind.node.NumericNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.POJONode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.fasterxml.jackson.databind.node.ValueNode;
@@ -51,13 +52,18 @@ public class JunkDrawerTest {
     assertTrue(getCommonFieldNames(Collections.emptyList(), false).isEmpty());
     assertTrue(getCommonFieldNames(Arrays.asList(jnf.objectNode(), jnf.objectNode().put("a", "a"),
         jnf.objectNode().put("b", "b")), false).isEmpty());
-    assertEquals(0,
-        getCommonFieldNames(
-            Arrays.asList(jnf.objectNode().put("a", "a"), jnf.objectNode().put("b", "b")), false)
-                .size());
+    assertEquals(Collections.emptySet(), getCommonFieldNames(
+        Arrays.asList(jnf.objectNode().put("a", "a"), jnf.objectNode().put("b", "b")), false));
     assertEquals(Collections.singleton("a"),
         getCommonFieldNames(Arrays.asList(jnf.objectNode().put("a", 1).put("b", 2),
             jnf.objectNode().put("a", 1).put("b", (String) null)), true));
+    {
+      final TextNode nullTextNode = new TextNode(null);
+      final ObjectNode j1 = jnf.objectNode();
+      j1.set("a", nullTextNode);
+      assertEquals(Collections.emptySet(),
+          getCommonFieldNames(Arrays.asList(j1, jnf.objectNode().put("a", "a")), true));
+    }
   }
 
   @Test
