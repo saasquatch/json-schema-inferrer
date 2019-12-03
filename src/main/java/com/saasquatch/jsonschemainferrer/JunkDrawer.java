@@ -82,10 +82,10 @@ final class JunkDrawer {
   /**
    * Check if the given String is a valid enum name for the given enum class
    */
-  static <E extends Enum<E>> boolean isValidEnum(@Nonnull Class<E> enumType,
+  static <E extends Enum<E>> boolean isValidEnumValue(@Nonnull Class<E> enumClass,
       @Nullable String name) {
     try {
-      Enum.valueOf(enumType, name);
+      Enum.valueOf(enumClass, name);
       return true;
     } catch (RuntimeException e) {
       return false;
