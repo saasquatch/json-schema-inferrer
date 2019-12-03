@@ -79,6 +79,19 @@ final class JunkDrawer {
         format("Unrecognized %s[%s] encountered", enumVal.getClass().getSimpleName(), enumVal));
   }
 
+  /**
+   * Check if the given String is a valid enum name for the given enum class
+   */
+  static <E extends Enum<E>> boolean isValidEnum(@Nonnull Class<E> enumType,
+      @Nullable String name) {
+    try {
+      Enum.valueOf(enumType, name);
+      return true;
+    } catch (RuntimeException e) {
+      return false;
+    }
+  }
+
   static ObjectNode newObject() {
     return JsonNodeFactory.instance.objectNode();
   }

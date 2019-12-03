@@ -5,6 +5,7 @@ import static com.saasquatch.jsonschemainferrer.JunkDrawer.getBase64Length;
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.getCommonFieldNames;
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.getSerializedTextLength;
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.isNull;
+import static com.saasquatch.jsonschemainferrer.JunkDrawer.isValidEnum;
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.numberNode;
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.stringColToArrayDistinct;
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.unrecognizedEnumError;
@@ -69,6 +70,13 @@ public class JunkDrawerTest {
   @Test
   public void testUnrecognizedEnum() {
     assertThrows(IllegalStateException.class, () -> unrecognizedEnumError(TimeUnit.DAYS));
+  }
+
+  @Test
+  public void testValidEnum() {
+    assertTrue(isValidEnum(TimeUnit.class, "SECONDS"));
+    assertFalse(isValidEnum(TimeUnit.class, "seconds"));
+    assertFalse(isValidEnum(TimeUnit.class, null));
   }
 
   @Test
