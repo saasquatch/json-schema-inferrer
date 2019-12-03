@@ -155,7 +155,7 @@ final class JunkDrawer {
     for (JsonNode sample : samples) {
       final Set<String> fieldNames = stream(sample.fieldNames())
           .filter(requireNonNull
-              ? fieldName -> !sample.path(fieldName).isNull()
+              ? fieldName -> !isNull(sample.get(fieldName))
               : fieldName -> true)
           .collect(Collectors.toSet());
       if (commonFieldNames == null) {
@@ -164,7 +164,7 @@ final class JunkDrawer {
         commonFieldNames.retainAll(fieldNames);
       }
     }
-    return commonFieldNames == null ? Collections.emptySet()
+    return commonFieldNames == null || commonFieldNames.isEmpty() ? Collections.emptySet()
         : Collections.unmodifiableSet(commonFieldNames);
   }
 
