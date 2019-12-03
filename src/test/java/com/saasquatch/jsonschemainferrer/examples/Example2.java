@@ -2,6 +2,8 @@ package com.saasquatch.jsonschemainferrer.examples;
 
 import java.net.URI;
 import java.net.URL;
+import java.time.DayOfWeek;
+import java.time.Month;
 import java.util.EnumSet;
 import javax.annotation.Nonnull;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -9,6 +11,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.saasquatch.jsonschemainferrer.AdditionalPropertiesPolicies;
 import com.saasquatch.jsonschemainferrer.ArrayLengthFeature;
+import com.saasquatch.jsonschemainferrer.DescriptionGenerators;
+import com.saasquatch.jsonschemainferrer.EnumCriteria;
 import com.saasquatch.jsonschemainferrer.ExamplesPolicies;
 import com.saasquatch.jsonschemainferrer.FormatInferrerInput;
 import com.saasquatch.jsonschemainferrer.FormatInferrers;
@@ -20,7 +24,6 @@ import com.saasquatch.jsonschemainferrer.ObjectSizeFeature;
 import com.saasquatch.jsonschemainferrer.RequiredPolicies;
 import com.saasquatch.jsonschemainferrer.SpecVersion;
 import com.saasquatch.jsonschemainferrer.StringLengthFeature;
-import com.saasquatch.jsonschemainferrer.DescriptionGenerators;
 
 public class Example2 {
 
@@ -35,6 +38,8 @@ public class Example2 {
       .addFormatInferrers(FormatInferrers.email(), FormatInferrers.dateTime(), FormatInferrers.ip(),
           Example2::absoluteUriFormatInferrer)
       .setMultipleOfPolicy(MultipleOfPolicies.gcd())
+      .setEnumCriterion(EnumCriteria.or(EnumCriteria.isValidEnum(DayOfWeek.class),
+          EnumCriteria.isValidEnum(Month.class)))
       .setArrayLengthFeatures(EnumSet.allOf(ArrayLengthFeature.class))
       .setObjectSizeFeatures(EnumSet.allOf(ObjectSizeFeature.class))
       .setStringLengthFeatures(EnumSet.allOf(StringLengthFeature.class))

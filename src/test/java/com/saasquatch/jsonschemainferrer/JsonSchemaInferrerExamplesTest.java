@@ -5,6 +5,8 @@ import static com.saasquatch.jsonschemainferrer.TestJunkDrawer.mapper;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
 import java.io.IOException;
+import java.time.DayOfWeek;
+import java.time.Month;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -251,6 +253,8 @@ public class JsonSchemaInferrerExamplesTest {
               .setNumberRangeFeatures(EnumSet.allOf(NumberRangeFeature.class))
               .setExamplesPolicy(ExamplesPolicies.useFirstSamples(10))
               .setDefaultPolicy(defaultPolicyIter.next())
+              .setEnumCriterion(EnumCriteria.or(EnumCriteria.limit(3),
+                  EnumCriteria.isValidEnum(DayOfWeek.class), EnumCriteria.isValidEnum(Month.class)))
               .setDescriptionGenerator(new DescriptionGenerator() {
 
                 @Override

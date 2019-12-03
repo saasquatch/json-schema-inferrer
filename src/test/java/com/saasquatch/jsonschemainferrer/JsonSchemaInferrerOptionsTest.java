@@ -1,5 +1,6 @@
 package com.saasquatch.jsonschemainferrer;
 
+import static com.saasquatch.jsonschemainferrer.JunkDrawer.stream;
 import static com.saasquatch.jsonschemainferrer.TestJunkDrawer.jnf;
 import static com.saasquatch.jsonschemainferrer.TestJunkDrawer.toStringSet;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -485,6 +486,9 @@ public class JsonSchemaInferrerOptionsTest {
 
   @Test
   public void testEnum() {
+    assertThrows(NullPointerException.class, () -> EnumCriteria.or(EnumCriteria.noOp(), null));
+    assertThrows(IllegalArgumentException.class, () -> EnumCriteria.or());
+    assertSame(EnumCriteria.noOp(), EnumCriteria.or(EnumCriteria.noOp()));
     final List<JsonNode> timeUnitSamples = Stream.of(TimeUnit.DAYS, TimeUnit.HOURS)
         .map(tu -> jnf.textNode(tu.name())).collect(ImmutableList.toImmutableList());
     {
@@ -500,11 +504,23 @@ public class JsonSchemaInferrerOptionsTest {
     }
     {
       final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
-          .setEnumCriterion(EnumCriteria.or(EnumCriteria.isValidEnum(DayOfWeek.class),
-              input -> false, EnumCriteria.isValidEnum(TimeUnit.class)))
-          .build();
+          .setEnumCriterion(EnumCriteria.or(EnumCriteria.isValidEnum(DayOfWeek.class), input -> {
+            assertNotNull(input.getSpecVersion());
+            return false;
+          }, EnumCriteria.isValidEnum(TimeUnit.class))).build();
       final ObjectNode schema = inferrer.inferForSamples(timeUnitSamples);
       assertEquals(ImmutableSet.of("DAYS", "HOURS"), toStringSet(schema.get("enum")));
+    }
+    {
+      final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
+          .setEnumCriterion(EnumCriteria.or(EnumCriteria.isValidEnum(DayOfWeek.class), input -> {
+            assertNotNull(input.getSpecVersion());
+            return false;
+          }, EnumCriteria.limit(2))).build();
+      final ObjectNode schema =
+          inferrer.inferForSamples(Arrays.asList(jnf.textNode("foo"), jnf.numberNode(123)));
+      assertEquals(ImmutableSet.of(jnf.textNode("foo"), jnf.numberNode(123)),
+          stream(schema.get("enum")).collect(Collectors.toSet()));
     }
   }
 
