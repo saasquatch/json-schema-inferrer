@@ -10,6 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.time.DayOfWeek;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
@@ -17,8 +18,10 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -270,8 +273,8 @@ public class JsonSchemaInferrerOptionsTest {
           .get("title").textValue());
     }
     {
-      final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
-          .setDescriptionGenerator(new DescriptionGenerator() {
+      final JsonSchemaInferrer inferrer =
+          JsonSchemaInferrer.newBuilder().setDescriptionGenerator(new DescriptionGenerator() {
 
             @Override
             public String generateTitle(DescriptionGeneratorInput input) {
@@ -290,8 +293,8 @@ public class JsonSchemaInferrerOptionsTest {
           inferrer.inferForSample(sample).path("properties").path("fieldName").get("description"));
     }
     {
-      final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
-          .setDescriptionGenerator(new DescriptionGenerator() {
+      final JsonSchemaInferrer inferrer =
+          JsonSchemaInferrer.newBuilder().setDescriptionGenerator(new DescriptionGenerator() {
             @Override
             public String generateTitle(DescriptionGeneratorInput input) {
               assertNotNull(input.getSpecVersion());
@@ -303,8 +306,8 @@ public class JsonSchemaInferrerOptionsTest {
           .get("title").textValue());
     }
     {
-      final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
-          .setDescriptionGenerator(new DescriptionGenerator() {
+      final JsonSchemaInferrer inferrer =
+          JsonSchemaInferrer.newBuilder().setDescriptionGenerator(new DescriptionGenerator() {
 
             @Override
             public String generateTitle(DescriptionGeneratorInput input) {
@@ -477,6 +480,31 @@ public class JsonSchemaInferrerOptionsTest {
               .setIntegerTypeCriterion(IntegerTypeCriteria.mathematicalInteger()).build();
       final ObjectNode schema = inferrer.inferForSamples(samples5);
       assertNull(schema.get("multipleOf"));
+    }
+  }
+
+  @Test
+  public void testEnum() {
+    final List<JsonNode> timeUnitSamples = Stream.of(TimeUnit.DAYS, TimeUnit.HOURS)
+        .map(tu -> jnf.textNode(tu.name())).collect(ImmutableList.toImmutableList());
+    {
+      final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder().build();
+      final ObjectNode schema = inferrer.inferForSamples(timeUnitSamples);
+      assertNull(schema.get("enum"));
+    }
+    {
+      final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
+          .setEnumCriterion(EnumCriteria.isValidEnum(TimeUnit.class)).build();
+      final ObjectNode schema = inferrer.inferForSamples(timeUnitSamples);
+      assertEquals(ImmutableSet.of("DAYS", "HOURS"), toStringSet(schema.get("enum")));
+    }
+    {
+      final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
+          .setEnumCriterion(EnumCriteria.or(EnumCriteria.isValidEnum(DayOfWeek.class),
+              input -> false, EnumCriteria.isValidEnum(TimeUnit.class)))
+          .build();
+      final ObjectNode schema = inferrer.inferForSamples(timeUnitSamples);
+      assertEquals(ImmutableSet.of("DAYS", "HOURS"), toStringSet(schema.get("enum")));
     }
   }
 

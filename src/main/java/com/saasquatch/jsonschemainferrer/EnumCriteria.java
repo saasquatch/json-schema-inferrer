@@ -1,6 +1,8 @@
 package com.saasquatch.jsonschemainferrer;
 
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.isValidEnumValue;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -36,7 +38,44 @@ public final class EnumCriteria {
   public static <E extends Enum<E>> EnumCriterion isValidEnum(@Nonnull Class<E> enumClass) {
     Objects.requireNonNull(enumClass);
     return input -> {
-      return input.getSamples().stream().allMatch(j -> isValidEnumValue(enumClass, j.textValue()));
+      return input.getSamples().stream()
+          .allMatch(j -> isValidEnumValue(enumClass, j.textValue()));
+    };
+  }
+
+  /**
+   * Convenience method for {@link #or(List)}.
+   */
+  public static EnumCriterion or(@Nonnull EnumCriterion... criteria) {
+    return or(Arrays.asList(criteria));
+  }
+
+  /**
+   * @return An {@link EnumCriterion} that is a logical or of the given criteria
+   * @throws NullPointerException if the input has null elements
+   * @throws IllegalArgumentException if the input is empty
+   */
+  public static EnumCriterion or(@Nonnull List<EnumCriterion> criteria) {
+    for (EnumCriterion criterion : criteria) {
+      Objects.requireNonNull(criterion);
+    }
+    switch (criteria.size()) {
+      case 0:
+        throw new IllegalArgumentException("Empty criteria");
+      case 1:
+        return criteria.get(0);
+      default:
+        break;
+    }
+    // Defensive copy
+    final EnumCriterion[] criteriaArray = criteria.toArray(new EnumCriterion[0]);
+    return input -> {
+      for (EnumCriterion criterion : criteriaArray) {
+        if (criterion.isEnum(input)) {
+          return true;
+        }
+      }
+      return false;
     };
   }
 
