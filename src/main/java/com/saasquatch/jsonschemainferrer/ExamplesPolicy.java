@@ -7,7 +7,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
- * Policy for {@code examples}. Implementations are expected to be stateless and thread safe.
+ * Policy for {@code examples}. Implementations are expected to be stateless and thread safe. Note
+ * that {@code examples} is new in draft-06, and it's the implementations' job to be compliant with
+ * the specs.
  *
  * @author sli
  */

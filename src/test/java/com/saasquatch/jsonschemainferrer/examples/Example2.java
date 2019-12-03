@@ -20,7 +20,7 @@ import com.saasquatch.jsonschemainferrer.ObjectSizeFeature;
 import com.saasquatch.jsonschemainferrer.RequiredPolicies;
 import com.saasquatch.jsonschemainferrer.SpecVersion;
 import com.saasquatch.jsonschemainferrer.StringLengthFeature;
-import com.saasquatch.jsonschemainferrer.TitleDescriptionGenerators;
+import com.saasquatch.jsonschemainferrer.DescriptionGenerators;
 
 public class Example2 {
 
@@ -31,7 +31,7 @@ public class Example2 {
       .setExamplesPolicy(ExamplesPolicies.useFirstSamples(3))
       .setAdditionalPropertiesPolicy(AdditionalPropertiesPolicies.existingTypes())
       .setRequiredPolicy(RequiredPolicies.nonNullCommonFields())
-      .setTitleDescriptionGenerator(TitleDescriptionGenerators.useFieldNamesAsTitles())
+      .setDescriptionGenerator(DescriptionGenerators.useFieldNamesAsTitles())
       .addFormatInferrers(FormatInferrers.email(), FormatInferrers.dateTime(), FormatInferrers.ip(),
           Example2::absoluteUriFormatInferrer)
       .setMultipleOfPolicy(MultipleOfPolicies.gcd())

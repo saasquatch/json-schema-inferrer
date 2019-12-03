@@ -8,7 +8,8 @@ import org.apache.commons.validator.routines.EmailValidator;
 import org.apache.commons.validator.routines.InetAddressValidator;
 
 /**
- * Exists only to make {@link FormatInferrers} a little bit cleaner
+ * Built-in singleton implementations of {@link FormatInferrer}. Not public. Exists only to make
+ * {@link FormatInferrers} a little bit cleaner.
  *
  * @author sli
  * @see FormatInferrers

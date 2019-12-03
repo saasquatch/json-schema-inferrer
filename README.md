@@ -190,7 +190,7 @@ compile 'com.saasquatch:json-schema-inferrer:0.1.1-alpha-37'
 
 ### Transitive Dependencies
 
-The only required transitive dependencies are [Jackson](https://github.com/FasterXML/jackson) and [FindBugs (JSR305)](http://findbugs.sourceforge.net/). If you opt into using some of the built-in [`FormatInferrers`](https://github.com/saasquatch/json-schema-inferrer/blob/master/src/main/java/com/saasquatch/jsonschemainferrer/FormatInferrers.java), [Commons Validator](https://commons.apache.org/proper/commons-validator/) will also be needed.
+This project requires Java 8. The only required transitive dependencies are [Jackson](https://github.com/FasterXML/jackson) and [FindBugs (JSR305)](http://findbugs.sourceforge.net/). If you opt into using some of the built-in [`FormatInferrers`](https://github.com/saasquatch/json-schema-inferrer/blob/master/src/main/java/com/saasquatch/jsonschemainferrer/FormatInferrers.java), [Commons Validator](https://commons.apache.org/proper/commons-validator/) will also be needed.
 
 ### Pre-release Versions
 

@@ -36,6 +36,7 @@ interface Consts {
     String MINIMUM = "minimum";
     String MAXIMUM = "maximum";
     String MULTIPLE_OF = "multipleOf";
+    String DOLLAR_COMMENT = "$comment";
     Set<String> SINGLETON_TYPE = Collections.singleton(TYPE);
   }
 

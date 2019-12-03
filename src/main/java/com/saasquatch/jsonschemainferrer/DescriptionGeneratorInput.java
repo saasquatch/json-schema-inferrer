@@ -4,16 +4,16 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
- * The input for {@link TitleDescriptionGenerator}
+ * The input for {@link DescriptionGenerator}
  *
  * @author sli
  */
-public final class TitleDescriptionGeneratorInput {
+public final class DescriptionGeneratorInput {
 
   private final String fieldName;
   private final SpecVersion specVersion;
 
-  TitleDescriptionGeneratorInput(@Nullable String fieldName, @Nonnull SpecVersion specVersion) {
+  DescriptionGeneratorInput(@Nullable String fieldName, @Nonnull SpecVersion specVersion) {
     this.fieldName = fieldName;
     this.specVersion = specVersion;
   }

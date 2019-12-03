@@ -42,19 +42,19 @@ public final class JsonSchemaInferrer {
   private final IntegerTypePreference integerTypePreference;
   private final IntegerTypeCriterion integerTypeCriterion;
   private final FormatInferrer formatInferrer;
-  private final TitleDescriptionGenerator titleDescriptionGenerator;
+  private final DescriptionGenerator descriptionGenerator;
   private final GenericSchemaFeature genericSchemaFeature;
 
   JsonSchemaInferrer(@Nonnull SpecVersion specVersion,
       @Nonnull IntegerTypePreference integerTypePreference,
       @Nonnull IntegerTypeCriterion integerTypeCriterion, @Nonnull FormatInferrer formatInferrer,
-      @Nonnull TitleDescriptionGenerator titleDescriptionGenerator,
+      @Nonnull DescriptionGenerator descriptionGenerator,
       @Nonnull GenericSchemaFeature genericSchemaFeature) {
     this.specVersion = specVersion;
     this.integerTypePreference = integerTypePreference;
     this.integerTypeCriterion = integerTypeCriterion;
     this.formatInferrer = formatInferrer;
-    this.titleDescriptionGenerator = titleDescriptionGenerator;
+    this.descriptionGenerator = descriptionGenerator;
     this.genericSchemaFeature = genericSchemaFeature;
   }
 
@@ -139,7 +139,7 @@ public final class JsonSchemaInferrer {
       // Get the vals from samples that have the field name. vals cannot be empty.
       final Stream<JsonNode> samplesStream = getAllValuesForFieldName(objectNodes, fieldName);
       final ObjectNode newProperty = newObject();
-      handleTitleDescriptionGeneration(newProperty, fieldName);
+      handleDescriptionGeneration(newProperty, fieldName);
       final Set<ObjectNode> anyOfs = getAnyOfsFromSamples(samplesStream);
       // anyOfs cannot be empty here, since we should have at least one match of the fieldName
       assert !anyOfs.isEmpty() : "empty anyOfs encountered";
@@ -323,17 +323,19 @@ public final class JsonSchemaInferrer {
     return formatInferrer.inferFormat(input);
   }
 
-  private void handleTitleDescriptionGeneration(@Nonnull ObjectNode schema,
-      @Nullable String fieldName) {
-    final TitleDescriptionGeneratorInput input =
-        new TitleDescriptionGeneratorInput(fieldName, specVersion);
-    final String title = titleDescriptionGenerator.generateTitle(input);
+  private void handleDescriptionGeneration(@Nonnull ObjectNode schema, @Nullable String fieldName) {
+    final DescriptionGeneratorInput input = new DescriptionGeneratorInput(fieldName, specVersion);
+    final String title = descriptionGenerator.generateTitle(input);
     if (title != null) {
       schema.put(Consts.Fields.TITLE, title);
     }
-    final String description = titleDescriptionGenerator.generateDescription(input);
+    final String description = descriptionGenerator.generateDescription(input);
     if (description != null) {
       schema.put(Consts.Fields.DESCRIPTION, description);
+    }
+    final String comment = descriptionGenerator.generateComment(input);
+    if (comment != null) {
+      schema.put(Consts.Fields.DOLLAR_COMMENT, comment);
     }
   }
 

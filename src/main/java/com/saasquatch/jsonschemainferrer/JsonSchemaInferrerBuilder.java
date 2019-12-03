@@ -24,7 +24,7 @@ public final class JsonSchemaInferrerBuilder {
   private IntegerTypeCriterion integerTypeCriterion = IntegerTypeCriteria.nonFloatingPoint();
   @Nullable
   private List<FormatInferrer> formatInferrers;
-  private TitleDescriptionGenerator titleDescriptionGenerator = TitleDescriptionGenerators.noOp();
+  private DescriptionGenerator descriptionGenerator = DescriptionGenerators.noOp();
   private AdditionalPropertiesPolicy additionalPropertiesPolicy =
       AdditionalPropertiesPolicies.noOp();
   private RequiredPolicy requiredPolicy = RequiredPolicies.noOp();
@@ -91,16 +91,16 @@ public final class JsonSchemaInferrerBuilder {
   }
 
   /**
-   * Set the {@link TitleDescriptionGenerator} for this inferrer. By default it is
-   * {@link TitleDescriptionGenerators#noOp()}. You can provide your custom implementations and
-   * transform the field names however you see fit.
+   * Set the {@link DescriptionGenerator} for this inferrer. By default it is
+   * {@link DescriptionGenerators#noOp()}. You can provide your custom implementations and transform
+   * the field names however you see fit.
    *
-   * @see TitleDescriptionGenerator
-   * @see TitleDescriptionGenerators
+   * @see DescriptionGenerator
+   * @see DescriptionGenerators
    */
-  public JsonSchemaInferrerBuilder setTitleDescriptionGenerator(
-      @Nonnull TitleDescriptionGenerator titleDescriptionGenerator) {
-    this.titleDescriptionGenerator = Objects.requireNonNull(titleDescriptionGenerator);
+  public JsonSchemaInferrerBuilder setDescriptionGenerator(
+      @Nonnull DescriptionGenerator descriptionGenerator) {
+    this.descriptionGenerator = Objects.requireNonNull(descriptionGenerator);
     return this;
   }
 
@@ -253,7 +253,7 @@ public final class JsonSchemaInferrerBuilder {
    */
   public JsonSchemaInferrer build() {
     return new JsonSchemaInferrer(specVersion, integerTypePreference, integerTypeCriterion,
-        getCombinedFormatInferrer(), titleDescriptionGenerator, getCombinedGenericSchemaFeature());
+        getCombinedFormatInferrer(), descriptionGenerator, getCombinedGenericSchemaFeature());
   }
 
 }
