@@ -28,6 +28,7 @@ public enum ObjectSizeFeature implements GenericSchemaFeature {
       return result;
     }
   },
+
   /**
    * {@code maxProperties}
    */

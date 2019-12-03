@@ -28,6 +28,7 @@ public enum StringLengthFeature implements GenericSchemaFeature {
       return result;
     }
   },
+
   /**
    * {@code maxLength}
    */

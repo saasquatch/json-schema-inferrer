@@ -24,6 +24,7 @@ public enum IntegerTypePreference {
       return allNumbersAreIntegers;
     }
   },
+
   /**
    * Use {@code integer} if an element is an integer according to the {@link IntegerTypeCriterion}.
    * Note that this option allows {@code integer} and {@code number} to coexist in one (sub)schema.
@@ -35,6 +36,7 @@ public enum IntegerTypePreference {
       return currentNumberIsInteger.getAsBoolean();
     }
   },
+
   /**
    * Never use {@code integer}. Always use {@code number} instead.
    */

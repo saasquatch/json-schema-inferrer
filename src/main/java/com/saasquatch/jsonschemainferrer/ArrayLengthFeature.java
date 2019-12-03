@@ -28,6 +28,7 @@ public enum ArrayLengthFeature implements GenericSchemaFeature {
       return result;
     }
   },
+
   /**
    * {@code maxItems}
    */

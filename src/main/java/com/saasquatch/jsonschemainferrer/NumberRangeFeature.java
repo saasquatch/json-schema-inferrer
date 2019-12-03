@@ -26,6 +26,7 @@ public enum NumberRangeFeature implements GenericSchemaFeature {
           }).orElse(null);
     }
   },
+
   /**
    * {@code maximum}
    */

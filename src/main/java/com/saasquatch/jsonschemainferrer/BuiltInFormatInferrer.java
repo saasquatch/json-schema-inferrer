@@ -21,6 +21,7 @@ enum BuiltInFormatInferrer implements FormatInferrer {
       return null;
     }
   },
+
   DATE_TIME {
     @Override
     public String inferFormat(FormatInferrerInput input) {
@@ -59,6 +60,7 @@ enum BuiltInFormatInferrer implements FormatInferrer {
       return null;
     }
   },
+
   EMAIL {
     @Override
     public String inferFormat(FormatInferrerInput input) {
@@ -72,6 +74,7 @@ enum BuiltInFormatInferrer implements FormatInferrer {
       return null;
     }
   },
+
   IP {
     @Override
     public String inferFormat(FormatInferrerInput input) {
