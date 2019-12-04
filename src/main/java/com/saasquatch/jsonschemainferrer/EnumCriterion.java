@@ -6,7 +6,9 @@ import javax.annotation.Nonnull;
  * Determine whether the given samples should be an {@code enum}.
  *
  * @author sli
+ * @see EnumCriteria
  */
+@FunctionalInterface
 public interface EnumCriterion {
 
   /**
