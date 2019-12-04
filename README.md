@@ -19,29 +19,26 @@ import java.util.Arrays;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.saasquatch.jsonschemainferrer.AdditionalPropertiesPolicies;
-import com.saasquatch.jsonschemainferrer.FormatInferrers;
-import com.saasquatch.jsonschemainferrer.JsonSchemaInferrer;
-import com.saasquatch.jsonschemainferrer.RequiredPolicies;
-import com.saasquatch.jsonschemainferrer.SpecVersion;
+import com.saasquatch.jsonschemainferrer.*;
 
 public class Example {
 
   private static final ObjectMapper mapper = new ObjectMapper();
   private static final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
       .setSpecVersion(SpecVersion.DRAFT_06)
-      .addFormatInferrers(
-          // Requires commons-validator
-          FormatInferrers.email(), FormatInferrers.ip())
+      // Requires commons-validator
+      .addFormatInferrers(FormatInferrers.email(), FormatInferrers.ip())
       .setAdditionalPropertiesPolicy(AdditionalPropertiesPolicies.notAllowed())
       .setRequiredPolicy(RequiredPolicies.nonNullCommonFields())
+      .setEnumCriterion(EnumCriteria.or(EnumCriteria.isValidEnum(java.time.DayOfWeek.class),
+          EnumCriteria.isValidEnum(java.time.Month.class)))
       .build();
 
   public static void main(String[] args) throws Exception {
     final JsonNode sample1 = mapper.readTree(
-        "{\"🙈\":\"https://saasquatch.com\",\"🙉\":[-1.5,2,\"hello@saasquat.ch\",false],\"🙊\":3}");
+        "{\"🙈\":\"https://saasquatch.com\",\"🙉\":[-1.5,2,\"hello@saasquat.ch\",false],\"🙊\":3,\"weekdays\":[\"MONDAY\",\"TUESDAY\"]}");
     final JsonNode sample2 = mapper.readTree(
-        "{\"🙈\":1,\"🙉\":{\"🐒\":true,\"🐵\":[2,\"1234:5678::\"],\"🍌\":null},\"🙊\":null}");
+        "{\"🙈\":1,\"🙉\":{\"🐒\":true,\"🐵\":[2,\"1234:5678::\"],\"🍌\":null},\"🙊\":null,\"months\":[\"JANUARY\",\"FEBRUARY\"]}");
     final ObjectNode resultForSample1 = inferrer.inferForSample(sample1);
     final ObjectNode resultForSample1And2 =
         inferrer.inferForSamples(Arrays.asList(sample1, sample2));
@@ -59,7 +56,8 @@ In the code above, `sample1` is:
 {
   "🙈": "https://saasquatch.com",
   "🙉": [-1.5, 2, "hello@saasquat.ch", false],
-  "🙊": 3
+  "🙊": 3,
+  "weekdays": ["MONDAY", "TUESDAY"]
 }
 ```
 
@@ -69,7 +67,8 @@ In the code above, `sample1` is:
 {
   "🙈": 1,
   "🙉": { "🐒": true, "🐵": [2, "1234:5678::"], "🍌": null },
-  "🙊": null
+  "🙊": null,
+  "months": ["JANUARY", "FEBRUARY"]
 }
 ```
 
@@ -82,6 +81,7 @@ In the code above, `sample1` is:
   "properties": {
     "🙈": { "type": "string" },
     "🙊": { "type": "integer" },
+    "weekdays": { "type": "array", "items": { "enum": ["MONDAY", "TUESDAY"] } },
     "🙉": {
       "type": "array",
       "items": {
@@ -93,7 +93,7 @@ In the code above, `sample1` is:
     }
   },
   "additionalProperties": false,
-  "required": ["🙈", "🙊", "🙉"]
+  "required": ["🙈", "🙊", "weekdays", "🙉"]
 }
 ```
 
@@ -105,7 +105,9 @@ And `resultForSample1And2` is:
   "type": "object",
   "properties": {
     "🙈": { "type": ["string", "integer"] },
+    "months": { "type": "array", "items": { "enum": ["JANUARY", "FEBRUARY"] } },
     "🙊": { "type": ["null", "integer"] },
+    "weekdays": { "type": "array", "items": { "enum": ["MONDAY", "TUESDAY"] } },
     "🙉": {
       "anyOf": [
         {
