@@ -2,7 +2,6 @@ package com.saasquatch.jsonschemainferrer;
 
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.getSerializedTextLength;
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.newObject;
-import java.util.OptionalInt;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
@@ -18,13 +17,14 @@ public enum StringLengthFeature implements GenericSchemaFeature {
   MIN_LENGTH {
     @Override
     public ObjectNode getFeatureResult(GenericSchemaFeatureInput input) {
-      final OptionalInt optMinLength = input.getSamples().stream()
-          .mapToInt(j -> getSerializedTextLength(j)).filter(len -> len >= 0).min();
-      if (!optMinLength.isPresent()) {
+      if (!Consts.Types.STRING.equals(input.getType())) {
         return null;
       }
       final ObjectNode result = newObject();
-      result.put(Consts.Fields.MIN_LENGTH, optMinLength.getAsInt());
+     input.getSamples().stream()
+          .mapToInt(j -> getSerializedTextLength(j))
+          .min()
+          .ifPresent(minLength -> result.put(Consts.Fields.MIN_LENGTH, minLength));
       return result;
     }
   },
@@ -35,13 +35,14 @@ public enum StringLengthFeature implements GenericSchemaFeature {
   MAX_LENGTH {
     @Override
     public ObjectNode getFeatureResult(GenericSchemaFeatureInput input) {
-      final OptionalInt optMaxLength = input.getSamples().stream()
-          .mapToInt(j -> getSerializedTextLength(j)).filter(len -> len >= 0).max();
-      if (!optMaxLength.isPresent()) {
+      if (!Consts.Types.STRING.equals(input.getType())) {
         return null;
       }
       final ObjectNode result = newObject();
-      result.put(Consts.Fields.MAX_LENGTH, optMaxLength.getAsInt());
+      input.getSamples().stream()
+          .mapToInt(j -> getSerializedTextLength(j))
+          .max()
+          .ifPresent(maxLength -> result.put(Consts.Fields.MAX_LENGTH, maxLength));
       return result;
     }
   },;

@@ -253,7 +253,7 @@ public class JsonSchemaInferrerExamplesTest {
               .setNumberRangeFeatures(EnumSet.allOf(NumberRangeFeature.class))
               .setExamplesPolicy(ExamplesPolicies.useFirstSamples(10))
               .setDefaultPolicy(defaultPolicyIter.next())
-              .setEnumCriterion(EnumCriteria.or(EnumCriteria.limit(3),
+              .setEnumCriterion(EnumCriteria.or(input -> input.getSamples().size() <= 3,
                   EnumCriteria.isValidEnum(DayOfWeek.class), EnumCriteria.isValidEnum(Month.class)))
               .setDescriptionGenerator(new DescriptionGenerator() {
 

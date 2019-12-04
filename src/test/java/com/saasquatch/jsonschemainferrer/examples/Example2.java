@@ -39,7 +39,8 @@ public class Example2 {
           Example2::absoluteUriFormatInferrer)
       .setMultipleOfPolicy(MultipleOfPolicies.gcd())
       .setEnumCriterion(EnumCriteria.or(EnumCriteria.isValidEnum(DayOfWeek.class),
-          EnumCriteria.isValidEnum(Month.class)))
+          EnumCriteria.isValidEnum(Month.class),
+          input -> input.getSamples().size() < 10))
       .setArrayLengthFeatures(EnumSet.allOf(ArrayLengthFeature.class))
       .setObjectSizeFeatures(EnumSet.allOf(ObjectSizeFeature.class))
       .setStringLengthFeatures(EnumSet.allOf(StringLengthFeature.class))

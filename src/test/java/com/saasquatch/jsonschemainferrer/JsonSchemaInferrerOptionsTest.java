@@ -516,7 +516,7 @@ public class JsonSchemaInferrerOptionsTest {
           .setEnumCriterion(EnumCriteria.or(EnumCriteria.isValidEnum(DayOfWeek.class), input -> {
             assertNotNull(input.getSpecVersion());
             return false;
-          }, EnumCriteria.limit(2))).build();
+          }, input -> input.getSamples().size() <= 3)).build();
       final ObjectNode schema =
           inferrer.inferForSamples(Arrays.asList(jnf.textNode("foo"), jnf.numberNode(123)));
       assertEquals(ImmutableSet.of(jnf.textNode("foo"), jnf.numberNode(123)),

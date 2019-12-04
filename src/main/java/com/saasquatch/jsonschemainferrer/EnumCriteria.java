@@ -4,7 +4,6 @@ import static com.saasquatch.jsonschemainferrer.JunkDrawer.isValidEnumValue;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 /**
@@ -21,14 +20,6 @@ public final class EnumCriteria {
    */
   public static EnumCriterion noOp() {
     return input -> false;
-  }
-
-  /**
-   * @return An {@link EnumCriterion} where the samples are part of an enum if the sample size is
-   *         less than or equal to the limit.
-   */
-  public static EnumCriterion limit(@Nonnegative int limit) {
-    return input -> input.getSamples().size() <= limit;
   }
 
   /**

@@ -1,7 +1,6 @@
 package com.saasquatch.jsonschemainferrer;
 
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.newObject;
-import java.util.OptionalInt;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
@@ -18,13 +17,15 @@ public enum ArrayLengthFeature implements GenericSchemaFeature {
   MIN_ITEMS {
     @Override
     public ObjectNode getFeatureResult(GenericSchemaFeatureInput input) {
-      final OptionalInt optMinItems =
-          input.getSamples().stream().filter(JsonNode::isArray).mapToInt(JsonNode::size).min();
-      if (!optMinItems.isPresent()) {
+      if (!Consts.Types.ARRAY.equals(input.getType())) {
         return null;
       }
       final ObjectNode result = newObject();
-      result.put(Consts.Fields.MIN_ITEMS, optMinItems.getAsInt());
+      input.getSamples().stream()
+          .filter(JsonNode::isArray)
+          .mapToInt(JsonNode::size)
+          .min()
+          .ifPresent(minItems -> result.put(Consts.Fields.MIN_ITEMS, minItems));
       return result;
     }
   },
@@ -35,13 +36,15 @@ public enum ArrayLengthFeature implements GenericSchemaFeature {
   MAX_ITEMS {
     @Override
     public ObjectNode getFeatureResult(GenericSchemaFeatureInput input) {
-      final OptionalInt optMaxItems =
-          input.getSamples().stream().filter(JsonNode::isArray).mapToInt(JsonNode::size).max();
-      if (!optMaxItems.isPresent()) {
+      if (!Consts.Types.ARRAY.equals(input.getType())) {
         return null;
       }
       final ObjectNode result = newObject();
-      result.put(Consts.Fields.MAX_ITEMS, optMaxItems.getAsInt());
+      input.getSamples().stream()
+          .filter(JsonNode::isArray)
+          .mapToInt(JsonNode::size)
+          .max()
+          .ifPresent(maxItems -> result.put(Consts.Fields.MAX_ITEMS, maxItems));
       return result;
     }
   },;
