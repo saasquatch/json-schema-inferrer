@@ -1,6 +1,7 @@
 package com.saasquatch.jsonschemainferrer;
 
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.isValidEnumValue;
+import static com.saasquatch.jsonschemainferrer.JunkDrawer.isValidEnumValueIgnoreCase;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -31,6 +32,19 @@ public final class EnumCriteria {
     return input -> {
       return input.getSamples().stream()
           .allMatch(j -> isValidEnumValue(enumClass, j.textValue()));
+    };
+  }
+
+  /**
+   * @return An {@link EnumCriterion} that returns true if all the samples are valid enum values of
+   *         a Java enum ignoring case.
+   */
+  public static <E extends Enum<E>> EnumCriterion isValidEnumIgnoreCase(
+      @Nonnull Class<E> enumClass) {
+    Objects.requireNonNull(enumClass);
+    return input -> {
+      return input.getSamples().stream()
+          .allMatch(j -> isValidEnumValueIgnoreCase(enumClass, j.textValue()));
     };
   }
 

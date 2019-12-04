@@ -507,7 +507,7 @@ public class JsonSchemaInferrerOptionsTest {
           .setEnumCriterion(EnumCriteria.or(EnumCriteria.isValidEnum(DayOfWeek.class), input -> {
             assertNotNull(input.getSpecVersion());
             return false;
-          }, EnumCriteria.isValidEnum(TimeUnit.class))).build();
+          }, EnumCriteria.isValidEnumIgnoreCase(TimeUnit.class))).build();
       final ObjectNode schema = inferrer.inferForSamples(timeUnitSamples);
       assertEquals(ImmutableSet.of("DAYS", "HOURS"), toStringSet(schema.get("enum")));
     }

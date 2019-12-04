@@ -92,6 +92,22 @@ final class JunkDrawer {
     }
   }
 
+  /**
+   * Check if the given String is a valid enum name for the given enum class ignoring case.
+   */
+  static <E extends Enum<E>> boolean isValidEnumValueIgnoreCase(@Nonnull Class<E> enumClass,
+      @Nullable String name) {
+    if (name == null) {
+      return false;
+    }
+    for (E enumConst : enumClass.getEnumConstants()) {
+      if (enumConst.name().equalsIgnoreCase(name)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   static ObjectNode newObject() {
     return JsonNodeFactory.instance.objectNode();
   }
