@@ -58,6 +58,16 @@
       <artifactId>commons-validator</artifactId>
       <version>1.6</version>
       <optional>true</optional>
+      <exclusions>
+        <exclusion>
+          <artifactId>commons-beanutils</artifactId>
+          <groupId>commons-beanutils</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>commons-digester</artifactId>
+          <groupId>commons-digester</groupId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>com.github.everit-org.json-schema</groupId>
@@ -124,10 +134,6 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <version>3.0.0-M4</version>
-        <!-- <configuration>
-          <groups>acceptance | !feature-a</groups>
-          <excludedGroups>integration, regression</excludedGroups>
-        </configuration> -->
       </plugin>
       <plugin>
         <groupId>org.jacoco</groupId>
