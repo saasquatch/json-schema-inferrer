@@ -274,8 +274,8 @@ public class JsonSchemaInferrerOptionsTest {
           .get("title").textValue());
     }
     {
-      final JsonSchemaInferrer inferrer =
-          JsonSchemaInferrer.newBuilder().setTitleDescriptionGenerator(new TitleDescriptionGenerator() {
+      final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
+          .setTitleDescriptionGenerator(new TitleDescriptionGenerator() {
 
             @Override
             public String generateTitle(TitleDescriptionGeneratorInput input) {
@@ -294,8 +294,8 @@ public class JsonSchemaInferrerOptionsTest {
           inferrer.inferForSample(sample).path("properties").path("fieldName").get("description"));
     }
     {
-      final JsonSchemaInferrer inferrer =
-          JsonSchemaInferrer.newBuilder().setTitleDescriptionGenerator(new TitleDescriptionGenerator() {
+      final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
+          .setTitleDescriptionGenerator(new TitleDescriptionGenerator() {
             @Override
             public String generateTitle(TitleDescriptionGeneratorInput input) {
               assertNotNull(input.getSpecVersion());
@@ -307,8 +307,8 @@ public class JsonSchemaInferrerOptionsTest {
           .get("title").textValue());
     }
     {
-      final JsonSchemaInferrer inferrer =
-          JsonSchemaInferrer.newBuilder().setTitleDescriptionGenerator(new TitleDescriptionGenerator() {
+      final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
+          .setTitleDescriptionGenerator(new TitleDescriptionGenerator() {
 
             @Override
             public String generateTitle(TitleDescriptionGeneratorInput input) {
@@ -498,22 +498,22 @@ public class JsonSchemaInferrerOptionsTest {
     }
     {
       final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
-          .setEnumCriterion(EnumCriteria.isValidEnum(TimeUnit.class)).build();
+          .setEnumCriterion(EnumCriteria.validEnum(TimeUnit.class)).build();
       final ObjectNode schema = inferrer.inferForSamples(timeUnitSamples);
       assertEquals(ImmutableSet.of("DAYS", "HOURS"), toStringSet(schema.get("enum")));
     }
     {
       final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
-          .setEnumCriterion(EnumCriteria.or(EnumCriteria.isValidEnum(DayOfWeek.class), input -> {
+          .setEnumCriterion(EnumCriteria.or(EnumCriteria.validEnum(DayOfWeek.class), input -> {
             assertNotNull(input.getSpecVersion());
             return false;
-          }, EnumCriteria.isValidEnumIgnoreCase(TimeUnit.class))).build();
+          }, EnumCriteria.validEnumIgnoreCase(TimeUnit.class))).build();
       final ObjectNode schema = inferrer.inferForSamples(timeUnitSamples);
       assertEquals(ImmutableSet.of("DAYS", "HOURS"), toStringSet(schema.get("enum")));
     }
     {
       final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
-          .setEnumCriterion(EnumCriteria.or(EnumCriteria.isValidEnum(DayOfWeek.class), input -> {
+          .setEnumCriterion(EnumCriteria.or(EnumCriteria.validEnum(DayOfWeek.class), input -> {
             assertNotNull(input.getSpecVersion());
             return false;
           }, input -> input.getSamples().size() <= 3)).build();

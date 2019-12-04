@@ -82,7 +82,7 @@ final class JunkDrawer {
   /**
    * Check if the given String is a valid enum name for the given enum class
    */
-  static <E extends Enum<E>> boolean isValidEnumValue(@Nonnull Class<E> enumClass,
+  static <E extends Enum<E>> boolean isValidEnum(@Nonnull Class<E> enumClass,
       @Nullable String name) {
     try {
       Enum.valueOf(enumClass, name);
@@ -95,7 +95,7 @@ final class JunkDrawer {
   /**
    * Check if the given String is a valid enum name for the given enum class ignoring case.
    */
-  static <E extends Enum<E>> boolean isValidEnumValueIgnoreCase(@Nonnull Class<E> enumClass,
+  static <E extends Enum<E>> boolean isValidEnumIgnoreCase(@Nonnull Class<E> enumClass,
       @Nullable String name) {
     if (name == null) {
       return false;

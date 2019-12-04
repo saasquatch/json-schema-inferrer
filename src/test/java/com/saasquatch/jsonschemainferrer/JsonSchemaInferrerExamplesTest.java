@@ -254,7 +254,7 @@ public class JsonSchemaInferrerExamplesTest {
               .setExamplesPolicy(ExamplesPolicies.useFirstSamples(10))
               .setDefaultPolicy(defaultPolicyIter.next())
               .setEnumCriterion(EnumCriteria.or(input -> input.getSamples().size() <= 3,
-                  EnumCriteria.isValidEnum(DayOfWeek.class), EnumCriteria.isValidEnum(Month.class)))
+                  EnumCriteria.validEnum(DayOfWeek.class), EnumCriteria.validEnum(Month.class)))
               .setTitleDescriptionGenerator(new TitleDescriptionGenerator() {
 
                 @Override

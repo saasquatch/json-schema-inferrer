@@ -5,8 +5,8 @@ import static com.saasquatch.jsonschemainferrer.JunkDrawer.getBase64Length;
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.getCommonFieldNames;
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.getSerializedTextLength;
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.isNull;
-import static com.saasquatch.jsonschemainferrer.JunkDrawer.isValidEnumValue;
-import static com.saasquatch.jsonschemainferrer.JunkDrawer.isValidEnumValueIgnoreCase;
+import static com.saasquatch.jsonschemainferrer.JunkDrawer.isValidEnum;
+import static com.saasquatch.jsonschemainferrer.JunkDrawer.isValidEnumIgnoreCase;
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.numberNode;
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.stringColToArrayDistinct;
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.unrecognizedEnumError;
@@ -75,12 +75,12 @@ public class JunkDrawerTest {
 
   @Test
   public void testValidEnum() {
-    assertTrue(isValidEnumValue(TimeUnit.class, "SECONDS"));
-    assertFalse(isValidEnumValue(TimeUnit.class, "seconds"));
-    assertTrue(isValidEnumValueIgnoreCase(TimeUnit.class, "seconds"));
-    assertFalse(isValidEnumValueIgnoreCase(TimeUnit.class, "second"));
-    assertFalse(isValidEnumValue(TimeUnit.class, null));
-    assertFalse(isValidEnumValueIgnoreCase(TimeUnit.class, null));
+    assertTrue(isValidEnum(TimeUnit.class, "SECONDS"));
+    assertFalse(isValidEnum(TimeUnit.class, "seconds"));
+    assertTrue(isValidEnumIgnoreCase(TimeUnit.class, "seconds"));
+    assertFalse(isValidEnumIgnoreCase(TimeUnit.class, "second"));
+    assertFalse(isValidEnum(TimeUnit.class, null));
+    assertFalse(isValidEnumIgnoreCase(TimeUnit.class, null));
   }
 
   @Test

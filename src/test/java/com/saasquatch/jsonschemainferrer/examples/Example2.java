@@ -38,8 +38,8 @@ public class Example2 {
       .addFormatInferrers(FormatInferrers.email(), FormatInferrers.dateTime(), FormatInferrers.ip(),
           Example2::absoluteUriFormatInferrer)
       .setMultipleOfPolicy(MultipleOfPolicies.gcd())
-      .setEnumCriterion(EnumCriteria.or(EnumCriteria.isValidEnumIgnoreCase(DayOfWeek.class),
-          EnumCriteria.isValidEnumIgnoreCase(Month.class),
+      .setEnumCriterion(EnumCriteria.or(EnumCriteria.validEnumIgnoreCase(DayOfWeek.class),
+          EnumCriteria.validEnumIgnoreCase(Month.class),
           input -> input.getSamples().size() < 100))
       .setArrayLengthFeatures(EnumSet.allOf(ArrayLengthFeature.class))
       .setObjectSizeFeatures(EnumSet.allOf(ObjectSizeFeature.class))

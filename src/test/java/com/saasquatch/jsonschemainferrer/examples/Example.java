@@ -20,8 +20,8 @@ public class Example {
       .addFormatInferrers(FormatInferrers.email(), FormatInferrers.ip())
       .setAdditionalPropertiesPolicy(AdditionalPropertiesPolicies.notAllowed())
       .setRequiredPolicy(RequiredPolicies.nonNullCommonFields())
-      .setEnumCriterion(EnumCriteria.or(EnumCriteria.isValidEnum(java.time.DayOfWeek.class),
-          EnumCriteria.isValidEnum(java.time.Month.class)))
+      .setEnumCriterion(EnumCriteria.or(EnumCriteria.validEnum(java.time.DayOfWeek.class),
+          EnumCriteria.validEnum(java.time.Month.class)))
       .build();
 
   public static void main(String[] args) throws Exception {
