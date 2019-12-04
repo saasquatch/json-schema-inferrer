@@ -8,9 +8,9 @@ import javax.annotation.Nullable;
  * Implementations are expected to be stateless and thread safe.
  *
  * @author sli
- * @see DescriptionGenerators
+ * @see TitleDescriptionGenerators
  */
-public interface DescriptionGenerator {
+public interface TitleDescriptionGenerator {
 
   /**
    * Generate a {@code title} based on the input
@@ -18,7 +18,7 @@ public interface DescriptionGenerator {
    * @return The generated title, or null if no title is generated
    */
   @Nullable
-  default String generateTitle(@Nonnull DescriptionGeneratorInput input) {
+  default String generateTitle(@Nonnull TitleDescriptionGeneratorInput input) {
     return null;
   }
 
@@ -28,7 +28,7 @@ public interface DescriptionGenerator {
    * @return The generated title, or null if no description is generated
    */
   @Nullable
-  default String generateDescription(@Nonnull DescriptionGeneratorInput input) {
+  default String generateDescription(@Nonnull TitleDescriptionGeneratorInput input) {
     return null;
   }
 
@@ -39,7 +39,7 @@ public interface DescriptionGenerator {
    * @return The generated comment, or null if no comment is generated
    */
   @Nullable
-  default String generateComment(@Nonnull DescriptionGeneratorInput input) {
+  default String generateComment(@Nonnull TitleDescriptionGeneratorInput input) {
     return null;
   }
 

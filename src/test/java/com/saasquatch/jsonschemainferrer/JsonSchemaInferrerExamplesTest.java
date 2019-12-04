@@ -255,20 +255,20 @@ public class JsonSchemaInferrerExamplesTest {
               .setDefaultPolicy(defaultPolicyIter.next())
               .setEnumCriterion(EnumCriteria.or(input -> input.getSamples().size() <= 3,
                   EnumCriteria.isValidEnum(DayOfWeek.class), EnumCriteria.isValidEnum(Month.class)))
-              .setDescriptionGenerator(new DescriptionGenerator() {
+              .setTitleDescriptionGenerator(new TitleDescriptionGenerator() {
 
                 @Override
-                public String generateTitle(DescriptionGeneratorInput input) {
+                public String generateTitle(TitleDescriptionGeneratorInput input) {
                   return input.getFieldName();
                 }
 
                 @Override
-                public String generateDescription(DescriptionGeneratorInput input) {
+                public String generateDescription(TitleDescriptionGeneratorInput input) {
                   return input.getFieldName();
                 }
 
                 @Override
-                public String generateComment(DescriptionGeneratorInput input) {
+                public String generateComment(TitleDescriptionGeneratorInput input) {
                   if (input.getSpecVersion().compareTo(SpecVersion.DRAFT_07) < 0) {
                     return null;
                   }

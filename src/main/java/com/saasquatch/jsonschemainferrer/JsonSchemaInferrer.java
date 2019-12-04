@@ -42,20 +42,20 @@ public final class JsonSchemaInferrer {
   private final IntegerTypePreference integerTypePreference;
   private final IntegerTypeCriterion integerTypeCriterion;
   private final EnumCriterion enumCriterion;
-  private final DescriptionGenerator descriptionGenerator;
+  private final TitleDescriptionGenerator titleDescriptionGenerator;
   private final FormatInferrer formatInferrer;
   private final GenericSchemaFeature genericSchemaFeature;
 
   JsonSchemaInferrer(@Nonnull SpecVersion specVersion,
       @Nonnull IntegerTypePreference integerTypePreference,
       @Nonnull IntegerTypeCriterion integerTypeCriterion, @Nonnull EnumCriterion enumCriterion,
-      @Nonnull DescriptionGenerator descriptionGenerator, @Nonnull FormatInferrer formatInferrer,
-      @Nonnull GenericSchemaFeature genericSchemaFeature) {
+      @Nonnull TitleDescriptionGenerator titleDescriptionGenerator,
+      @Nonnull FormatInferrer formatInferrer, @Nonnull GenericSchemaFeature genericSchemaFeature) {
     this.specVersion = specVersion;
     this.integerTypePreference = integerTypePreference;
     this.integerTypeCriterion = integerTypeCriterion;
     this.enumCriterion = enumCriterion;
-    this.descriptionGenerator = descriptionGenerator;
+    this.titleDescriptionGenerator = titleDescriptionGenerator;
     this.formatInferrer = formatInferrer;
     this.genericSchemaFeature = genericSchemaFeature;
   }
@@ -344,16 +344,17 @@ public final class JsonSchemaInferrer {
   }
 
   private void handleDescriptionGeneration(@Nonnull ObjectNode schema, @Nullable String fieldName) {
-    final DescriptionGeneratorInput input = new DescriptionGeneratorInput(fieldName, specVersion);
-    final String title = descriptionGenerator.generateTitle(input);
+    final TitleDescriptionGeneratorInput input =
+        new TitleDescriptionGeneratorInput(fieldName, specVersion);
+    final String title = titleDescriptionGenerator.generateTitle(input);
     if (title != null) {
       schema.put(Consts.Fields.TITLE, title);
     }
-    final String description = descriptionGenerator.generateDescription(input);
+    final String description = titleDescriptionGenerator.generateDescription(input);
     if (description != null) {
       schema.put(Consts.Fields.DESCRIPTION, description);
     }
-    final String comment = descriptionGenerator.generateComment(input);
+    final String comment = titleDescriptionGenerator.generateComment(input);
     if (comment != null) {
       schema.put(Consts.Fields.DOLLAR_COMMENT, comment);
     }

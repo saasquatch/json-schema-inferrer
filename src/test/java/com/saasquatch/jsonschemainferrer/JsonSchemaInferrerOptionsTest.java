@@ -262,31 +262,31 @@ public class JsonSchemaInferrerOptionsTest {
     final JsonNode sample = jnf.objectNode().put("fieldName", "value");
     {
       final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
-          .setDescriptionGenerator(DescriptionGenerators.noOp()).build();
+          .setTitleDescriptionGenerator(TitleDescriptionGenerators.noOp()).build();
       assertNull(inferrer.inferForSample(sample).path("properties").path("fieldName").get("title"));
       assertNull(
           inferrer.inferForSample(sample).path("properties").path("fieldName").get("description"));
     }
     {
       final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
-          .setDescriptionGenerator(DescriptionGenerators.useFieldNamesAsTitles()).build();
+          .setTitleDescriptionGenerator(TitleDescriptionGenerators.useFieldNamesAsTitles()).build();
       assertEquals("fieldName", inferrer.inferForSample(sample).path("properties").path("fieldName")
           .get("title").textValue());
     }
     {
       final JsonSchemaInferrer inferrer =
-          JsonSchemaInferrer.newBuilder().setDescriptionGenerator(new DescriptionGenerator() {
+          JsonSchemaInferrer.newBuilder().setTitleDescriptionGenerator(new TitleDescriptionGenerator() {
 
             @Override
-            public String generateTitle(DescriptionGeneratorInput input) {
+            public String generateTitle(TitleDescriptionGeneratorInput input) {
               assertNotNull(input.getSpecVersion());
               return null;
             }
 
             @Override
-            public String generateDescription(DescriptionGeneratorInput input) {
+            public String generateDescription(TitleDescriptionGeneratorInput input) {
               assertNotNull(input.getSpecVersion());
-              return DescriptionGenerator.super.generateDescription(input);
+              return TitleDescriptionGenerator.super.generateDescription(input);
             }
 
           }).build();
@@ -295,9 +295,9 @@ public class JsonSchemaInferrerOptionsTest {
     }
     {
       final JsonSchemaInferrer inferrer =
-          JsonSchemaInferrer.newBuilder().setDescriptionGenerator(new DescriptionGenerator() {
+          JsonSchemaInferrer.newBuilder().setTitleDescriptionGenerator(new TitleDescriptionGenerator() {
             @Override
-            public String generateTitle(DescriptionGeneratorInput input) {
+            public String generateTitle(TitleDescriptionGeneratorInput input) {
               assertNotNull(input.getSpecVersion());
               return Optional.ofNullable(input.getFieldName()).map(String::toUpperCase)
                   .orElse(null);
@@ -308,15 +308,15 @@ public class JsonSchemaInferrerOptionsTest {
     }
     {
       final JsonSchemaInferrer inferrer =
-          JsonSchemaInferrer.newBuilder().setDescriptionGenerator(new DescriptionGenerator() {
+          JsonSchemaInferrer.newBuilder().setTitleDescriptionGenerator(new TitleDescriptionGenerator() {
 
             @Override
-            public String generateTitle(DescriptionGeneratorInput input) {
+            public String generateTitle(TitleDescriptionGeneratorInput input) {
               return null;
             }
 
             @Override
-            public String generateDescription(DescriptionGeneratorInput input) {
+            public String generateDescription(TitleDescriptionGeneratorInput input) {
               assertNotNull(input.getSpecVersion());
               return Optional.ofNullable(input.getFieldName()).map(String::toUpperCase)
                   .orElse(null);

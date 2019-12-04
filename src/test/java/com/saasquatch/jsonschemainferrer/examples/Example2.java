@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.saasquatch.jsonschemainferrer.AdditionalPropertiesPolicies;
 import com.saasquatch.jsonschemainferrer.ArrayLengthFeature;
-import com.saasquatch.jsonschemainferrer.DescriptionGenerators;
+import com.saasquatch.jsonschemainferrer.TitleDescriptionGenerators;
 import com.saasquatch.jsonschemainferrer.EnumCriteria;
 import com.saasquatch.jsonschemainferrer.ExamplesPolicies;
 import com.saasquatch.jsonschemainferrer.FormatInferrerInput;
@@ -34,7 +34,7 @@ public class Example2 {
       .setExamplesPolicy(ExamplesPolicies.useFirstSamples(3))
       .setAdditionalPropertiesPolicy(AdditionalPropertiesPolicies.existingTypes())
       .setRequiredPolicy(RequiredPolicies.nonNullCommonFields())
-      .setDescriptionGenerator(DescriptionGenerators.useFieldNamesAsTitles())
+      .setTitleDescriptionGenerator(TitleDescriptionGenerators.useFieldNamesAsTitles())
       .addFormatInferrers(FormatInferrers.email(), FormatInferrers.dateTime(), FormatInferrers.ip(),
           Example2::absoluteUriFormatInferrer)
       .setMultipleOfPolicy(MultipleOfPolicies.gcd())

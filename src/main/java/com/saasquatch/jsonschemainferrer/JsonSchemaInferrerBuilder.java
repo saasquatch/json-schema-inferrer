@@ -23,7 +23,7 @@ public final class JsonSchemaInferrerBuilder {
   private IntegerTypePreference integerTypePreference = IntegerTypePreference.IF_ALL;
   private IntegerTypeCriterion integerTypeCriterion = IntegerTypeCriteria.nonFloatingPoint();
   private EnumCriterion enumCriterion = EnumCriteria.noOp();
-  private DescriptionGenerator descriptionGenerator = DescriptionGenerators.noOp();
+  private TitleDescriptionGenerator titleDescriptionGenerator = TitleDescriptionGenerators.noOp();
   @Nullable
   private List<FormatInferrer> formatInferrers;
   private AdditionalPropertiesPolicy additionalPropertiesPolicy =
@@ -80,16 +80,16 @@ public final class JsonSchemaInferrerBuilder {
   }
 
   /**
-   * Set the {@link DescriptionGenerator} for this inferrer. By default it is
-   * {@link DescriptionGenerators#noOp()}. You can provide your custom implementations and transform
-   * the field names however you see fit.
+   * Set the {@link TitleDescriptionGenerator} for this inferrer. By default it is
+   * {@link TitleDescriptionGenerators#noOp()}. You can provide your custom implementations and
+   * transform the field names however you see fit.
    *
-   * @see DescriptionGenerator
-   * @see DescriptionGenerators
+   * @see TitleDescriptionGenerator
+   * @see TitleDescriptionGenerators
    */
-  public JsonSchemaInferrerBuilder setDescriptionGenerator(
-      @Nonnull DescriptionGenerator descriptionGenerator) {
-    this.descriptionGenerator = Objects.requireNonNull(descriptionGenerator);
+  public JsonSchemaInferrerBuilder setTitleDescriptionGenerator(
+      @Nonnull TitleDescriptionGenerator titleDescriptionGenerator) {
+    this.titleDescriptionGenerator = Objects.requireNonNull(titleDescriptionGenerator);
     return this;
   }
 
@@ -265,7 +265,7 @@ public final class JsonSchemaInferrerBuilder {
    */
   public JsonSchemaInferrer build() {
     return new JsonSchemaInferrer(specVersion, integerTypePreference, integerTypeCriterion,
-        enumCriterion, descriptionGenerator, getCombinedFormatInferrer(),
+        enumCriterion, titleDescriptionGenerator, getCombinedFormatInferrer(),
         getCombinedGenericSchemaFeature());
   }
 
