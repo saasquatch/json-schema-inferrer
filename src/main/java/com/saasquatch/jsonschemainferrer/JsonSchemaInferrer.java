@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -38,6 +37,7 @@ import com.fasterxml.jackson.databind.node.ValueNode;
 @Immutable
 public final class JsonSchemaInferrer {
 
+  // All the fields are non-null
   private final SpecVersion specVersion;
   private final IntegerTypePreference integerTypePreference;
   private final IntegerTypeCriterion integerTypeCriterion;
@@ -90,18 +90,24 @@ public final class JsonSchemaInferrer {
     if (samples.isEmpty()) {
       throw new IllegalArgumentException("Unable to process empty samples");
     }
+    final Collection<JsonNode> processedSamples =
+        samples.stream().map(this::preProcessSample).collect(Collectors.toList());
     final ObjectNode schema = newObject();
     schema.put(Consts.Fields.DOLLAR_SCHEMA, specVersion.getMetaSchemaUrl());
-    final Set<ObjectNode> anyOfs = getAnyOfsFromSamples(samples.stream());
+    final Set<ObjectNode> anyOfs = getAnyOfsFromSamples(processedSamples.stream());
     // anyOfs cannot be empty here, since we force inputs to be non empty
     assert !anyOfs.isEmpty() : "empty anyOfs encountered in inferForSamples";
     switch (anyOfs.size()) {
       case 1:
         schema.setAll(anyOfs.iterator().next());
+        // No need to call processGenericSchemaFeature since this is an existing schema
         break;
-      default:
+      default: {
         schema.set(Consts.Fields.ANY_OF, newArray(anyOfs));
+        // This is an anyOf schema. No type available.
+        processGenericSchemaFeature(schema, processedSamples, null);
         break;
+      }
     }
     return schema;
   }
@@ -139,19 +145,24 @@ public final class JsonSchemaInferrer {
     final ObjectNode properties = newObject();
     for (String fieldName : allFieldNames) {
       // Get the vals from samples that have the field name. vals cannot be empty.
-      final Stream<JsonNode> samplesStream = getAllValuesForFieldName(objectNodes, fieldName);
+      final Collection<JsonNode> processedSamples = getAllValuesForFieldName(objectNodes, fieldName)
+          .map(this::preProcessSample).collect(Collectors.toList());
       final ObjectNode newProperty = newObject();
       handleDescriptionGeneration(newProperty, fieldName);
-      final Set<ObjectNode> anyOfs = getAnyOfsFromSamples(samplesStream);
+      final Set<ObjectNode> anyOfs = getAnyOfsFromSamples(processedSamples.stream());
       // anyOfs cannot be empty here, since we should have at least one match of the fieldName
       assert !anyOfs.isEmpty() : "empty anyOfs encountered";
       switch (anyOfs.size()) {
         case 1:
           newProperty.setAll(anyOfs.iterator().next());
+          // No need to call processGenericSchemaFeature since this is an existing schema
           break;
-        default:
+        default: {
           newProperty.set(Consts.Fields.ANY_OF, newArray(anyOfs));
+          // This is an anyOf schema. No type available.
+          processGenericSchemaFeature(newProperty, processedSamples, null);
           break;
+        }
       }
       properties.set(fieldName, newProperty);
     }
@@ -172,9 +183,10 @@ public final class JsonSchemaInferrer {
       return null;
     }
     // Note that samples can be empty here if the sample arrays are empty
-    final Stream<JsonNode> samplesStream = arrayNodes.stream().flatMap(j -> stream(j));
+    final Stream<JsonNode> processedSamplesStream =
+        arrayNodes.stream().flatMap(j -> stream(j)).map(this::preProcessSample);
     final ObjectNode items;
-    final Set<ObjectNode> anyOfs = getAnyOfsFromSamples(samplesStream);
+    final Set<ObjectNode> anyOfs = getAnyOfsFromSamples(processedSamplesStream);
     switch (anyOfs.size()) {
       case 0:
         // anyOfs can be empty here, since the original array can be empty
@@ -200,7 +212,7 @@ public final class JsonSchemaInferrer {
    * Handle primitive samples
    */
   @Nonnull
-  private Set<ObjectNode> processPrimitives(@Nonnull Collection<ValueNode> valueNodes) {
+  private Set<ObjectNode> processNonEnumPrimitives(@Nonnull Collection<ValueNode> valueNodes) {
     if (valueNodes.isEmpty()) {
       return Collections.emptySet();
     }
@@ -221,7 +233,6 @@ public final class JsonSchemaInferrer {
       if (format != null) {
         newAnyOf.put(Consts.Fields.FORMAT, format);
       }
-      // Keep track of examples even if examples is disabled
       primitivesSummaryMap.addSample(type, format, valueNode);
       anyOfs.add(newAnyOf);
     }
@@ -242,7 +253,7 @@ public final class JsonSchemaInferrer {
    *
    * @param valueNodes The input samples. Should not be empty.
    */
-  private ObjectNode processPrimitivesEnum(@Nonnull Collection<ValueNode> valueNodes) {
+  private ObjectNode processEnumPrimitives(@Nonnull Collection<ValueNode> valueNodes) {
     final ObjectNode schema = newObject();
     schema.set(Consts.Fields.ENUM, newArray(new HashSet<>(valueNodes)));
     processGenericSchemaFeature(schema, valueNodes, null);
@@ -251,13 +262,17 @@ public final class JsonSchemaInferrer {
 
   /**
    * Build {@code anyOf} from sample JSONs. Note that all the arrays and objects will be combined.
+   *
+   * @param processedSamplesStream The stream of samples that have gone through
+   *        {@link #preProcessSample(JsonNode)}
    */
   @Nonnull
-  private Set<ObjectNode> getAnyOfsFromSamples(@Nonnull Stream<? extends JsonNode> samplesStream) {
+  private Set<ObjectNode> getAnyOfsFromSamples(
+      @Nonnull Stream<? extends JsonNode> processedSamplesStream) {
     final Collection<ObjectNode> objectNodes = new ArrayList<>();
     final Collection<ArrayNode> arrayNodes = new ArrayList<>();
     final Collection<ValueNode> valueNodes = new ArrayList<>();
-    samplesStream.map(this::preProcessSample).forEach(sample -> {
+    processedSamplesStream.forEach(sample -> {
       if (sample instanceof ObjectNode) {
         objectNodes.add((ObjectNode) sample);
       } else if (sample instanceof ArrayNode) {
@@ -267,12 +282,18 @@ public final class JsonSchemaInferrer {
       }
     });
     final Set<ObjectNode> anyOfs = new HashSet<>();
-    Optional.ofNullable(processObjects(objectNodes)).ifPresent(anyOfs::add);
-    Optional.ofNullable(processArrays(arrayNodes)).ifPresent(anyOfs::add);
+    final ObjectNode resultForObjects = processObjects(objectNodes);
+    if (resultForObjects != null) {
+      anyOfs.add(resultForObjects);
+    }
+    final ObjectNode resultForArrays = processArrays(arrayNodes);
+    if (resultForArrays != null) {
+      anyOfs.add(resultForArrays);
+    }
     if (isEnum(valueNodes)) {
-      anyOfs.add(processPrimitivesEnum(valueNodes));
+      anyOfs.add(processEnumPrimitives(valueNodes));
     } else {
-      anyOfs.addAll(processPrimitives(valueNodes));
+      anyOfs.addAll(processNonEnumPrimitives(valueNodes));
     }
     postProcessAnyOfs(anyOfs);
     return Collections.unmodifiableSet(anyOfs);

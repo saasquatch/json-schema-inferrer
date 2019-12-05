@@ -56,6 +56,9 @@ interface Consts {
     Set<String> CONTAINER_TYPES = unmodifiableSetOf(OBJECT, ARRAY);
   }
 
+  /**
+   * Format names
+   */
   interface Formats {
     String EMAIL = "email";
     String IPV4 = "ipv4";

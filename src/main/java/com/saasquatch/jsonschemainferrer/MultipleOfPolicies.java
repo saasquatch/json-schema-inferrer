@@ -29,7 +29,8 @@ public final class MultipleOfPolicies {
     return input -> {
       // Only proceed if all numbers are integers
       final boolean allNumbersAreMathematicalIntegers = input.getSamples().stream()
-          .filter(JsonNode::isNumber).allMatch(j -> isMathematicalIntegerNode(j));
+          .filter(JsonNode::isNumber)
+          .allMatch(j -> isMathematicalIntegerNode(j));
       if (!allNumbersAreMathematicalIntegers) {
         return null;
       }
