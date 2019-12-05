@@ -19,7 +19,6 @@ Java library for inferring JSON schema based on sample JSONs.
 import java.util.Arrays;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.saasquatch.jsonschemainferrer.*;
 
 public class Example {
@@ -40,8 +39,8 @@ public class Example {
         "{\"🙈\":\"https://saasquatch.com\",\"🙉\":[-1.5,2,\"hello@saasquat.ch\",false],\"🙊\":3,\"weekdays\":[\"MONDAY\",\"TUESDAY\"]}");
     final JsonNode sample2 = mapper.readTree(
         "{\"🙈\":1,\"🙉\":{\"🐒\":true,\"🐵\":[2,\"1234:5678::\"],\"🍌\":null},\"🙊\":null,\"months\":[\"JANUARY\",\"FEBRUARY\"]}");
-    final ObjectNode resultForSample1 = inferrer.inferForSample(sample1);
-    final ObjectNode resultForSample1And2 =
+    final JsonNode resultForSample1 = inferrer.inferForSample(sample1);
+    final JsonNode resultForSample1And2 =
         inferrer.inferForSamples(Arrays.asList(sample1, sample2));
     for (JsonNode j : Arrays.asList(sample1, sample2, resultForSample1, resultForSample1And2)) {
       System.out.println(mapper.writeValueAsString(j));
