@@ -32,28 +32,28 @@ enum BuiltInFormatInferrer implements FormatInferrer {
       }
       try {
         ZonedDateTime.parse(textValue);
-        return "date-time";
+        return Consts.Formats.DATE_TIME;
       } catch (Exception e) {
         // Ignore
       }
       if (input.getSpecVersion().compareTo(SpecVersion.DRAFT_07) >= 0) {
         try {
           LocalDate.parse(textValue);
-          return "date";
+          return Consts.Formats.DATE;
         } catch (Exception e) {
           // Ignore
         }
         try {
           // This only covers time strings without time zones
           LocalTime.parse(textValue);
-          return "time";
+          return Consts.Formats.TIME;
         } catch (Exception e) {
           // Ignore
         }
         try {
           // This covers time strings with time zones
           OffsetTime.parse(textValue);
-          return "time";
+          return Consts.Formats.TIME;
         } catch (Exception e) {
           // Ignore
         }
@@ -70,7 +70,7 @@ enum BuiltInFormatInferrer implements FormatInferrer {
         return null;
       }
       if (EmailValidator.getInstance().isValid(textValue)) {
-        return "email";
+        return Consts.Formats.EMAIL;
       }
       return null;
     }
@@ -84,10 +84,10 @@ enum BuiltInFormatInferrer implements FormatInferrer {
         return null;
       }
       if (InetAddressValidator.getInstance().isValidInet4Address(textValue)) {
-        return "ipv4";
+        return Consts.Formats.IPV4;
       }
       if (InetAddressValidator.getInstance().isValidInet6Address(textValue)) {
-        return "ipv6";
+        return Consts.Formats.IPV6;
       }
       return null;
     }

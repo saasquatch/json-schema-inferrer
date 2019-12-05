@@ -56,4 +56,13 @@ interface Consts {
     Set<String> CONTAINER_TYPES = unmodifiableSetOf(OBJECT, ARRAY);
   }
 
+  interface Formats {
+    String EMAIL = "email";
+    String IPV4 = "ipv4";
+    String IPV6 = "ipv6";
+    String DATE_TIME = "date-time";
+    String DATE = "date";
+    String TIME = "time";
+  }
+
 }
