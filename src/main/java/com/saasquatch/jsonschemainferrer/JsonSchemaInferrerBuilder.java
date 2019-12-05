@@ -37,7 +37,7 @@ public final class JsonSchemaInferrerBuilder {
   private Set<StringLengthFeature> stringLengthFeatures = Collections.emptySet();
   private Set<NumberRangeFeature> numberRangeFeatures = Collections.emptySet();
   @Nullable
-  private List<GenericSchemaFeature> additionalSchemaFeatures;
+  private List<GenericSchemaFeature> genericSchemaFeatures;
 
   JsonSchemaInferrerBuilder() {}
 
@@ -212,13 +212,13 @@ public final class JsonSchemaInferrerBuilder {
   /**
    * Add custom implementations of {@link GenericSchemaFeature}s.
    */
-  public JsonSchemaInferrerBuilder addAdditionalSchemaFeatures(
+  public JsonSchemaInferrerBuilder addGenericSchemaFeatures(
       @Nonnull GenericSchemaFeature... features) {
-    if (this.additionalSchemaFeatures == null) {
-      this.additionalSchemaFeatures = new ArrayList<>();
+    if (this.genericSchemaFeatures == null) {
+      this.genericSchemaFeatures = new ArrayList<>();
     }
     for (GenericSchemaFeature feature : features) {
-      this.additionalSchemaFeatures.add(Objects.requireNonNull(feature));
+      this.genericSchemaFeatures.add(Objects.requireNonNull(feature));
     }
     return this;
   }
@@ -228,7 +228,7 @@ public final class JsonSchemaInferrerBuilder {
     if (formatInferrers == null) {
       return FormatInferrers.noOp();
     }
-    return FormatInferrers.chained(formatInferrers);
+    return FormatInferrers.chained(formatInferrers.toArray(new FormatInferrer[0]));
   }
 
   @Nonnull
@@ -253,10 +253,10 @@ public final class JsonSchemaInferrerBuilder {
     features.addAll(arrayLengthFeatures);
     features.addAll(stringLengthFeatures);
     features.addAll(numberRangeFeatures);
-    if (additionalSchemaFeatures != null) {
-      features.addAll(additionalSchemaFeatures);
+    if (genericSchemaFeatures != null) {
+      features.addAll(genericSchemaFeatures);
     }
-    return GenericSchemaFeatures.chained(features);
+    return GenericSchemaFeatures.chained(features.toArray(new GenericSchemaFeature[0]));
   }
 
   /**

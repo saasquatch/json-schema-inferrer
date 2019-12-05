@@ -1,7 +1,5 @@
 package com.saasquatch.jsonschemainferrer;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 
@@ -47,31 +45,24 @@ public final class FormatInferrers {
   }
 
   /**
-   * Connvenience method for {@link #chained(List)}
-   */
-  public static FormatInferrer chained(@Nonnull FormatInferrer... formatInferrers) {
-    return chained(Arrays.asList(formatInferrers));
-  }
-
-  /**
    * @return A {@link FormatInferrer} that uses the given {@link FormatInferrer}s in the original
    *         order, and uses the first non-null result available.
    * @throws NullPointerException if the input has null elements
    */
-  public static FormatInferrer chained(@Nonnull List<FormatInferrer> formatInferrers) {
-    formatInferrers.forEach(Objects::requireNonNull);
-    switch (formatInferrers.size()) {
+  public static FormatInferrer chained(@Nonnull FormatInferrer... formatInferrers) {
+    for (FormatInferrer formatInferrer : formatInferrers) {
+      Objects.requireNonNull(formatInferrer);
+    }
+    switch (formatInferrers.length) {
       case 0:
         return noOp();
       case 1:
-        return formatInferrers.get(0);
+        return formatInferrers[0];
       default:
         break;
     }
-    // Defensive copy
-    final FormatInferrer[] formatInferrersArray = formatInferrers.toArray(new FormatInferrer[0]);
     return input -> {
-      for (FormatInferrer formatInferrer : formatInferrersArray) {
+      for (FormatInferrer formatInferrer : formatInferrers) {
         final String result = formatInferrer.inferFormat(input);
         if (result != null) {
           return result;

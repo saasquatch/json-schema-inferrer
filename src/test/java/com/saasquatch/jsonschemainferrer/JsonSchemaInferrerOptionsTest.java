@@ -651,8 +651,8 @@ public class JsonSchemaInferrerOptionsTest {
         () -> GenericSchemaFeatures.chained(GenericSchemaFeatures.noOp(), null));
     assertSame(fakeFeature, GenericSchemaFeatures.chained(fakeFeature));
     final JsonSchemaInferrer inferrer =
-        JsonSchemaInferrer.newBuilder().addAdditionalSchemaFeatures(fakeFeature)
-            .addAdditionalSchemaFeatures(GenericSchemaFeatures.noOp()).build();
+        JsonSchemaInferrer.newBuilder().addGenericSchemaFeatures(fakeFeature)
+            .addGenericSchemaFeatures(GenericSchemaFeatures.noOp()).build();
     final ObjectNode schema = inferrer.inferForSample(null);
     assertEquals("bar", schema.path("foo").textValue());
   }
