@@ -96,12 +96,9 @@ public final class JsonSchemaInferrerBuilder {
   /**
    * Add a {@link FormatInferrer} for inferring the <a href=
    * "https://json-schema.org/understanding-json-schema/reference/string.html#format">format</a> of
-   * strings. By default it uses {@link FormatInferrers#noOp()}. An example of a possible custom
+   * strings. By default no {@link FormatInferrer} is enabled. An example of a possible custom
    * implementation is available at {@link FormatInferrers#dateTime()}, which you can potentially
-   * use or use it combined with your own implementations with
-   * {@link FormatInferrers#chained(FormatInferrer...)}.<br>
-   * Note that if your JSON samples have large nested arrays, it's recommended to set this to false
-   * to prevent confusing outputs.
+   * use or use it combined with your own implementations.
    *
    * @see FormatInferrer
    * @see FormatInferrers
