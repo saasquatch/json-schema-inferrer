@@ -5,16 +5,16 @@ import javax.annotation.Nonnull;
 import com.fasterxml.jackson.databind.JsonNode;
 
 /**
- * Input for {@link EnumCriterion}
+ * Input for {@link PrimitiveEnumCriterion}
  *
  * @author sli
  */
-public final class EnumCriterionInput {
+public final class PrimitiveEnumCriterionInput {
 
   private final Collection<? extends JsonNode> samples;
   private final SpecVersion specVersion;
 
-  EnumCriterionInput(@Nonnull Collection<? extends JsonNode> samples,
+  PrimitiveEnumCriterionInput(@Nonnull Collection<? extends JsonNode> samples,
       @Nonnull SpecVersion specVersion) {
     this.samples = samples;
     this.specVersion = specVersion;

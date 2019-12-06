@@ -41,20 +41,21 @@ public final class JsonSchemaInferrer {
   private final SpecVersion specVersion;
   private final IntegerTypePreference integerTypePreference;
   private final IntegerTypeCriterion integerTypeCriterion;
-  private final EnumCriterion enumCriterion;
+  private final PrimitiveEnumCriterion primitiveEnumCriterion;
   private final TitleDescriptionGenerator titleDescriptionGenerator;
   private final FormatInferrer formatInferrer;
   private final GenericSchemaFeature genericSchemaFeature;
 
   JsonSchemaInferrer(@Nonnull SpecVersion specVersion,
       @Nonnull IntegerTypePreference integerTypePreference,
-      @Nonnull IntegerTypeCriterion integerTypeCriterion, @Nonnull EnumCriterion enumCriterion,
+      @Nonnull IntegerTypeCriterion integerTypeCriterion,
+      @Nonnull PrimitiveEnumCriterion enumCriterion,
       @Nonnull TitleDescriptionGenerator titleDescriptionGenerator,
       @Nonnull FormatInferrer formatInferrer, @Nonnull GenericSchemaFeature genericSchemaFeature) {
     this.specVersion = specVersion;
     this.integerTypePreference = integerTypePreference;
     this.integerTypeCriterion = integerTypeCriterion;
-    this.enumCriterion = enumCriterion;
+    this.primitiveEnumCriterion = enumCriterion;
     this.titleDescriptionGenerator = titleDescriptionGenerator;
     this.formatInferrer = formatInferrer;
     this.genericSchemaFeature = genericSchemaFeature;
@@ -290,7 +291,7 @@ public final class JsonSchemaInferrer {
     if (resultForArrays != null) {
       anyOfs.add(resultForArrays);
     }
-    if (isEnum(valueNodes)) {
+    if (isPrimitiveEnum(valueNodes)) {
       anyOfs.add(processEnumPrimitives(valueNodes));
     } else {
       anyOfs.addAll(processNonEnumPrimitives(valueNodes));
@@ -356,12 +357,12 @@ public final class JsonSchemaInferrer {
     return integerTypeCriterion.isInteger(input);
   }
 
-  private boolean isEnum(@Nonnull Collection<? extends JsonNode> samples) {
+  private boolean isPrimitiveEnum(@Nonnull Collection<? extends JsonNode> samples) {
     if (samples.isEmpty()) {
       return false;
     }
-    final EnumCriterionInput input = new EnumCriterionInput(samples, specVersion);
-    return enumCriterion.isEnum(input);
+    final PrimitiveEnumCriterionInput input = new PrimitiveEnumCriterionInput(samples, specVersion);
+    return primitiveEnumCriterion.isEnum(input);
   }
 
   private void handleDescriptionGeneration(@Nonnull ObjectNode schema, @Nullable String fieldName) {

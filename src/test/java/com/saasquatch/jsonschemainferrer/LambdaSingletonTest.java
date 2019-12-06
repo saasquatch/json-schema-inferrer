@@ -27,7 +27,7 @@ public class LambdaSingletonTest {
     doTest(ExamplesPolicies::noOp);
     doTest(MultipleOfPolicies::noOp);
     doTest(MultipleOfPolicies::gcd);
-    doTest(EnumCriteria::noOp);
+    doTest(PrimitiveEnumCriteria::noOp);
   }
 
   private static void doTest(Supplier<? extends Object> supplier) {

@@ -4,7 +4,7 @@ import java.util.Arrays;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.saasquatch.jsonschemainferrer.AdditionalPropertiesPolicies;
-import com.saasquatch.jsonschemainferrer.EnumCriteria;
+import com.saasquatch.jsonschemainferrer.PrimitiveEnumCriteria;
 import com.saasquatch.jsonschemainferrer.FormatInferrers;
 import com.saasquatch.jsonschemainferrer.JsonSchemaInferrer;
 import com.saasquatch.jsonschemainferrer.RequiredPolicies;
@@ -19,8 +19,8 @@ public class Example {
       .addFormatInferrers(FormatInferrers.email(), FormatInferrers.ip())
       .setAdditionalPropertiesPolicy(AdditionalPropertiesPolicies.notAllowed())
       .setRequiredPolicy(RequiredPolicies.nonNullCommonFields())
-      .setEnumCriterion(EnumCriteria.or(EnumCriteria.validEnum(java.time.DayOfWeek.class),
-          EnumCriteria.validEnum(java.time.Month.class)))
+      .setPrimitiveEnumCriterion(PrimitiveEnumCriteria.or(PrimitiveEnumCriteria.validEnum(java.time.DayOfWeek.class),
+          PrimitiveEnumCriteria.validEnum(java.time.Month.class)))
       .build();
 
   public static void main(String[] args) throws Exception {

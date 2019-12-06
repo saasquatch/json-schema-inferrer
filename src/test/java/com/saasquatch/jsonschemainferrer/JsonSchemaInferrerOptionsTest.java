@@ -486,9 +486,11 @@ public class JsonSchemaInferrerOptionsTest {
 
   @Test
   public void testEnum() {
-    assertThrows(NullPointerException.class, () -> EnumCriteria.or(EnumCriteria.noOp(), null));
-    assertThrows(IllegalArgumentException.class, () -> EnumCriteria.or());
-    assertSame(EnumCriteria.noOp(), EnumCriteria.or(EnumCriteria.noOp()));
+    assertThrows(NullPointerException.class,
+        () -> PrimitiveEnumCriteria.or(PrimitiveEnumCriteria.noOp(), null));
+    assertThrows(IllegalArgumentException.class, () -> PrimitiveEnumCriteria.or());
+    assertSame(PrimitiveEnumCriteria.noOp(),
+        PrimitiveEnumCriteria.or(PrimitiveEnumCriteria.noOp()));
     final List<JsonNode> timeUnitSamples = Stream.of(TimeUnit.DAYS, TimeUnit.HOURS)
         .map(tu -> jnf.textNode(tu.name())).collect(ImmutableList.toImmutableList());
     {
@@ -498,22 +500,22 @@ public class JsonSchemaInferrerOptionsTest {
     }
     {
       final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
-          .setEnumCriterion(EnumCriteria.validEnum(TimeUnit.class)).build();
+          .setPrimitiveEnumCriterion(PrimitiveEnumCriteria.validEnum(TimeUnit.class)).build();
       final ObjectNode schema = inferrer.inferForSamples(timeUnitSamples);
       assertEquals(ImmutableSet.of("DAYS", "HOURS"), toStringSet(schema.get("enum")));
     }
     {
-      final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
-          .setEnumCriterion(EnumCriteria.or(EnumCriteria.validEnum(DayOfWeek.class), input -> {
+      final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder().setPrimitiveEnumCriterion(
+          PrimitiveEnumCriteria.or(PrimitiveEnumCriteria.validEnum(DayOfWeek.class), input -> {
             assertNotNull(input.getSpecVersion());
             return false;
-          }, EnumCriteria.validEnumIgnoreCase(TimeUnit.class))).build();
+          }, PrimitiveEnumCriteria.validEnumIgnoreCase(TimeUnit.class))).build();
       final ObjectNode schema = inferrer.inferForSamples(timeUnitSamples);
       assertEquals(ImmutableSet.of("DAYS", "HOURS"), toStringSet(schema.get("enum")));
     }
     {
-      final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
-          .setEnumCriterion(EnumCriteria.or(EnumCriteria.validEnum(DayOfWeek.class), input -> {
+      final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder().setPrimitiveEnumCriterion(
+          PrimitiveEnumCriteria.or(PrimitiveEnumCriteria.validEnum(DayOfWeek.class), input -> {
             assertNotNull(input.getSpecVersion());
             return false;
           }, input -> input.getSamples().size() <= 3)).build();

@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.saasquatch.jsonschemainferrer.AdditionalPropertiesPolicies;
 import com.saasquatch.jsonschemainferrer.ArrayLengthFeature;
 import com.saasquatch.jsonschemainferrer.TitleDescriptionGenerators;
-import com.saasquatch.jsonschemainferrer.EnumCriteria;
+import com.saasquatch.jsonschemainferrer.PrimitiveEnumCriteria;
 import com.saasquatch.jsonschemainferrer.ExamplesPolicies;
 import com.saasquatch.jsonschemainferrer.FormatInferrerInput;
 import com.saasquatch.jsonschemainferrer.FormatInferrers;
@@ -38,8 +38,8 @@ public class Example2 {
       .addFormatInferrers(FormatInferrers.email(), FormatInferrers.dateTime(), FormatInferrers.ip(),
           Example2::absoluteUriFormatInferrer)
       .setMultipleOfPolicy(MultipleOfPolicies.gcd())
-      .setEnumCriterion(EnumCriteria.or(EnumCriteria.validEnumIgnoreCase(DayOfWeek.class),
-          EnumCriteria.validEnumIgnoreCase(Month.class),
+      .setPrimitiveEnumCriterion(PrimitiveEnumCriteria.or(PrimitiveEnumCriteria.validEnumIgnoreCase(DayOfWeek.class),
+          PrimitiveEnumCriteria.validEnumIgnoreCase(Month.class),
           input -> input.getSamples().size() < 100))
       .setArrayLengthFeatures(EnumSet.allOf(ArrayLengthFeature.class))
       .setObjectSizeFeatures(EnumSet.allOf(ObjectSizeFeature.class))
