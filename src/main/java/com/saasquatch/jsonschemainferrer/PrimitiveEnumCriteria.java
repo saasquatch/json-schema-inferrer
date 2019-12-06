@@ -2,8 +2,6 @@ package com.saasquatch.jsonschemainferrer;
 
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.isValidEnum;
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.isValidEnumIgnoreCase;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -52,33 +50,25 @@ public final class PrimitiveEnumCriteria {
   }
 
   /**
-   * Convenience method for {@link #or(List)}.
-   */
-  public static PrimitiveEnumCriterion or(@Nonnull PrimitiveEnumCriterion... criteria) {
-    return or(Arrays.asList(criteria));
-  }
-
-  /**
    * @return An {@link PrimitiveEnumCriterion} that is a logical or of the given criteria
    * @throws NullPointerException if the input has null elements
    * @throws IllegalArgumentException if the input is empty
    */
-  public static PrimitiveEnumCriterion or(@Nonnull List<PrimitiveEnumCriterion> criteria) {
+  public static PrimitiveEnumCriterion or(@Nonnull PrimitiveEnumCriterion... criteria) {
     for (PrimitiveEnumCriterion criterion : criteria) {
       Objects.requireNonNull(criterion);
     }
-    switch (criteria.size()) {
+    switch (criteria.length) {
       case 0:
         throw new IllegalArgumentException("Empty criteria");
       case 1:
-        return criteria.get(0);
+        return criteria[0];
       default:
         break;
     }
     // Defensive copy
-    final PrimitiveEnumCriterion[] criteriaArray = criteria.toArray(new PrimitiveEnumCriterion[0]);
     return input -> {
-      for (PrimitiveEnumCriterion criterion : criteriaArray) {
+      for (PrimitiveEnumCriterion criterion : criteria) {
         if (criterion.isEnum(input)) {
           return true;
         }
