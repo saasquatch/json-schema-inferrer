@@ -4,7 +4,6 @@ import static com.saasquatch.jsonschemainferrer.JunkDrawer.isValidEnum;
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.isValidEnumIgnoreCase;
 import java.util.Objects;
 import javax.annotation.Nonnull;
-import com.fasterxml.jackson.databind.JsonNode;
 
 /**
  * Utilities for {@link PrimitiveEnumCriterion}
@@ -30,8 +29,7 @@ public final class PrimitiveEnumCriteria {
     Objects.requireNonNull(enumClass);
     return input -> {
       return input.getSamples().stream()
-          .map(JsonNode::textValue)
-          .allMatch(textValue -> isValidEnum(enumClass, textValue));
+          .allMatch(j -> isValidEnum(enumClass, j.textValue()));
     };
   }
 
@@ -44,8 +42,7 @@ public final class PrimitiveEnumCriteria {
     Objects.requireNonNull(enumClass);
     return input -> {
       return input.getSamples().stream()
-          .map(JsonNode::textValue)
-          .allMatch(textValue -> isValidEnumIgnoreCase(enumClass, textValue));
+          .allMatch(j -> isValidEnumIgnoreCase(enumClass, j.textValue()));
     };
   }
 
