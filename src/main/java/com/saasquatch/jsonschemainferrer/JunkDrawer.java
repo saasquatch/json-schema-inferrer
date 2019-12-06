@@ -84,10 +84,13 @@ final class JunkDrawer {
    */
   static <E extends Enum<E>> boolean isValidEnum(@Nonnull Class<E> enumClass,
       @Nullable String name) {
+    if (name == null) {
+      return false;
+    }
     try {
       Enum.valueOf(enumClass, name);
       return true;
-    } catch (RuntimeException e) {
+    } catch (IllegalArgumentException e) {
       return false;
     }
   }
