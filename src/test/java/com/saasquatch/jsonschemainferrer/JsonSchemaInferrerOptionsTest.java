@@ -9,10 +9,12 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.DayOfWeek;
 import java.time.Instant;
+import java.time.Month;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -530,6 +532,20 @@ public class JsonSchemaInferrerOptionsTest {
           inferrer.inferForSamples(Arrays.asList(jnf.textNode("foo"), jnf.numberNode(123)));
       assertEquals(ImmutableSet.of(jnf.textNode("foo"), jnf.numberNode(123)),
           stream(schema.get("enum")).collect(Collectors.toSet()));
+    }
+    {
+      final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
+          .setEnumExtractor(EnumExtractors.chained(EnumExtractors.validEnum(Month.class),
+              EnumExtractors.validEnum(DayOfWeek.class)))
+          .build();
+      final ObjectNode schema =
+          inferrer.inferForSamples(Arrays.asList(jnf.textNode("TUESDAY"), jnf.textNode("MARCH")));
+      final JsonNode anyOf = schema.get("anyOf");
+      assertTrue(anyOf.isArray());
+      assertTrue(
+          stream(anyOf).anyMatch(_anyOf -> _anyOf.path("enum").get(0).textValue().equals("MARCH")));
+      assertTrue(stream(anyOf)
+          .anyMatch(_anyOf -> _anyOf.path("enum").get(0).textValue().equals("TUESDAY")));
     }
   }
 
