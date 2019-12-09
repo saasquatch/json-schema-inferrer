@@ -16,7 +16,6 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
@@ -249,16 +248,6 @@ public final class JsonSchemaInferrer {
     return anyOfs;
   }
 
-  private Stream<ObjectNode> handleEnumExtractionResults(
-      @Nonnull Set<Set<? extends JsonNode>> enumExtractionResults) {
-    return enumExtractionResults.stream().map(enumExtractionResult -> {
-      final ObjectNode schema = newObject();
-      schema.set(Consts.Fields.ENUM, newArray(enumExtractionResult));
-      processGenericSchemaFeature(schema, enumExtractionResult, null);
-      return schema;
-    });
-  }
-
   /**
    * Build {@code anyOf} from sample JSONs. Note that all the arrays and objects will be combined.
    *
@@ -294,7 +283,6 @@ public final class JsonSchemaInferrer {
       processGenericSchemaFeature(anyOf, enumExtractionResult, null);
       anyOfs.add(anyOf);
     }
-    handleEnumExtractionResults(enumExtractionResults).forEach(anyOfs::add);
     // Objects
     final ObjectNode resultForObjects = processObjects(objectNodes);
     if (resultForObjects != null) {
