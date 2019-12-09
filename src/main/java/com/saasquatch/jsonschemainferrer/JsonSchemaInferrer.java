@@ -248,6 +248,19 @@ public final class JsonSchemaInferrer {
     return anyOfs;
   }
 
+  @Nonnull
+  private ObjectNode enumExtractionResultToSchema(
+      @Nonnull Set<? extends JsonNode> enumExtractionResult) {
+    Objects.requireNonNull(enumExtractionResult);
+    if (enumExtractionResult.isEmpty()) {
+      throw new IllegalStateException("Empty enum group encountered");
+    }
+    final ObjectNode schema = newObject();
+    schema.set(Consts.Fields.ENUM, newArray(enumExtractionResult));
+    processGenericSchemaFeature(schema, enumExtractionResult, null);
+    return schema;
+  }
+
   /**
    * Build {@code anyOf} from sample JSONs. Note that all the arrays and objects will be combined.
    *
@@ -277,12 +290,7 @@ public final class JsonSchemaInferrer {
     }
     final Set<ObjectNode> anyOfs = new HashSet<>();
     // Enums
-    for (Set<? extends JsonNode> enumExtractionResult : enumExtractionResults) {
-      final ObjectNode anyOf = newObject();
-      anyOf.set(Consts.Fields.ENUM, newArray(enumExtractionResult));
-      processGenericSchemaFeature(anyOf, enumExtractionResult, null);
-      anyOfs.add(anyOf);
-    }
+    enumExtractionResults.stream().map(this::enumExtractionResultToSchema).forEach(anyOfs::add);
     // Objects
     final ObjectNode resultForObjects = processObjects(objectNodes);
     if (resultForObjects != null) {

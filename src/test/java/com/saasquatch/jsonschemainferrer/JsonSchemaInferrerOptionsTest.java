@@ -547,6 +547,11 @@ public class JsonSchemaInferrerOptionsTest {
       assertTrue(stream(anyOf)
           .anyMatch(_anyOf -> _anyOf.path("enum").get(0).textValue().equals("TUESDAY")));
     }
+    {
+      final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
+          .setEnumExtractor(input -> Collections.singleton(Collections.emptySet())).build();
+      assertThrows(IllegalStateException.class, () -> inferrer.inferForSample(null));
+    }
   }
 
   @Test

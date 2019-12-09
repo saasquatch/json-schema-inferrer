@@ -51,6 +51,8 @@ public final class JsonSchemaInferrerBuilder {
 
   /**
    * Set the {@link IntegerTypePreference}. The default is {@link IntegerTypePreference#IF_ALL}.
+   *
+   * @see IntegerTypePreference
    */
   public JsonSchemaInferrerBuilder setIntegerTypePreference(
       @Nonnull IntegerTypePreference integerTypePreference) {
@@ -61,6 +63,9 @@ public final class JsonSchemaInferrerBuilder {
   /**
    * Set the {@link IntegerTypeCriterionL}. The default is
    * {@link IntegerTypeCriteria#nonFloatingPoint()}.
+   *
+   * @see IntegerTypeCriterion
+   * @see IntegerTypeCriteria
    */
   public JsonSchemaInferrerBuilder setIntegerTypeCriterion(
       @Nonnull IntegerTypeCriterion integerTypeCriterion) {
@@ -68,6 +73,12 @@ public final class JsonSchemaInferrerBuilder {
     return this;
   }
 
+  /**
+   * Set the {@link EnumExtractor}. The default is {@link EnumExtractors#noOp()}.
+   *
+   * @see EnumExtractor
+   * @see EnumExtractors
+   */
   public JsonSchemaInferrerBuilder setEnumExtractor(@Nonnull EnumExtractor enumExtractor) {
     this.enumExtractor = Objects.requireNonNull(enumExtractor);
     return this;
