@@ -19,6 +19,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -500,25 +501,32 @@ public class JsonSchemaInferrerOptionsTest {
     }
     {
       final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
-          .setPrimitiveEnumCriterion(PrimitiveEnumCriteria.validEnum(TimeUnit.class)).build();
+          .setEnumExtractor(EnumExtractors.validEnum(TimeUnit.class)).build();
       final ObjectNode schema = inferrer.inferForSamples(timeUnitSamples);
       assertEquals(ImmutableSet.of("DAYS", "HOURS"), toStringSet(schema.get("enum")));
     }
     {
-      final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder().setPrimitiveEnumCriterion(
-          PrimitiveEnumCriteria.or(PrimitiveEnumCriteria.validEnum(DayOfWeek.class), input -> {
+      final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder().setEnumExtractor(
+          EnumExtractors.chained(EnumExtractors.validEnum(DayOfWeek.class), input -> {
             assertNotNull(input.getSpecVersion());
-            return false;
-          }, PrimitiveEnumCriteria.validEnumIgnoreCase(TimeUnit.class))).build();
+            return Collections.emptySet();
+          }, EnumExtractors.validEnum(TimeUnit.class))).build();
       final ObjectNode schema = inferrer.inferForSamples(timeUnitSamples);
       assertEquals(ImmutableSet.of("DAYS", "HOURS"), toStringSet(schema.get("enum")));
     }
     {
-      final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder().setPrimitiveEnumCriterion(
-          PrimitiveEnumCriteria.or(PrimitiveEnumCriteria.validEnum(DayOfWeek.class), input -> {
+      final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder().setEnumExtractor(
+          EnumExtractors.chained(EnumExtractors.validEnum(DayOfWeek.class), input -> {
             assertNotNull(input.getSpecVersion());
-            return false;
-          }, input -> input.getSamples().size() <= 3)).build();
+            return Collections.emptySet();
+          }, input -> {
+            final Set<? extends JsonNode> primitives = input.getSamples().stream()
+                .filter(JsonNode::isValueNode).collect(Collectors.toSet());
+            if (primitives.size() <= 3) {
+              return Collections.singleton(primitives);
+            }
+            return Collections.emptySet();
+          })).build();
       final ObjectNode schema =
           inferrer.inferForSamples(Arrays.asList(jnf.textNode("foo"), jnf.numberNode(123)));
       assertEquals(ImmutableSet.of(jnf.textNode("foo"), jnf.numberNode(123)),

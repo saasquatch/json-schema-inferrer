@@ -16,6 +16,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
@@ -253,10 +254,15 @@ public class JsonSchemaInferrerExamplesTest {
               .setNumberRangeFeatures(EnumSet.allOf(NumberRangeFeature.class))
               .setExamplesPolicy(ExamplesPolicies.useFirstSamples(10))
               .setDefaultPolicy(defaultPolicyIter.next())
-              .setPrimitiveEnumCriterion(
-                  PrimitiveEnumCriteria.or(input -> input.getSamples().size() <= 3,
-                      PrimitiveEnumCriteria.validEnum(DayOfWeek.class),
-                      PrimitiveEnumCriteria.validEnum(Month.class)))
+              .setEnumExtractor(EnumExtractors.chained(EnumExtractors.validEnum(Month.class),
+                  EnumExtractors.validEnum(DayOfWeek.class), input -> {
+                    final Set<? extends JsonNode> primitives = input.getSamples().stream()
+                        .filter(JsonNode::isValueNode).collect(Collectors.toSet());
+                    if (primitives.size() <= 3) {
+                      return Collections.singleton(primitives);
+                    }
+                    return Collections.emptySet();
+                  }))
               .setTitleDescriptionGenerator(new TitleDescriptionGenerator() {
 
                 @Override
