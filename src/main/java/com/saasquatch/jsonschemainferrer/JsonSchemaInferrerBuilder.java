@@ -80,6 +80,7 @@ public final class JsonSchemaInferrerBuilder {
    * @see PrimitiveEnumCriterion
    * @see PrimitiveEnumCriteria
    */
+  @Deprecated
   public JsonSchemaInferrerBuilder setPrimitiveEnumCriterion(
       @Nonnull PrimitiveEnumCriterion primitiveEnumCriterion) {
     this.primitiveEnumCriterion = Objects.requireNonNull(primitiveEnumCriterion);

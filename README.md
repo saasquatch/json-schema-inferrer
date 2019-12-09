@@ -29,8 +29,8 @@ public class Example {
       .addFormatInferrers(FormatInferrers.email(), FormatInferrers.ip())
       .setAdditionalPropertiesPolicy(AdditionalPropertiesPolicies.notAllowed())
       .setRequiredPolicy(RequiredPolicies.nonNullCommonFields())
-      .setEnumCriterion(EnumCriteria.or(EnumCriteria.validEnum(java.time.DayOfWeek.class),
-          EnumCriteria.validEnum(java.time.Month.class)))
+      .setEnumExtractor(EnumExtractors.chained(EnumExtractors.validEnum(java.time.Month.class),
+          EnumExtractors.validEnum(java.time.DayOfWeek.class)))
       .build();
 
   public static void main(String[] args) throws Exception {
