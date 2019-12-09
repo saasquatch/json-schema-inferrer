@@ -488,10 +488,9 @@ public class JsonSchemaInferrerOptionsTest {
   @Test
   public void testEnum() {
     assertThrows(NullPointerException.class,
-        () -> PrimitiveEnumCriteria.or(PrimitiveEnumCriteria.noOp(), null));
-    assertThrows(IllegalArgumentException.class, () -> PrimitiveEnumCriteria.or());
-    assertSame(PrimitiveEnumCriteria.noOp(),
-        PrimitiveEnumCriteria.or(PrimitiveEnumCriteria.noOp()));
+        () -> EnumExtractors.chained(EnumExtractors.noOp(), null));
+    assertThrows(IllegalArgumentException.class, () -> EnumExtractors.chained());
+    assertSame(EnumExtractors.noOp(), EnumExtractors.chained(EnumExtractors.noOp()));
     final List<JsonNode> timeUnitSamples = Stream.of(TimeUnit.DAYS, TimeUnit.HOURS)
         .map(tu -> jnf.textNode(tu.name())).collect(ImmutableList.toImmutableList());
     {
