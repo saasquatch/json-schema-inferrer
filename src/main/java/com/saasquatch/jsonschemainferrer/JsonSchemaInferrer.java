@@ -42,7 +42,6 @@ public final class JsonSchemaInferrer {
   private final IntegerTypePreference integerTypePreference;
   private final IntegerTypeCriterion integerTypeCriterion;
   private final EnumExtractor enumExtractor;
-  private final PrimitiveEnumCriterion primitiveEnumCriterion;
   private final TitleDescriptionGenerator titleDescriptionGenerator;
   private final FormatInferrer formatInferrer;
   private final GenericSchemaFeature genericSchemaFeature;
@@ -50,14 +49,12 @@ public final class JsonSchemaInferrer {
   JsonSchemaInferrer(@Nonnull SpecVersion specVersion,
       @Nonnull IntegerTypePreference integerTypePreference,
       @Nonnull IntegerTypeCriterion integerTypeCriterion, @Nonnull EnumExtractor enumExtractor,
-      @Nonnull PrimitiveEnumCriterion enumCriterion,
       @Nonnull TitleDescriptionGenerator titleDescriptionGenerator,
       @Nonnull FormatInferrer formatInferrer, @Nonnull GenericSchemaFeature genericSchemaFeature) {
     this.specVersion = specVersion;
     this.integerTypePreference = integerTypePreference;
     this.integerTypeCriterion = integerTypeCriterion;
     this.enumExtractor = enumExtractor;
-    this.primitiveEnumCriterion = enumCriterion;
     this.titleDescriptionGenerator = titleDescriptionGenerator;
     this.formatInferrer = formatInferrer;
     this.genericSchemaFeature = genericSchemaFeature;
@@ -215,7 +212,7 @@ public final class JsonSchemaInferrer {
    * Handle primitive samples
    */
   @Nonnull
-  private Set<ObjectNode> processNonEnumPrimitives(@Nonnull Collection<ValueNode> valueNodes) {
+  private Set<ObjectNode> processPrimitives(@Nonnull Collection<ValueNode> valueNodes) {
     if (valueNodes.isEmpty()) {
       return Collections.emptySet();
     }
@@ -249,18 +246,6 @@ public final class JsonSchemaInferrer {
       processGenericSchemaFeature(anyOf, primitivesSummary.getSamples(), type);
     }
     return anyOfs;
-  }
-
-  /**
-   * Handle enum primitive samples
-   *
-   * @param valueNodes The input samples. Should not be empty.
-   */
-  private ObjectNode processEnumPrimitives(@Nonnull Collection<ValueNode> valueNodes) {
-    final ObjectNode schema = newObject();
-    schema.set(Consts.Fields.ENUM, newArray(new HashSet<>(valueNodes)));
-    processGenericSchemaFeature(schema, valueNodes, null);
-    return schema;
   }
 
   /**
@@ -309,11 +294,7 @@ public final class JsonSchemaInferrer {
       anyOfs.add(resultForArrays);
     }
     // Primitives
-    if (isPrimitiveEnum(valueNodes)) {
-      anyOfs.add(processEnumPrimitives(valueNodes));
-    } else {
-      anyOfs.addAll(processNonEnumPrimitives(valueNodes));
-    }
+    anyOfs.addAll(processPrimitives(valueNodes));
     postProcessAnyOfs(anyOfs);
     return Collections.unmodifiableSet(anyOfs);
   }
@@ -380,14 +361,6 @@ public final class JsonSchemaInferrer {
     final EnumExtractorInput input = new EnumExtractorInput(samples, specVersion);
     final Set<Set<? extends JsonNode>> enumExtractionResults = enumExtractor.extractEnums(input);
     return Objects.requireNonNull(enumExtractionResults);
-  }
-
-  private boolean isPrimitiveEnum(@Nonnull Collection<? extends JsonNode> samples) {
-    if (samples.isEmpty()) {
-      return false;
-    }
-    final PrimitiveEnumCriterionInput input = new PrimitiveEnumCriterionInput(samples, specVersion);
-    return primitiveEnumCriterion.isEnum(input);
   }
 
   private void handleDescriptionGeneration(@Nonnull ObjectNode schema, @Nullable String fieldName) {

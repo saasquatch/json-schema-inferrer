@@ -23,7 +23,6 @@ public final class JsonSchemaInferrerBuilder {
   private IntegerTypePreference integerTypePreference = IntegerTypePreference.IF_ALL;
   private IntegerTypeCriterion integerTypeCriterion = IntegerTypeCriteria.nonFloatingPoint();
   private EnumExtractor enumExtractor = EnumExtractors.noOp();
-  private PrimitiveEnumCriterion primitiveEnumCriterion = PrimitiveEnumCriteria.noOp();
   private TitleDescriptionGenerator titleDescriptionGenerator = TitleDescriptionGenerators.noOp();
   @Nullable
   private List<FormatInferrer> formatInferrers;
@@ -71,19 +70,6 @@ public final class JsonSchemaInferrerBuilder {
 
   public JsonSchemaInferrerBuilder setEnumExtractor(@Nonnull EnumExtractor enumExtractor) {
     this.enumExtractor = Objects.requireNonNull(enumExtractor);
-    return this;
-  }
-
-  /**
-   * Set the {@link PrimitiveEnumCriterion}. The default is {@link PrimitiveEnumCriteria#noOp()}.
-   *
-   * @see PrimitiveEnumCriterion
-   * @see PrimitiveEnumCriteria
-   */
-  @Deprecated
-  public JsonSchemaInferrerBuilder setPrimitiveEnumCriterion(
-      @Nonnull PrimitiveEnumCriterion primitiveEnumCriterion) {
-    this.primitiveEnumCriterion = Objects.requireNonNull(primitiveEnumCriterion);
     return this;
   }
 
@@ -270,8 +256,8 @@ public final class JsonSchemaInferrerBuilder {
    */
   public JsonSchemaInferrer build() {
     return new JsonSchemaInferrer(specVersion, integerTypePreference, integerTypeCriterion,
-        enumExtractor, primitiveEnumCriterion, titleDescriptionGenerator,
-        getCombinedFormatInferrer(), getCombinedGenericSchemaFeature());
+        enumExtractor, titleDescriptionGenerator, getCombinedFormatInferrer(),
+        getCombinedGenericSchemaFeature());
   }
 
 }
