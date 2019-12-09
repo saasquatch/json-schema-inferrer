@@ -22,6 +22,7 @@ public final class JsonSchemaInferrerBuilder {
   private SpecVersion specVersion = SpecVersion.DRAFT_04;
   private IntegerTypePreference integerTypePreference = IntegerTypePreference.IF_ALL;
   private IntegerTypeCriterion integerTypeCriterion = IntegerTypeCriteria.nonFloatingPoint();
+  private EnumExtractor enumExtractor = EnumExtractors.noOp();
   private PrimitiveEnumCriterion primitiveEnumCriterion = PrimitiveEnumCriteria.noOp();
   private TitleDescriptionGenerator titleDescriptionGenerator = TitleDescriptionGenerators.noOp();
   @Nullable
@@ -65,6 +66,11 @@ public final class JsonSchemaInferrerBuilder {
   public JsonSchemaInferrerBuilder setIntegerTypeCriterion(
       @Nonnull IntegerTypeCriterion integerTypeCriterion) {
     this.integerTypeCriterion = Objects.requireNonNull(integerTypeCriterion);
+    return this;
+  }
+
+  public JsonSchemaInferrerBuilder setEnumExtractor(@Nonnull EnumExtractor enumExtractor) {
+    this.enumExtractor = Objects.requireNonNull(enumExtractor);
     return this;
   }
 
@@ -263,8 +269,8 @@ public final class JsonSchemaInferrerBuilder {
    */
   public JsonSchemaInferrer build() {
     return new JsonSchemaInferrer(specVersion, integerTypePreference, integerTypeCriterion,
-        primitiveEnumCriterion, titleDescriptionGenerator, getCombinedFormatInferrer(),
-        getCombinedGenericSchemaFeature());
+        enumExtractor, primitiveEnumCriterion, titleDescriptionGenerator,
+        getCombinedFormatInferrer(), getCombinedGenericSchemaFeature());
   }
 
 }

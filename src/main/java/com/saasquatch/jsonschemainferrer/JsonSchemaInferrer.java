@@ -13,9 +13,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
@@ -41,6 +41,7 @@ public final class JsonSchemaInferrer {
   private final SpecVersion specVersion;
   private final IntegerTypePreference integerTypePreference;
   private final IntegerTypeCriterion integerTypeCriterion;
+  private final EnumExtractor enumExtractor;
   private final PrimitiveEnumCriterion primitiveEnumCriterion;
   private final TitleDescriptionGenerator titleDescriptionGenerator;
   private final FormatInferrer formatInferrer;
@@ -48,13 +49,14 @@ public final class JsonSchemaInferrer {
 
   JsonSchemaInferrer(@Nonnull SpecVersion specVersion,
       @Nonnull IntegerTypePreference integerTypePreference,
-      @Nonnull IntegerTypeCriterion integerTypeCriterion,
+      @Nonnull IntegerTypeCriterion integerTypeCriterion, @Nonnull EnumExtractor enumExtractor,
       @Nonnull PrimitiveEnumCriterion enumCriterion,
       @Nonnull TitleDescriptionGenerator titleDescriptionGenerator,
       @Nonnull FormatInferrer formatInferrer, @Nonnull GenericSchemaFeature genericSchemaFeature) {
     this.specVersion = specVersion;
     this.integerTypePreference = integerTypePreference;
     this.integerTypeCriterion = integerTypeCriterion;
+    this.enumExtractor = enumExtractor;
     this.primitiveEnumCriterion = enumCriterion;
     this.titleDescriptionGenerator = titleDescriptionGenerator;
     this.formatInferrer = formatInferrer;
@@ -95,7 +97,7 @@ public final class JsonSchemaInferrer {
         samples.stream().map(this::preProcessSample).collect(Collectors.toList());
     final ObjectNode schema = newObject();
     schema.put(Consts.Fields.DOLLAR_SCHEMA, specVersion.getMetaSchemaUrl());
-    final Set<ObjectNode> anyOfs = getAnyOfsFromSamples(processedSamples.stream());
+    final Set<ObjectNode> anyOfs = getAnyOfsFromSamples(processedSamples);
     // anyOfs cannot be empty here, since we force inputs to be non empty
     assert !anyOfs.isEmpty() : "empty anyOfs encountered in inferForSamples";
     switch (anyOfs.size()) {
@@ -150,7 +152,7 @@ public final class JsonSchemaInferrer {
           .map(this::preProcessSample).collect(Collectors.toList());
       final ObjectNode newProperty = newObject();
       handleDescriptionGeneration(newProperty, fieldName);
-      final Set<ObjectNode> anyOfs = getAnyOfsFromSamples(processedSamples.stream());
+      final Set<ObjectNode> anyOfs = getAnyOfsFromSamples(processedSamples);
       // anyOfs cannot be empty here, since we should have at least one match of the fieldName
       assert !anyOfs.isEmpty() : "empty anyOfs encountered";
       switch (anyOfs.size()) {
@@ -184,10 +186,10 @@ public final class JsonSchemaInferrer {
       return null;
     }
     // Note that samples can be empty here if the sample arrays are empty
-    final Stream<JsonNode> processedSamplesStream =
-        arrayNodes.stream().flatMap(j -> stream(j)).map(this::preProcessSample);
+    final Collection<JsonNode> processedSamples = arrayNodes.stream().flatMap(j -> stream(j))
+        .map(this::preProcessSample).collect(Collectors.toList());
     final ObjectNode items;
-    final Set<ObjectNode> anyOfs = getAnyOfsFromSamples(processedSamplesStream);
+    final Set<ObjectNode> anyOfs = getAnyOfsFromSamples(processedSamples);
     switch (anyOfs.size()) {
       case 0:
         // anyOfs can be empty here, since the original array can be empty
@@ -264,16 +266,22 @@ public final class JsonSchemaInferrer {
   /**
    * Build {@code anyOf} from sample JSONs. Note that all the arrays and objects will be combined.
    *
-   * @param processedSamplesStream The stream of samples that have gone through
+   * @param processedSamples The stream of samples that have gone through
    *        {@link #preProcessSample(JsonNode)}
    */
   @Nonnull
   private Set<ObjectNode> getAnyOfsFromSamples(
-      @Nonnull Stream<? extends JsonNode> processedSamplesStream) {
+      @Nonnull Collection<? extends JsonNode> processedSamples) {
+    final Set<Set<? extends JsonNode>> enumExtractionResults =
+        getEnumExtractionResults(processedSamples);
     final Collection<ObjectNode> objectNodes = new ArrayList<>();
     final Collection<ArrayNode> arrayNodes = new ArrayList<>();
     final Collection<ValueNode> valueNodes = new ArrayList<>();
-    processedSamplesStream.forEach(sample -> {
+    for (JsonNode sample : processedSamples) {
+      if (enumExtractionResults.stream()
+          .anyMatch(enumExtractionResult -> enumExtractionResult.contains(sample))) {
+        continue;
+      }
       if (sample instanceof ObjectNode) {
         objectNodes.add((ObjectNode) sample);
       } else if (sample instanceof ArrayNode) {
@@ -281,16 +289,26 @@ public final class JsonSchemaInferrer {
       } else {
         valueNodes.add((ValueNode) sample);
       }
-    });
+    }
     final Set<ObjectNode> anyOfs = new HashSet<>();
+    // Enums
+    for (Set<? extends JsonNode> enumExtractionResult : enumExtractionResults) {
+      final ObjectNode anyOf = newObject();
+      anyOf.set(Consts.Fields.ENUM, newArray(enumExtractionResult));
+      processGenericSchemaFeature(anyOf, enumExtractionResult, null);
+      anyOfs.add(anyOf);
+    }
+    // Objects
     final ObjectNode resultForObjects = processObjects(objectNodes);
     if (resultForObjects != null) {
       anyOfs.add(resultForObjects);
     }
+    // Arrays
     final ObjectNode resultForArrays = processArrays(arrayNodes);
     if (resultForArrays != null) {
       anyOfs.add(resultForArrays);
     }
+    // Primitives
     if (isPrimitiveEnum(valueNodes)) {
       anyOfs.add(processEnumPrimitives(valueNodes));
     } else {
@@ -355,6 +373,13 @@ public final class JsonSchemaInferrer {
   private boolean isInteger(@Nonnull JsonNode sample) {
     final IntegerTypeCriterionInput input = new IntegerTypeCriterionInput(sample, specVersion);
     return integerTypeCriterion.isInteger(input);
+  }
+
+  private Set<Set<? extends JsonNode>> getEnumExtractionResults(
+      @Nonnull Collection<? extends JsonNode> samples) {
+    final EnumExtractorInput input = new EnumExtractorInput(samples, specVersion);
+    final Set<Set<? extends JsonNode>> enumExtractionResults = enumExtractor.extractEnums(input);
+    return Objects.requireNonNull(enumExtractionResults);
   }
 
   private boolean isPrimitiveEnum(@Nonnull Collection<? extends JsonNode> samples) {
