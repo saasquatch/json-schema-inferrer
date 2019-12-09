@@ -3,8 +3,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Build Status](https://travis-ci.org/saasquatch/json-schema-inferrer.svg?branch=master)](https://travis-ci.org/saasquatch/json-schema-inferrer)
 [![codecov](https://codecov.io/gh/saasquatch/json-schema-inferrer/branch/master/graph/badge.svg)](https://codecov.io/gh/saasquatch/json-schema-inferrer)
-[![Known Vulnerabilities](https://snyk.io/test/github/saasquatch/json-schema-inferrer/badge.svg?targetFile=pom.xml)](https://snyk.io/test/github/saasquatch/json-schema-inferrer?targetFile=pom.xml)
-[ ![Download](https://api.bintray.com/packages/saasquatch/java-libs/json-schema-inferrer/images/download.svg) ](https://bintray.com/saasquatch/java-libs/json-schema-inferrer/_latestVersion)
+[![Download](https://api.bintray.com/packages/saasquatch/java-libs/json-schema-inferrer/images/download.svg)](https://bintray.com/saasquatch/java-libs/json-schema-inferrer/_latestVersion)
 [![](https://jitpack.io/v/saasquatch/json-schema-inferrer.svg)](https://jitpack.io/#saasquatch/json-schema-inferrer)
 
 Java library for inferring JSON schema based on sample JSONs.
