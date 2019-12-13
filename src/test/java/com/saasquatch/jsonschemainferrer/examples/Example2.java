@@ -41,7 +41,7 @@ public class Example2 {
       .addFormatInferrers(FormatInferrers.email(), FormatInferrers.dateTime(), FormatInferrers.ip(),
           Example2::absoluteUriFormatInferrer)
       .setMultipleOfPolicy(MultipleOfPolicies.gcd())
-      .setEnumExtractor(EnumExtractors.chained(EnumExtractors.validEnum(Month.class),
+      .addEnumExtractors(EnumExtractors.validEnum(Month.class),
           EnumExtractors.validEnum(DayOfWeek.class),
           input -> {
             final Set<? extends JsonNode> primitives = input.getSamples().stream()
@@ -51,7 +51,7 @@ public class Example2 {
               return Collections.singleton(primitives);
             }
             return Collections.emptySet();
-          }))
+          })
       .setArrayLengthFeatures(EnumSet.allOf(ArrayLengthFeature.class))
       .setObjectSizeFeatures(EnumSet.allOf(ObjectSizeFeature.class))
       .setStringLengthFeatures(EnumSet.allOf(StringLengthFeature.class))

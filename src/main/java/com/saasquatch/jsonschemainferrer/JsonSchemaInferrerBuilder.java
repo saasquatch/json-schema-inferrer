@@ -22,7 +22,8 @@ public final class JsonSchemaInferrerBuilder {
   private SpecVersion specVersion = SpecVersion.DRAFT_04;
   private IntegerTypePreference integerTypePreference = IntegerTypePreference.IF_ALL;
   private IntegerTypeCriterion integerTypeCriterion = IntegerTypeCriteria.nonFloatingPoint();
-  private EnumExtractor enumExtractor = EnumExtractors.noOp();
+  @Nullable
+  private List<EnumExtractor> enumExtractors;
   private TitleDescriptionGenerator titleDescriptionGenerator = TitleDescriptionGenerators.noOp();
   @Nullable
   private List<FormatInferrer> formatInferrers;
@@ -74,13 +75,18 @@ public final class JsonSchemaInferrerBuilder {
   }
 
   /**
-   * Set the {@link EnumExtractor}. The default is {@link EnumExtractors#noOp()}.
+   * Add {@link EnumExtractor}s.
    *
    * @see EnumExtractor
    * @see EnumExtractors
    */
-  public JsonSchemaInferrerBuilder setEnumExtractor(@Nonnull EnumExtractor enumExtractor) {
-    this.enumExtractor = Objects.requireNonNull(enumExtractor);
+  public JsonSchemaInferrerBuilder addEnumExtractors(@Nonnull EnumExtractor... enumExtractors) {
+    if (this.enumExtractors == null) {
+      this.enumExtractors = new ArrayList<>();
+    }
+    for (EnumExtractor enumExtractor : enumExtractors) {
+      this.enumExtractors.add(Objects.requireNonNull(enumExtractor));
+    }
     return this;
   }
 
@@ -226,6 +232,14 @@ public final class JsonSchemaInferrerBuilder {
   }
 
   @Nonnull
+  private EnumExtractor getCombinedEnumExtractor() {
+    if (enumExtractors == null) {
+      return EnumExtractors.noOp();
+    }
+    return EnumExtractors.chained(enumExtractors.toArray(new EnumExtractor[0]));
+  }
+
+  @Nonnull
   private FormatInferrer getCombinedFormatInferrer() {
     if (formatInferrers == null) {
       return FormatInferrers.noOp();
@@ -267,7 +281,7 @@ public final class JsonSchemaInferrerBuilder {
    */
   public JsonSchemaInferrer build() {
     return new JsonSchemaInferrer(specVersion, integerTypePreference, integerTypeCriterion,
-        enumExtractor, titleDescriptionGenerator, getCombinedFormatInferrer(),
+        getCombinedEnumExtractor(), titleDescriptionGenerator, getCombinedFormatInferrer(),
         getCombinedGenericSchemaFeature());
   }
 

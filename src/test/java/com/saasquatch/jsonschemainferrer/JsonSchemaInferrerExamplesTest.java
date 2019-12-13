@@ -254,7 +254,7 @@ public class JsonSchemaInferrerExamplesTest {
               .setNumberRangeFeatures(EnumSet.allOf(NumberRangeFeature.class))
               .setExamplesPolicy(ExamplesPolicies.useFirstSamples(10))
               .setDefaultPolicy(defaultPolicyIter.next())
-              .setEnumExtractor(EnumExtractors.chained(EnumExtractors.validEnum(Month.class),
+              .addEnumExtractors(EnumExtractors.validEnum(Month.class),
                   EnumExtractors.validEnum(DayOfWeek.class), input -> {
                     final Set<? extends JsonNode> primitives = input.getSamples().stream()
                         .filter(JsonNode::isValueNode).collect(Collectors.toSet());
@@ -262,7 +262,7 @@ public class JsonSchemaInferrerExamplesTest {
                       return Collections.singleton(primitives);
                     }
                     return Collections.emptySet();
-                  }))
+                  })
               .setTitleDescriptionGenerator(new TitleDescriptionGenerator() {
 
                 @Override

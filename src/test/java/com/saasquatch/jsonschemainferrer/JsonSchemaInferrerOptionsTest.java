@@ -502,12 +502,12 @@ public class JsonSchemaInferrerOptionsTest {
     }
     {
       final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
-          .setEnumExtractor(EnumExtractors.validEnum(TimeUnit.class)).build();
+          .addEnumExtractors(EnumExtractors.validEnum(TimeUnit.class)).build();
       final ObjectNode schema = inferrer.inferForSamples(timeUnitSamples);
       assertEquals(ImmutableSet.of("DAYS", "HOURS"), toStringSet(schema.get("enum")));
     }
     {
-      final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder().setEnumExtractor(
+      final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder().addEnumExtractors(
           EnumExtractors.chained(EnumExtractors.validEnum(DayOfWeek.class), input -> {
             assertNotNull(input.getSpecVersion());
             return Collections.emptySet();
@@ -516,7 +516,7 @@ public class JsonSchemaInferrerOptionsTest {
       assertEquals(ImmutableSet.of("DAYS", "HOURS"), toStringSet(schema.get("enum")));
     }
     {
-      final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder().setEnumExtractor(
+      final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder().addEnumExtractors(
           EnumExtractors.chained(EnumExtractors.validEnum(DayOfWeek.class), input -> {
             assertNotNull(input.getSpecVersion());
             return Collections.emptySet();
@@ -535,7 +535,7 @@ public class JsonSchemaInferrerOptionsTest {
     }
     {
       final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
-          .setEnumExtractor(EnumExtractors.chained(EnumExtractors.validEnum(Month.class),
+          .addEnumExtractors(EnumExtractors.chained(EnumExtractors.validEnum(Month.class),
               EnumExtractors.validEnum(DayOfWeek.class)))
           .build();
       final ObjectNode schema =
@@ -549,7 +549,7 @@ public class JsonSchemaInferrerOptionsTest {
     }
     {
       final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
-          .setEnumExtractor(input -> Collections.singleton(Collections.emptySet())).build();
+          .addEnumExtractors(input -> Collections.singleton(Collections.emptySet())).build();
       assertThrows(IllegalStateException.class, () -> inferrer.inferForSample(null));
     }
   }

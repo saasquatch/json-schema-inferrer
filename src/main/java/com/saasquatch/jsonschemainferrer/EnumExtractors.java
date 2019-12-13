@@ -42,23 +42,22 @@ public final class EnumExtractors {
   /**
    * @return an {@link EnumExtractor} that combines the results of the given {@link EnumExtractor}s
    */
-  public static EnumExtractor chained(@Nonnull EnumExtractor... enumExtrators) {
-    for (EnumExtractor enumExtrator : enumExtrators) {
-      Objects.requireNonNull(enumExtrator);
+  public static EnumExtractor chained(@Nonnull EnumExtractor... enumExtractors) {
+    for (EnumExtractor enumExtractor : enumExtractors) {
+      Objects.requireNonNull(enumExtractor);
     }
-    switch (enumExtrators.length) {
+    switch (enumExtractors.length) {
       case 0:
         throw new IllegalArgumentException("Empty criteria");
       case 1:
-        return enumExtrators[0];
+        return enumExtractors[0];
       default:
         break;
     }
     // Defensive copy
     return input -> {
-      return Arrays.stream(enumExtrators)
+      return Arrays.stream(enumExtractors)
           .flatMap(enumExtrator -> enumExtrator.extractEnums(input).stream())
-          .filter(s -> !s.isEmpty())
           .collect(Collectors.toSet());
     };
   }
