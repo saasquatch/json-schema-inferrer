@@ -258,7 +258,7 @@ public class JsonSchemaInferrerExamplesTest {
                   EnumExtractors.validEnum(DayOfWeek.class), input -> {
                     final Set<? extends JsonNode> primitives = input.getSamples().stream()
                         .filter(JsonNode::isValueNode).collect(Collectors.toSet());
-                    if (primitives.size() <= 3) {
+                    if (primitives.size() <= 3 && primitives.size() > 0) {
                       return Collections.singleton(primitives);
                     }
                     return Collections.emptySet();

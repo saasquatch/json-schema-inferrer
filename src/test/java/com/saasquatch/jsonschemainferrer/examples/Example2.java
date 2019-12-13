@@ -47,7 +47,7 @@ public class Example2 {
             final Set<? extends JsonNode> primitives = input.getSamples().stream()
                 .filter(JsonNode::isValueNode)
                 .collect(Collectors.toSet());
-            if (primitives.size() <= 100) {
+            if (primitives.size() <= 100 && primitives.size() > 0) {
               return Collections.singleton(primitives);
             }
             return Collections.emptySet();
