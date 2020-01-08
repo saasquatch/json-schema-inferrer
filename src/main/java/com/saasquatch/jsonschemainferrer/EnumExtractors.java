@@ -48,7 +48,7 @@ public final class EnumExtractors {
     }
     switch (enumExtractors.length) {
       case 0:
-        throw new IllegalArgumentException("Empty criteria");
+        return noOp();
       case 1:
         return enumExtractors[0];
       default:

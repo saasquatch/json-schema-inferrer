@@ -250,13 +250,15 @@ public final class JsonSchemaInferrer {
 
   @Nonnull
   private ObjectNode enumExtractionResultToSchema(
-      @Nonnull Set<? extends JsonNode> enumExtractionResult) {
+      @Nonnull Collection<? extends JsonNode> enumExtractionResult) {
     Objects.requireNonNull(enumExtractionResult);
     if (enumExtractionResult.isEmpty()) {
       throw new IllegalStateException("Empty enum group encountered");
     }
+    final ArrayNode enumArray = newArray();
+    enumExtractionResult.stream().distinct().forEach(enumArray::add);
     final ObjectNode schema = newObject();
-    schema.set(Consts.Fields.ENUM, newArray(enumExtractionResult));
+    schema.set(Consts.Fields.ENUM, enumArray);
     processGenericSchemaFeature(schema, enumExtractionResult, null);
     return schema;
   }
@@ -270,7 +272,7 @@ public final class JsonSchemaInferrer {
   @Nonnull
   private Set<ObjectNode> getAnyOfsFromSamples(
       @Nonnull Collection<? extends JsonNode> processedSamples) {
-    final Set<Set<? extends JsonNode>> enumExtractionResults =
+    final Collection<Collection<? extends JsonNode>> enumExtractionResults =
         getEnumExtractionResults(processedSamples);
     final Collection<ObjectNode> objectNodes = new ArrayList<>();
     final Collection<ArrayNode> arrayNodes = new ArrayList<>();
@@ -364,10 +366,11 @@ public final class JsonSchemaInferrer {
     return integerTypeCriterion.isInteger(input);
   }
 
-  private Set<Set<? extends JsonNode>> getEnumExtractionResults(
+  private Collection<Collection<? extends JsonNode>> getEnumExtractionResults(
       @Nonnull Collection<? extends JsonNode> samples) {
     final EnumExtractorInput input = new EnumExtractorInput(samples, specVersion);
-    final Set<Set<? extends JsonNode>> enumExtractionResults = enumExtractor.extractEnums(input);
+    final Collection<Collection<? extends JsonNode>> enumExtractionResults =
+        enumExtractor.extractEnums(input);
     return Objects.requireNonNull(enumExtractionResults);
   }
 

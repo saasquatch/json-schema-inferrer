@@ -1,6 +1,6 @@
 package com.saasquatch.jsonschemainferrer;
 
-import java.util.Set;
+import java.util.Collection;
 import javax.annotation.Nonnull;
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -20,6 +20,6 @@ public interface EnumExtractor {
    *         samples if possible to ensure {@link JsonNode#equals(Object)} works correctly.
    */
   @Nonnull
-  Set<Set<? extends JsonNode>> extractEnums(@Nonnull EnumExtractorInput input);
+  Collection<Collection<? extends JsonNode>> extractEnums(@Nonnull EnumExtractorInput input);
 
 }
