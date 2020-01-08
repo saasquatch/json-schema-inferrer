@@ -13,10 +13,10 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  */
 public final class GenericSchemaFeatureInput {
 
-  private ObjectNode schema;
-  private Collection<? extends JsonNode> samples;
-  private String type;
-  private SpecVersion specVersion;
+  private final ObjectNode schema;
+  private final Collection<? extends JsonNode> samples;
+  private final String type;
+  private final SpecVersion specVersion;
 
   GenericSchemaFeatureInput(@Nonnull ObjectNode schema,
       @Nonnull Collection<? extends JsonNode> samples, @Nullable String type,
