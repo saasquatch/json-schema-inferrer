@@ -3,7 +3,6 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Build Status](https://travis-ci.org/saasquatch/json-schema-inferrer.svg?branch=master)](https://travis-ci.org/saasquatch/json-schema-inferrer)
 [![codecov](https://codecov.io/gh/saasquatch/json-schema-inferrer/branch/master/graph/badge.svg)](https://codecov.io/gh/saasquatch/json-schema-inferrer)
-[![Download](https://api.bintray.com/packages/saasquatch/java-libs/json-schema-inferrer/images/download.svg)](https://bintray.com/saasquatch/java-libs/json-schema-inferrer/_latestVersion)
 [![](https://jitpack.io/v/saasquatch/json-schema-inferrer.svg)](https://jitpack.io/#saasquatch/json-schema-inferrer)
 
 Java library for inferring JSON schema based on sample JSONs.
@@ -155,8 +154,8 @@ Maven
 ```xml
 <repositories>
   <repository>
-    <id>bintray-saasquatch-java-libs</id>
-    <url>https://dl.bintray.com/saasquatch/java-libs</url>
+    <id>jitpack.io</id>
+    <url>https://jitpack.io</url>
   </repository>
 </repositories>
 ```
@@ -165,9 +164,7 @@ Gradle
 
 ```gradle
 repositories {
-  maven {
-    url  "https://dl.bintray.com/saasquatch/java-libs"
-  }
+  maven { url 'https://jitpack.io' }
 }
 ```
 
@@ -177,16 +174,16 @@ Maven
 
 ```xml
 <dependency>
-  <groupId>com.saasquatch</groupId>
+  <groupId>com.github.saasquatch</groupId>
   <artifactId>json-schema-inferrer</artifactId>
-  <version>0.1.1-alpha-37</version>
+  <version>0.1.1-alpha-43</version>
 </dependency>
 ```
 
 Gradle
 
 ```gradle
-compile 'com.saasquatch:json-schema-inferrer:0.1.1-alpha-37'
+compile 'com.github.saasquatch:json-schema-inferrer:0.1.1-alpha-43'
 ```
 
 ### Transitive Dependencies
