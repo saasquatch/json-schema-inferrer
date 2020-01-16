@@ -9,6 +9,7 @@ import java.lang.annotation.RetentionPolicy;
  * @author sli
  */
 @Retention(RetentionPolicy.SOURCE) // Only used for documentation
+@Internal
 public @interface VisibleForTesting {
 
 }

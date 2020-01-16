@@ -4,12 +4,13 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
- * Things marked with this annotation are in beta mode.
+ * Indicates that an element is considered internal and should not be used externally regardless of
+ * its actual visibility.
  *
  * @author sli
  */
 @Retention(RetentionPolicy.SOURCE) // Only used for documentation
-@Internal
-public @interface Beta {
+@Internal // This annotation itself is internal
+public @interface Internal {
 
 }
