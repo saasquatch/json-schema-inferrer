@@ -4,7 +4,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
- * Things marked with this annotation is in beta mode.
+ * Things marked with this annotation are in beta mode.
  *
  * @author sli
  */
