@@ -1,10 +1,13 @@
 package com.saasquatch.jsonschemainferrer;
 
+import com.saasquatch.jsonschemainferrer.annotations.Beta;
+
 /**
  * Utilities for {@link TitleDescriptionGenerator}s.
  *
  * @author sli
  */
+@Beta
 public final class TitleDescriptionGenerators {
 
   private TitleDescriptionGenerators() {}
