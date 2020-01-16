@@ -9,6 +9,7 @@ import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
+import com.saasquatch.jsonschemainferrer.annotations.Beta;
 
 /**
  * Builder for {@link JsonSchemaInferrer}. This class is mutable and not thread safe.
@@ -98,6 +99,7 @@ public final class JsonSchemaInferrerBuilder {
    * @see TitleDescriptionGenerator
    * @see TitleDescriptionGenerators
    */
+  @Beta
   public JsonSchemaInferrerBuilder setTitleDescriptionGenerator(
       @Nonnull TitleDescriptionGenerator titleDescriptionGenerator) {
     this.titleDescriptionGenerator = Objects.requireNonNull(titleDescriptionGenerator);
