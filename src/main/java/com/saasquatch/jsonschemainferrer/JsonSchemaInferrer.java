@@ -25,6 +25,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.ValueNode;
+import com.saasquatch.jsonschemainferrer.annotations.VisibleForTesting;
 
 /**
  * Infer JSON schema based on sample JSONs. This class is immutable and thread safe.
@@ -332,8 +333,8 @@ public final class JsonSchemaInferrer {
     anyOfs.add(combinedSimpleAnyOf);
   }
 
-  // Visible for testing
   @Nonnull
+  @VisibleForTesting
   String inferPrimitiveType(@Nonnull JsonNode sample, boolean allNumbersAreIntegers) {
     // Marker for whether the error is caused by a known type
     final JsonNodeType type = sample.getNodeType();
