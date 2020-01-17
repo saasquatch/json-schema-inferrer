@@ -192,11 +192,7 @@ This project requires Java 8. The only required transitive dependencies are [Jac
 
 ### Pre-release Versions
 
-Pre-release versions (as well as stable releases) can be obtained through [JitPack](https://jitpack.io/#saasquatch/json-schema-inferrer).
-
-## Development
-
-Compile with `mvn compile`. Run tests with `mvn test`. Deploy with `mvn deploy`.
+Pre-release versions and snapshots (as well as stable releases) can be obtained through [JitPack](https://jitpack.io/#saasquatch/json-schema-inferrer).
 
 ## License
 
