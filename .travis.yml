@@ -1,7 +1,7 @@
 language: java
 jdk:
   - openjdk8
-sudo: false
+os: linux
 after_success:
   - bash <(curl -s https://codecov.io/bash)
 cache:
