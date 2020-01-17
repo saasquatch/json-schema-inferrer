@@ -14,6 +14,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
@@ -295,15 +296,9 @@ public final class JsonSchemaInferrer {
     // Enums
     enumExtractionResults.stream().map(this::enumExtractionResultToSchema).forEach(anyOfs::add);
     // Objects
-    final ObjectNode resultForObjects = processObjects(objectNodes);
-    if (resultForObjects != null) {
-      anyOfs.add(resultForObjects);
-    }
+    Optional.ofNullable(processObjects(objectNodes)).ifPresent(anyOfs::add);
     // Arrays
-    final ObjectNode resultForArrays = processArrays(arrayNodes);
-    if (resultForArrays != null) {
-      anyOfs.add(resultForArrays);
-    }
+    Optional.ofNullable(processArrays(arrayNodes)).ifPresent(anyOfs::add);
     // Primitives
     anyOfs.addAll(processPrimitives(valueNodes));
     postProcessAnyOfs(anyOfs);
