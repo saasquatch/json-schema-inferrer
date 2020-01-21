@@ -8,12 +8,14 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.saasquatch.jsonschemainferrer.annotations.Beta;
 
 /**
  * Utilities for {@link EnumExtractor}
  *
  * @author sli
  */
+@Beta
 public final class EnumExtractors {
 
   private EnumExtractors() {}

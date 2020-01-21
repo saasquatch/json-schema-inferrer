@@ -3,12 +3,14 @@ package com.saasquatch.jsonschemainferrer;
 import java.util.Collection;
 import javax.annotation.Nonnull;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.saasquatch.jsonschemainferrer.annotations.Beta;
 
 /**
  * Input for {@link EnumExtractor}
  *
  * @author sli
  */
+@Beta
 public final class EnumExtractorInput {
 
   private final Collection<? extends JsonNode> samples;

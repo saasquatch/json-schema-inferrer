@@ -3,6 +3,7 @@ package com.saasquatch.jsonschemainferrer;
 import java.util.Collection;
 import javax.annotation.Nonnull;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.saasquatch.jsonschemainferrer.annotations.Beta;
 
 /**
  * Interface for extracting {@code enum} groups from samples.
@@ -11,6 +12,7 @@ import com.fasterxml.jackson.databind.JsonNode;
  * @see EnumExtractors
  * @see EnumExtractorInput
  */
+@Beta
 @FunctionalInterface
 public interface EnumExtractor {
 

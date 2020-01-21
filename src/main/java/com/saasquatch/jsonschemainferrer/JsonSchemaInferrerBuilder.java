@@ -56,6 +56,7 @@ public final class JsonSchemaInferrerBuilder {
    *
    * @see IntegerTypePreference
    */
+  @Beta
   public JsonSchemaInferrerBuilder setIntegerTypePreference(
       @Nonnull IntegerTypePreference integerTypePreference) {
     this.integerTypePreference = Objects.requireNonNull(integerTypePreference);
@@ -81,6 +82,7 @@ public final class JsonSchemaInferrerBuilder {
    * @see EnumExtractor
    * @see EnumExtractors
    */
+  @Beta
   public JsonSchemaInferrerBuilder addEnumExtractors(@Nonnull EnumExtractor... enumExtractors) {
     if (this.enumExtractors == null) {
       this.enumExtractors = new ArrayList<>();

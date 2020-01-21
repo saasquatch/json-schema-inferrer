@@ -2,6 +2,7 @@ package com.saasquatch.jsonschemainferrer;
 
 import java.util.function.BooleanSupplier;
 import javax.annotation.Nonnull;
+import com.saasquatch.jsonschemainferrer.annotations.Beta;
 
 /**
  * Preference for whether the type {@code integer} should be used over {@code number} in the result
@@ -11,6 +12,7 @@ import javax.annotation.Nonnull;
  * @author sli
  * @see IntegerTypeCriterion
  */
+@Beta
 public enum IntegerTypePreference {
 
   /**
