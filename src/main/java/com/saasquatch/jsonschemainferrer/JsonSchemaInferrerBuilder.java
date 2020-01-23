@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
 import com.saasquatch.jsonschemainferrer.annotations.Beta;
 
@@ -23,11 +22,9 @@ public final class JsonSchemaInferrerBuilder {
   private SpecVersion specVersion = SpecVersion.DRAFT_04;
   private IntegerTypePreference integerTypePreference = IntegerTypePreference.IF_ALL;
   private IntegerTypeCriterion integerTypeCriterion = IntegerTypeCriteria.nonFloatingPoint();
-  @Nullable
-  private List<EnumExtractor> enumExtractors;
+  private List<EnumExtractor> enumExtractors = Collections.emptyList();
   private TitleDescriptionGenerator titleDescriptionGenerator = TitleDescriptionGenerators.noOp();
-  @Nullable
-  private List<FormatInferrer> formatInferrers;
+  private List<FormatInferrer> formatInferrers = Collections.emptyList();
   private AdditionalPropertiesPolicy additionalPropertiesPolicy =
       AdditionalPropertiesPolicies.noOp();
   private RequiredPolicy requiredPolicy = RequiredPolicies.noOp();
@@ -38,8 +35,7 @@ public final class JsonSchemaInferrerBuilder {
   private Set<ArrayLengthFeature> arrayLengthFeatures = Collections.emptySet();
   private Set<StringLengthFeature> stringLengthFeatures = Collections.emptySet();
   private Set<NumberRangeFeature> numberRangeFeatures = Collections.emptySet();
-  @Nullable
-  private List<GenericSchemaFeature> genericSchemaFeatures;
+  private List<GenericSchemaFeature> genericSchemaFeatures = Collections.emptyList();
 
   JsonSchemaInferrerBuilder() {}
 
@@ -84,7 +80,7 @@ public final class JsonSchemaInferrerBuilder {
    */
   @Beta
   public JsonSchemaInferrerBuilder addEnumExtractors(@Nonnull EnumExtractor... enumExtractors) {
-    if (this.enumExtractors == null) {
+    if (this.enumExtractors.isEmpty()) {
       this.enumExtractors = new ArrayList<>();
     }
     for (EnumExtractor enumExtractor : enumExtractors) {
@@ -119,7 +115,7 @@ public final class JsonSchemaInferrerBuilder {
    * @see FormatInferrers
    */
   public JsonSchemaInferrerBuilder addFormatInferrers(@Nonnull FormatInferrer... formatInferrers) {
-    if (this.formatInferrers == null) {
+    if (this.formatInferrers.isEmpty()) {
       this.formatInferrers = new ArrayList<>();
     }
     for (FormatInferrer formatInferrer : formatInferrers) {
@@ -226,7 +222,7 @@ public final class JsonSchemaInferrerBuilder {
    */
   public JsonSchemaInferrerBuilder addGenericSchemaFeatures(
       @Nonnull GenericSchemaFeature... features) {
-    if (this.genericSchemaFeatures == null) {
+    if (this.genericSchemaFeatures.isEmpty()) {
       this.genericSchemaFeatures = new ArrayList<>();
     }
     for (GenericSchemaFeature feature : features) {
@@ -237,17 +233,11 @@ public final class JsonSchemaInferrerBuilder {
 
   @Nonnull
   private EnumExtractor getCombinedEnumExtractor() {
-    if (enumExtractors == null) {
-      return EnumExtractors.noOp();
-    }
     return EnumExtractors.chained(enumExtractors.toArray(new EnumExtractor[0]));
   }
 
   @Nonnull
   private FormatInferrer getCombinedFormatInferrer() {
-    if (formatInferrers == null) {
-      return FormatInferrers.noOp();
-    }
     return FormatInferrers.chained(formatInferrers.toArray(new FormatInferrer[0]));
   }
 
@@ -273,9 +263,7 @@ public final class JsonSchemaInferrerBuilder {
     features.addAll(arrayLengthFeatures);
     features.addAll(stringLengthFeatures);
     features.addAll(numberRangeFeatures);
-    if (genericSchemaFeatures != null) {
-      features.addAll(genericSchemaFeatures);
-    }
+    features.addAll(genericSchemaFeatures);
     return GenericSchemaFeatures.chained(features.toArray(new GenericSchemaFeature[0]));
   }
 
