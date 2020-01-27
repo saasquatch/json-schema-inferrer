@@ -87,7 +87,7 @@
       <groupId>org.apache.httpcomponents.client5</groupId>
       <artifactId>httpclient5</artifactId>
       <!-- Using the beta for now, and it's just for tests -->
-      <version>5.0-beta6</version>
+      <version>5.0-beta7</version>
       <scope>test</scope>
     </dependency>
     <dependency>
