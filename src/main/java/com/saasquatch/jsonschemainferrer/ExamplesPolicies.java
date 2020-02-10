@@ -6,6 +6,7 @@ import java.util.function.Predicate;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.saasquatch.jsonschemainferrer.annotations.Beta;
 
 /**
  * Utilities for {@link ExamplesPolicy}.
@@ -36,6 +37,7 @@ public final class ExamplesPolicies {
    * @return An {@link ExamplesPolicy} that takes the first samples with a limit and a
    *         {@link Predicate} for types.
    */
+  @Beta
   public static ExamplesPolicy useFirstSamples(@Nonnegative int limit,
       @Nonnull Predicate<String> typePredicate) {
     Objects.requireNonNull(typePredicate);
