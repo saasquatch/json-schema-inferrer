@@ -2,6 +2,7 @@ package com.saasquatch.jsonschemainferrer;
 
 import java.util.Collection;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.saasquatch.jsonschemainferrer.annotations.Beta;
 
 /**
  * Utilities for {@link DefaultPolicy}
@@ -32,6 +33,7 @@ public final class DefaultPolicies {
   /**
    * @return a singleton {@link DefaultPolicy} that always uses the last sample as {@code default}
    */
+  @Beta
   public static DefaultPolicy useLastSamples() {
     return input -> {
       final Collection<? extends JsonNode> samples = input.getSamples();
