@@ -10,6 +10,7 @@ import java.util.stream.Stream;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.saasquatch.jsonschemainferrer.annotations.Beta;
 
 /**
  * Utilities for {@link AdditionalPropertiesPolicy}
@@ -47,6 +48,7 @@ public final class AdditionalPropertiesPolicies {
    * @return A singleton {@link AdditionalPropertiesPolicy} that sets {@code additionalProperties}
    *         to existing types on the schema
    */
+  @Beta
   public static AdditionalPropertiesPolicy existingTypes() {
     return input -> {
       final ObjectNode schema = input.getSchema();
