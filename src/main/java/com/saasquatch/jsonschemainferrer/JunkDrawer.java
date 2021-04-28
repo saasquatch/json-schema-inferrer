@@ -176,9 +176,7 @@ final class JunkDrawer {
   }
 
   /**
-   *
    * @param samples Assumed to be {@link ObjectNode}s
-   * @param requireNonNull
    * @return The field names common to the given samples
    */
   @Nonnull
@@ -205,7 +203,7 @@ final class JunkDrawer {
   /**
    * Get the length of the Base64 String for the given number of bytes
    */
-  static int getBase64Length(@Nonnull int bytesLength) {
+  static int getBase64Length(int bytesLength) {
     return (bytesLength + 2) / 3 * 4;
   }
 

@@ -49,7 +49,7 @@ public class JsonSchemaInferrerTest {
   }
 
   @Test
-  public void testSimpleExample() throws Exception {
+  public void testSimpleExample() {
     final JsonNode simple = loadJson("simple.json");
     {
       final ObjectNode schema = JsonSchemaInferrer.newBuilder().build().inferForSample(simple);
@@ -91,7 +91,7 @@ public class JsonSchemaInferrerTest {
   }
 
   @Test
-  public void testAdvancedExample() throws Exception {
+  public void testAdvancedExample() {
     final JsonNode advanced = loadJson("advanced.json");
     {
       final ObjectNode schema = JsonSchemaInferrer.newBuilder().build().inferForSample(advanced);

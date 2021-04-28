@@ -244,7 +244,7 @@ public final class JsonSchemaInferrer {
       final String format = anyOf.path(Consts.Fields.FORMAT).textValue();
       @Nonnull
       final PrimitivesSummary primitivesSummary =
-          primitivesSummaryMap.getPrimitivesSummary(type, format);
+          Objects.requireNonNull(primitivesSummaryMap.getPrimitivesSummary(type, format));
       processGenericSchemaFeature(anyOf, primitivesSummary.getSamples(), type);
     }
     return anyOfs;
