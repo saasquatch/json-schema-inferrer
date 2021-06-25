@@ -6,8 +6,8 @@ import java.util.AbstractMap;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
@@ -71,7 +71,7 @@ final class JunkDrawer {
    */
   @SafeVarargs
   static <E> Set<E> unmodifiableSetOf(E... elements) {
-    return Collections.unmodifiableSet(new HashSet<>(Arrays.asList(elements)));
+    return Collections.unmodifiableSet(new LinkedHashSet<>(Arrays.asList(elements)));
   }
 
   static <E extends Enum<E>, R> R unrecognizedEnumError(E enumVal) {
@@ -162,7 +162,7 @@ final class JunkDrawer {
     return stream(objectNodes)
         .flatMap(j -> stream(j.fieldNames()))
         .filter(Objects::nonNull)
-        .collect(Collectors.toSet());
+        .collect(Collectors.toCollection(LinkedHashSet::new));
   }
 
   /**
@@ -189,9 +189,9 @@ final class JunkDrawer {
           .filter(requireNonNull
               ? fieldName -> nonNull(sample.get(fieldName))
               : fieldName -> true)
-          .collect(Collectors.toSet());
+          .collect(Collectors.toCollection(LinkedHashSet::new));
       if (commonFieldNames == null) {
-        commonFieldNames = new HashSet<>(fieldNames);
+        commonFieldNames = new LinkedHashSet<>(fieldNames);
       } else {
         commonFieldNames.retainAll(fieldNames);
       }
