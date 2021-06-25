@@ -4,6 +4,7 @@ import static com.saasquatch.jsonschemainferrer.JunkDrawer.format;
 import static com.saasquatch.jsonschemainferrer.TestJunkDrawer.mapper;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
+
 import java.io.IOException;
 import java.time.DayOfWeek;
 import java.time.Month;
@@ -299,8 +300,10 @@ public class JsonSchemaInferrerExamplesTest {
   @Nullable
   private static JsonNode loadJsonFromUrl(String jsonUrl) throws IOException {
     final HttpGet request = new HttpGet(jsonUrl);
-    request.setConfig(RequestConfig.custom().setConnectTimeout(1, TimeUnit.SECONDS)
-        .setConnectionRequestTimeout(1, TimeUnit.SECONDS).setResponseTimeout(5, TimeUnit.SECONDS)
+    request.setConfig(RequestConfig.custom()
+        .setConnectTimeout(1, TimeUnit.SECONDS)
+        .setConnectionRequestTimeout(1, TimeUnit.SECONDS)
+        .setResponseTimeout(5, TimeUnit.SECONDS)
         .build());
     return httpClient.execute(request, new AbstractHttpClientResponseHandler<JsonNode>() {
       @Override
