@@ -34,6 +34,7 @@ import com.google.common.collect.ImmutableSet;
 
 public class JsonSchemaInferrerOptionsTest {
 
+  @SuppressWarnings("ConstantConditions")
   @Test
   public void testNoOp() {
     assertNull(RequiredPolicies.noOp().getRequired(null));

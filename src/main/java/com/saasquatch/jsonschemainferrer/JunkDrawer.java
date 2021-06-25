@@ -6,8 +6,8 @@ import java.util.AbstractMap;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
@@ -71,7 +71,7 @@ final class JunkDrawer {
    */
   @SafeVarargs
   static <E> Set<E> unmodifiableSetOf(E... elements) {
-    return Collections.unmodifiableSet(new HashSet<>(Arrays.asList(elements)));
+    return Collections.unmodifiableSet(new LinkedHashSet<>(Arrays.asList(elements)));
   }
 
   static <E extends Enum<E>, R> R unrecognizedEnumError(E enumVal) {
@@ -162,7 +162,7 @@ final class JunkDrawer {
     return stream(objectNodes)
         .flatMap(j -> stream(j.fieldNames()))
         .filter(Objects::nonNull)
-        .collect(Collectors.toSet());
+        .collect(Collectors.toCollection(LinkedHashSet::new));
   }
 
   /**
@@ -176,9 +176,7 @@ final class JunkDrawer {
   }
 
   /**
-   *
    * @param samples Assumed to be {@link ObjectNode}s
-   * @param requireNonNull
    * @return The field names common to the given samples
    */
   @Nonnull
@@ -191,9 +189,9 @@ final class JunkDrawer {
           .filter(requireNonNull
               ? fieldName -> nonNull(sample.get(fieldName))
               : fieldName -> true)
-          .collect(Collectors.toSet());
+          .collect(Collectors.toCollection(LinkedHashSet::new));
       if (commonFieldNames == null) {
-        commonFieldNames = new HashSet<>(fieldNames);
+        commonFieldNames = new LinkedHashSet<>(fieldNames);
       } else {
         commonFieldNames.retainAll(fieldNames);
       }
@@ -205,7 +203,7 @@ final class JunkDrawer {
   /**
    * Get the length of the Base64 String for the given number of bytes
    */
-  static int getBase64Length(@Nonnull int bytesLength) {
+  static int getBase64Length(int bytesLength) {
     return (bytesLength + 2) / 3 * 4;
   }
 

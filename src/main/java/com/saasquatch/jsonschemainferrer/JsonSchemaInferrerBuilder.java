@@ -60,7 +60,7 @@ public final class JsonSchemaInferrerBuilder {
   }
 
   /**
-   * Set the {@link IntegerTypeCriterionL}. The default is
+   * Set the {@link IntegerTypeCriterion}. The default is
    * {@link IntegerTypeCriteria#nonFloatingPoint()}.
    *
    * @see IntegerTypeCriterion
