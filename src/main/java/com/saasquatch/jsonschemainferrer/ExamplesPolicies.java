@@ -41,6 +41,7 @@ public final class ExamplesPolicies {
   public static ExamplesPolicy useFirstSamples(@Nonnegative int limit,
       @Nonnull Predicate<String> typePredicate) {
     Objects.requireNonNull(typePredicate);
+    //noinspection ConstantConditions
     if (limit < 0) {
       throw new IllegalArgumentException("Invalid limit");
     }
