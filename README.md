@@ -1,7 +1,7 @@
 # json-schema-inferrer
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Build Status](https://travis-ci.org/saasquatch/json-schema-inferrer.svg?branch=master)](https://travis-ci.org/saasquatch/json-schema-inferrer)
+[![JavaCI](https://github.com/saasquatch/json-schema-inferrer/actions/workflows/JavaCI.yml/badge.svg?branch=master)](https://github.com/saasquatch/json-schema-inferrer/actions/workflows/JavaCI.yml)
 [![codecov](https://codecov.io/gh/saasquatch/json-schema-inferrer/branch/master/graph/badge.svg)](https://codecov.io/gh/saasquatch/json-schema-inferrer)
 [![](https://jitpack.io/v/saasquatch/json-schema-inferrer.svg)](https://jitpack.io/#saasquatch/json-schema-inferrer)
 
@@ -176,14 +176,14 @@ Maven
 <dependency>
   <groupId>com.github.saasquatch</groupId>
   <artifactId>json-schema-inferrer</artifactId>
-  <version>0.1.4</version>
+  <version>0.1.5</version>
 </dependency>
 ```
 
 Gradle
 
 ```gradle
-implementation 'com.github.saasquatch:json-schema-inferrer:0.1.4'
+implementation 'com.github.saasquatch:json-schema-inferrer:0.1.5'
 ```
 
 ### Transitive Dependencies
