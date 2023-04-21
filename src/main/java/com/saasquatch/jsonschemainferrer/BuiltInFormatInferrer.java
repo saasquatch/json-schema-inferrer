@@ -1,8 +1,6 @@
 package com.saasquatch.jsonschemainferrer;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.OffsetTime;
 import java.time.ZonedDateTime;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.apache.commons.validator.routines.InetAddressValidator;
@@ -43,19 +41,9 @@ enum BuiltInFormatInferrer implements FormatInferrer {
         } catch (Exception e) {
           // Ignore
         }
-        try {
-          // This only covers time strings without time zones
-          LocalTime.parse(textValue);
+        // The time format is not the same as Java's LocalTime and OffsetTime
+        if (textValue.matches("^(?:(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9])(?:\\.\\d+)?(?:Z|[+-](?:(?:0[0-9]|2[0-3]):[0-5][0-9]))$")) {
           return Consts.Formats.TIME;
-        } catch (Exception e) {
-          // Ignore
-        }
-        try {
-          // This covers time strings with time zones
-          OffsetTime.parse(textValue);
-          return Consts.Formats.TIME;
-        } catch (Exception e) {
-          // Ignore
         }
       }
       return null;
