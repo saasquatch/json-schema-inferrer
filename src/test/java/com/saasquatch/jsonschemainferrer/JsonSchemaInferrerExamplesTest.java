@@ -158,7 +158,7 @@ public class JsonSchemaInferrerExamplesTest {
         AdditionalPropertiesPolicies.existingTypes(), AdditionalPropertiesPolicies.notAllowed());
     final List<SpecVersion> specVersions = Arrays.asList(SpecVersion.values());
     Collections.shuffle(specVersions, ThreadLocalRandom.current());
-    for (SpecVersion specVersion : SpecVersion.values()) {
+    for (SpecVersion specVersion : specVersions) {
       for (boolean extraFeatures : Arrays.asList(true, false)) {
         final JsonSchemaInferrerBuilder builder = JsonSchemaInferrer.newBuilder()
             .setSpecVersion(specVersion);
