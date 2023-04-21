@@ -21,7 +21,7 @@ public interface DefaultPolicy extends GenericSchemaFeature {
   JsonNode getDefault(@Nonnull GenericSchemaFeatureInput input);
 
   @Override
-  default ObjectNode getFeatureResult(GenericSchemaFeatureInput input) {
+  default ObjectNode getFeatureResult(@Nonnull GenericSchemaFeatureInput input) {
     if (input.getType() == null || Consts.Types.CONTAINER_TYPES.contains(input.getType())) {
       return null;
     }

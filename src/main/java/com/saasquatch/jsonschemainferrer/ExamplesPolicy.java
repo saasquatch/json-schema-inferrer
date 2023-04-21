@@ -23,7 +23,7 @@ public interface ExamplesPolicy extends GenericSchemaFeature {
   JsonNode getExamples(@Nonnull GenericSchemaFeatureInput input);
 
   @Override
-  default ObjectNode getFeatureResult(GenericSchemaFeatureInput input) {
+  default ObjectNode getFeatureResult(@Nonnull GenericSchemaFeatureInput input) {
     if (input.getType() == null || Consts.Types.CONTAINER_TYPES.contains(input.getType())) {
       return null;
     }

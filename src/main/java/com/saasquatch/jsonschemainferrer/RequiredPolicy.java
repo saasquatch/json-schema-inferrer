@@ -21,7 +21,7 @@ public interface RequiredPolicy extends GenericSchemaFeature {
   JsonNode getRequired(@Nonnull GenericSchemaFeatureInput input);
 
   @Override
-  default ObjectNode getFeatureResult(GenericSchemaFeatureInput input) {
+  default ObjectNode getFeatureResult(@Nonnull GenericSchemaFeatureInput input) {
     if (!Consts.Types.OBJECT.equals(input.getType())) {
       return null;
     }

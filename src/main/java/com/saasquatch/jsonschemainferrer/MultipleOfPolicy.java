@@ -22,7 +22,7 @@ public interface MultipleOfPolicy extends GenericSchemaFeature {
   JsonNode getMultipleOf(@Nonnull GenericSchemaFeatureInput input);
 
   @Override
-  default ObjectNode getFeatureResult(GenericSchemaFeatureInput input) {
+  default ObjectNode getFeatureResult(@Nonnull GenericSchemaFeatureInput input) {
     if (!Consts.Types.NUMBER_TYPES.contains(input.getType())) {
       return null;
     }
