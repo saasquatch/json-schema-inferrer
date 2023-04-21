@@ -297,8 +297,10 @@ public class JsonSchemaInferrerExamplesTest {
   @Nullable
   private static JsonNode loadJsonFromUrl(String jsonUrl) {
     final HttpGet request = new HttpGet(jsonUrl);
-    request.setConfig(RequestConfig.custom().setConnectTimeout(1, TimeUnit.SECONDS)
-        .setConnectionRequestTimeout(1, TimeUnit.SECONDS).setResponseTimeout(5, TimeUnit.SECONDS)
+    request.setConfig(RequestConfig.custom()
+        .setConnectTimeout(1, TimeUnit.SECONDS)
+        .setConnectionRequestTimeout(1, TimeUnit.SECONDS)
+        .setResponseTimeout(5, TimeUnit.SECONDS)
         .build());
     try {
       return httpClient.execute(request, new AbstractHttpClientResponseHandler<JsonNode>() {
