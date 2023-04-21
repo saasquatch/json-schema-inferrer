@@ -57,11 +57,9 @@ public final class EnumExtractors {
         break;
     }
     // Defensive copy
-    return input -> {
-      return Arrays.stream(enumExtractors)
-          .flatMap(enumExtrator -> enumExtrator.extractEnums(input).stream())
-          .collect(Collectors.toSet());
-    };
+    return input -> Arrays.stream(enumExtractors)
+        .flatMap(enumExtrator -> enumExtrator.extractEnums(input).stream())
+        .collect(Collectors.toSet());
   }
 
 }

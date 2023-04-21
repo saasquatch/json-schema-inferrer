@@ -17,11 +17,8 @@ public enum SpecVersion {
   DRAFT_2020_12("https://json-schema.org/draft/2020-12/schema#", "2020-12", "2020-12"),
   ;
 
-  @Nonnull
   private final String metaSchemaUrl;
-  @Nonnull
   private final String metaSchemaIdentifier;
-  @Nonnull
   private final String commonName;
 
   SpecVersion(@Nonnull String metaSchemaUrl, @Nonnull String metaSchemaIdentifier,

@@ -4,6 +4,7 @@ import static com.saasquatch.jsonschemainferrer.JunkDrawer.newObject;
 import java.util.Comparator;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import javax.annotation.Nonnull;
 
 /**
  * Features for number range validation
@@ -17,7 +18,7 @@ public enum NumberRangeFeature implements GenericSchemaFeature {
    */
   MINIMUM {
     @Override
-    public ObjectNode getFeatureResult(GenericSchemaFeatureInput input) {
+    public ObjectNode getFeatureResult(@Nonnull GenericSchemaFeatureInput input) {
       if (!Consts.Types.NUMBER_TYPES.contains(input.getType())) {
         return null;
       }
@@ -38,7 +39,7 @@ public enum NumberRangeFeature implements GenericSchemaFeature {
    */
   MAXIMUM {
     @Override
-    public ObjectNode getFeatureResult(GenericSchemaFeatureInput input) {
+    public ObjectNode getFeatureResult(@Nonnull GenericSchemaFeatureInput input) {
       if (!Consts.Types.NUMBER_TYPES.contains(input.getType())) {
         return null;
       }

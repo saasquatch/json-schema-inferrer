@@ -1,6 +1,5 @@
 package com.saasquatch.jsonschemainferrer;
 
-import static com.saasquatch.jsonschemainferrer.JunkDrawer.entryOf;
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.getBase64Length;
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.getCommonFieldNames;
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.getSerializedTextLength;
@@ -9,21 +8,11 @@ import static com.saasquatch.jsonschemainferrer.JunkDrawer.isValidEnum;
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.isValidEnumIgnoreCase;
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.numberNode;
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.stringColToArrayDistinct;
-import static com.saasquatch.jsonschemainferrer.JunkDrawer.unrecognizedEnumError;
 import static com.saasquatch.jsonschemainferrer.TestJunkDrawer.jnf;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.TimeUnit;
-import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.BigIntegerNode;
 import com.fasterxml.jackson.databind.node.BinaryNode;
@@ -33,14 +22,17 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.POJONode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.fasterxml.jackson.databind.node.ValueNode;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeUnit;
+import org.junit.jupiter.api.Test;
 
 public class JunkDrawerTest {
-
-  @Test
-  public void testEntryOf() {
-    final Object o1 = new Object(), o2 = new Object();
-    assertEquals(entryOf(o1, o2), entryOf(o1, o2));
-  }
 
   @Test
   public void testStringColToArrayDistinct() {
@@ -66,11 +58,6 @@ public class JunkDrawerTest {
       assertEquals(Collections.emptySet(),
           getCommonFieldNames(Arrays.asList(j1, jnf.objectNode().put("a", "a")), true));
     }
-  }
-
-  @Test
-  public void testUnrecognizedEnum() {
-    assertThrows(IllegalStateException.class, () -> unrecognizedEnumError(TimeUnit.DAYS));
   }
 
   @Test

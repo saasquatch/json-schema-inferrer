@@ -74,11 +74,6 @@ final class JunkDrawer {
     return Collections.unmodifiableSet(new LinkedHashSet<>(Arrays.asList(elements)));
   }
 
-  static <E extends Enum<E>, R> R unrecognizedEnumError(E enumVal) {
-    throw new IllegalStateException(
-        format("Unrecognized %s[%s] encountered", enumVal.getClass().getSimpleName(), enumVal));
-  }
-
   /**
    * Check if the given String is a valid enum name for the given enum class
    */

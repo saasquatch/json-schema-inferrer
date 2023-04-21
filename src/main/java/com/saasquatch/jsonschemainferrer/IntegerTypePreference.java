@@ -21,7 +21,7 @@ public enum IntegerTypePreference {
    */
   IF_ALL {
     @Override
-    boolean shouldUseInteger(BooleanSupplier currentNumberIsInteger,
+    boolean shouldUseInteger(@Nonnull BooleanSupplier currentNumberIsInteger,
         boolean allNumbersAreIntegers) {
       return allNumbersAreIntegers;
     }
@@ -33,7 +33,7 @@ public enum IntegerTypePreference {
    */
   IF_ANY {
     @Override
-    boolean shouldUseInteger(BooleanSupplier currentNumberIsInteger,
+    boolean shouldUseInteger(@Nonnull BooleanSupplier currentNumberIsInteger,
         boolean allNumbersAreIntegers) {
       return currentNumberIsInteger.getAsBoolean();
     }
@@ -44,11 +44,12 @@ public enum IntegerTypePreference {
    */
   NEVER {
     @Override
-    boolean shouldUseInteger(BooleanSupplier currentNumberIsInteger,
+    boolean shouldUseInteger(@Nonnull BooleanSupplier currentNumberIsInteger,
         boolean allNumbersAreIntegers) {
       return false;
     }
-  },;
+  },
+  ;
 
   abstract boolean shouldUseInteger(@Nonnull BooleanSupplier currentNumberIsInteger,
       boolean allNumbersAreIntegers);

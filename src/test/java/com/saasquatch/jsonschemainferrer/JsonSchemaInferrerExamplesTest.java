@@ -35,6 +35,7 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
+import javax.annotation.Nonnull;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
 
@@ -182,17 +183,17 @@ public class JsonSchemaInferrerExamplesTest {
               .setTitleDescriptionGenerator(new TitleDescriptionGenerator() {
 
                 @Override
-                public String generateTitle(TitleDescriptionGeneratorInput input) {
+                public String generateTitle(@Nonnull TitleDescriptionGeneratorInput input) {
                   return input.getFieldName();
                 }
 
                 @Override
-                public String generateDescription(TitleDescriptionGeneratorInput input) {
+                public String generateDescription(@Nonnull TitleDescriptionGeneratorInput input) {
                   return input.getFieldName();
                 }
 
                 @Override
-                public String generateComment(TitleDescriptionGeneratorInput input) {
+                public String generateComment(@Nonnull TitleDescriptionGeneratorInput input) {
                   if (input.getSpecVersion().compareTo(SpecVersion.DRAFT_07) < 0) {
                     return null;
                   }

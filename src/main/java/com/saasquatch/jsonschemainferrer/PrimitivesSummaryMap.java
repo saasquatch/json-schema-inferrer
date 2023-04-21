@@ -15,7 +15,6 @@ import com.fasterxml.jackson.databind.JsonNode;
  *
  * @author sli
  */
-@SuppressWarnings("serial") // We never serialize it
 @NotThreadSafe
 final class PrimitivesSummaryMap extends HashMap<Map.Entry<String, String>, PrimitivesSummary> {
 

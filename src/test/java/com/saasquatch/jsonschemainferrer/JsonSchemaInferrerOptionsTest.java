@@ -26,6 +26,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+import javax.annotation.Nonnull;
 import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -75,7 +76,7 @@ public class JsonSchemaInferrerOptionsTest {
       if (textValue == null) {
         return null;
       }
-      return textValue.length() + "";
+      return String.valueOf(textValue.length());
     };
     assertSame(FormatInferrers.noOp(), FormatInferrers.chained());
     assertSame(FormatInferrers.noOp(),
@@ -101,7 +102,7 @@ public class JsonSchemaInferrerOptionsTest {
         .path("format").textValue());
     assertEquals("time",
         JsonSchemaInferrer.newBuilder().addFormatInferrers(FormatInferrers.dateTime())
-            .setSpecVersion(SpecVersion.DRAFT_07).build().inferForSample(jnf.textNode("20:20:39"))
+            .setSpecVersion(SpecVersion.DRAFT_07).build().inferForSample(jnf.textNode("20:20:39+01:23"))
             .path("format").textValue());
     assertEquals("time",
         JsonSchemaInferrer.newBuilder().addFormatInferrers(FormatInferrers.dateTime())
@@ -143,7 +144,7 @@ public class JsonSchemaInferrerOptionsTest {
           .addFormatInferrers(
               FormatInferrers.chained(testStrLenFormatInferrer, FormatInferrers.dateTime()))
           .build();
-      assertEquals("" + dateTimeString.length(),
+      assertEquals(String.valueOf(dateTimeString.length()),
           inferrer.inferForSample(jnf.textNode(dateTimeString)).path("format").textValue());
       assertEquals("0", inferrer.inferForSample(jnf.textNode("")).path("format").textValue());
     }
@@ -282,13 +283,13 @@ public class JsonSchemaInferrerOptionsTest {
           .setTitleDescriptionGenerator(new TitleDescriptionGenerator() {
 
             @Override
-            public String generateTitle(TitleDescriptionGeneratorInput input) {
+            public String generateTitle(@Nonnull TitleDescriptionGeneratorInput input) {
               assertNotNull(input.getSpecVersion());
               return null;
             }
 
             @Override
-            public String generateDescription(TitleDescriptionGeneratorInput input) {
+            public String generateDescription(@Nonnull TitleDescriptionGeneratorInput input) {
               assertNotNull(input.getSpecVersion());
               return TitleDescriptionGenerator.super.generateDescription(input);
             }
@@ -301,7 +302,7 @@ public class JsonSchemaInferrerOptionsTest {
       final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
           .setTitleDescriptionGenerator(new TitleDescriptionGenerator() {
             @Override
-            public String generateTitle(TitleDescriptionGeneratorInput input) {
+            public String generateTitle(@Nonnull TitleDescriptionGeneratorInput input) {
               assertNotNull(input.getSpecVersion());
               return Optional.ofNullable(input.getFieldName()).map(String::toUpperCase)
                   .orElse(null);
@@ -315,12 +316,12 @@ public class JsonSchemaInferrerOptionsTest {
           .setTitleDescriptionGenerator(new TitleDescriptionGenerator() {
 
             @Override
-            public String generateTitle(TitleDescriptionGeneratorInput input) {
+            public String generateTitle(@Nonnull TitleDescriptionGeneratorInput input) {
               return null;
             }
 
             @Override
-            public String generateDescription(TitleDescriptionGeneratorInput input) {
+            public String generateDescription(@Nonnull TitleDescriptionGeneratorInput input) {
               assertNotNull(input.getSpecVersion());
               return Optional.ofNullable(input.getFieldName()).map(String::toUpperCase)
                   .orElse(null);
@@ -671,7 +672,7 @@ public class JsonSchemaInferrerOptionsTest {
     // Fake feature that always attaches {"foo":"bar"}
     final GenericSchemaFeature fakeFeature = new GenericSchemaFeature() {
       @Override
-      public ObjectNode getFeatureResult(GenericSchemaFeatureInput input) {
+      public ObjectNode getFeatureResult(@Nonnull GenericSchemaFeatureInput input) {
         final ObjectNode result = jnf.objectNode();
         result.put("foo", "bar");
         return result;
