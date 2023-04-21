@@ -84,12 +84,10 @@ public class JsonSchemaInferrerExamplesTest {
   private static List<String> validateJsonSchema(JsonNode schemaJson, JsonNode instance) {
     final SchemaValidatorsConfig schemaValidatorsConfig = new SchemaValidatorsConfig();
     schemaValidatorsConfig.setPathType(PathType.JSON_POINTER);
-    final Set<ValidationMessage> validationMessages = JsonSchemaFactory.getInstance(
-            SpecVersionDetector.detectOptionalVersion(schemaJson)
-                .orElse(com.networknt.schema.SpecVersion.VersionFlag.V4))
+    return JsonSchemaFactory.getInstance(SpecVersionDetector.detect(schemaJson))
         .getSchema(schemaJson, schemaValidatorsConfig)
-        .validate(instance);
-    return validationMessages.stream()
+        .validate(instance)
+        .stream()
         .map(ValidationMessage::getMessage)
         .collect(ImmutableList.toImmutableList());
   }
@@ -163,15 +161,9 @@ public class JsonSchemaInferrerExamplesTest {
         final JsonSchemaInferrerBuilder builder = JsonSchemaInferrer.newBuilder()
             .setSpecVersion(specVersion);
         if (extraFeatures) {
-          if (specVersion != SpecVersion.DRAFT_07) {
-            /*
-             * Skip tests for inferring format with draft-07 due to a disagreement between Java time
-             * and the schema library on what a valid time string is.
-             */
-            builder.addFormatInferrers(FormatInferrers.dateTime(), FormatInferrers.email())
-                .addFormatInferrers(FormatInferrers.ip());
-          }
-          builder.setArrayLengthFeatures(EnumSet.allOf(ArrayLengthFeature.class))
+          builder.addFormatInferrers(FormatInferrers.dateTime(), FormatInferrers.email(),
+                  FormatInferrers.ip())
+              .setArrayLengthFeatures(EnumSet.allOf(ArrayLengthFeature.class))
               .setObjectSizeFeatures(EnumSet.allOf(ObjectSizeFeature.class))
               .setStringLengthFeatures(EnumSet.allOf(StringLengthFeature.class))
               .setNumberRangeFeatures(EnumSet.allOf(NumberRangeFeature.class))
