@@ -106,10 +106,10 @@ public class JsonSchemaInferrerExamplesTest {
       }
     } catch (Exception e) {
       System.out.printf(Locale.ROOT, "Exception encountered loading JSON from url[%s]. "
-          + "Error message: [%s]. Skipping tests.\n", jsonUrl, e.getMessage());
+          + "Error message: [%s]. Skipping tests.%n", jsonUrl, e.getMessage());
       return;
     }
-    System.out.printf(Locale.ROOT, "Got valid JSON from url[%s]\n", jsonUrl);
+    System.out.printf(Locale.ROOT, "Got valid JSON from url[%s]%n", jsonUrl);
     for (JsonSchemaInferrer inferrer : testInferrers) {
       final ObjectNode schemaJson = inferrer.inferForSample(sampleJson);
       assertNotNull(schemaJson, format("Inferred schema for url[%s] is null", jsonUrl));
@@ -138,13 +138,13 @@ public class JsonSchemaInferrerExamplesTest {
             return testJsonCache.get(jsonUrl);
           } catch (Exception e) {
             System.out.printf(Locale.ROOT, "Exception encountered loading JSON from url[%s]. "
-                + "Error message: [%s]. Skipping tests.\n", jsonUrl, e.getMessage());
+                + "Error message: [%s]. Skipping tests.%n", jsonUrl, e.getMessage());
             return null;
           }
         })
         .filter(Objects::nonNull)
         .collect(ImmutableList.toImmutableList());
-    System.out.printf(Locale.ROOT, "Got valid JSONs from urls%s\n", jsonUrls);
+    System.out.printf(Locale.ROOT, "Got valid JSONs from urls%s%n", jsonUrls);
     for (JsonSchemaInferrer inferrer : testInferrers) {
       final ObjectNode schemaJson = inferrer.inferForSamples(sampleJsons);
       assertNotNull(schemaJson, format("Inferred schema for urls%s is null", jsonUrls));
@@ -306,7 +306,7 @@ public class JsonSchemaInferrerExamplesTest {
         public JsonNode handleEntity(HttpEntity entity) throws IOException {
           final byte[] byteArray = EntityUtils.toByteArray(entity);
           if (byteArray.length > 1 << 20) {
-            System.out.printf(Locale.ROOT, "JSON at url[%s] is too large [%d].\n", jsonUrl,
+            System.out.printf(Locale.ROOT, "JSON at url[%s] is too large [%d].%n", jsonUrl,
                 byteArray.length);
             return null;
           }
