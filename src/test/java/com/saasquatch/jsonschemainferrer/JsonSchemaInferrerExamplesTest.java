@@ -10,8 +10,15 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Iterators;
+import com.networknt.schema.JsonSchemaFactory;
+import com.networknt.schema.PathType;
+import com.networknt.schema.SchemaValidatorsConfig;
+import com.networknt.schema.SpecVersionDetector;
+import com.networknt.schema.ValidationMessage;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.time.DayOfWeek;
@@ -39,11 +46,6 @@ import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
-import org.everit.json.schema.Schema;
-import org.everit.json.schema.ValidationException;
-import org.everit.json.schema.loader.SchemaLoader;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -82,19 +84,16 @@ public class JsonSchemaInferrerExamplesTest {
   }
 
   private static List<String> validateJsonSchema(JsonNode schemaJson, JsonNode instance) {
-    final Schema schema = SchemaLoader.load(new JSONObject(schemaJson.toString()));
-    try {
-      if (instance.isObject()) {
-        schema.validate(new JSONObject(instance.toString()));
-      } else if (instance.isArray()) {
-        schema.validate(new JSONArray(instance.toString()));
-      } else {
-        schema.validate(mapper.convertValue(instance, Object.class));
-      }
-      return Collections.emptyList();
-    } catch (ValidationException e) {
-      return e.getAllMessages();
-    }
+    final SchemaValidatorsConfig schemaValidatorsConfig = new SchemaValidatorsConfig();
+    schemaValidatorsConfig.setPathType(PathType.JSON_POINTER);
+    final Set<ValidationMessage> validationMessages = JsonSchemaFactory.getInstance(
+            SpecVersionDetector.detectOptionalVersion(schemaJson)
+                .orElse(com.networknt.schema.SpecVersion.VersionFlag.V4))
+        .getSchema(schemaJson, schemaValidatorsConfig)
+        .validate(instance);
+    return validationMessages.stream()
+        .map(ValidationMessage::getMessage)
+        .collect(ImmutableList.toImmutableList());
   }
 
   private static void doTestForJsonUrl(String jsonUrl) {
@@ -133,15 +132,18 @@ public class JsonSchemaInferrerExamplesTest {
   }
 
   private static void doTestForJsonUrls(Collection<String> jsonUrls) {
-    final List<JsonNode> sampleJsons = jsonUrls.stream().map(jsonUrl -> {
-      try {
-        return testJsonCache.get(jsonUrl);
-      } catch (Exception e) {
-        System.out.printf(Locale.ROOT, "Exception encountered loading JSON from url[%s]. "
-            + "Error message: [%s]. Skipping tests.\n", jsonUrl, e.getMessage());
-        return null;
-      }
-    }).filter(Objects::nonNull).collect(Collectors.toList());
+    final List<JsonNode> sampleJsons = jsonUrls.stream()
+        .map(jsonUrl -> {
+          try {
+            return testJsonCache.get(jsonUrl);
+          } catch (Exception e) {
+            System.out.printf(Locale.ROOT, "Exception encountered loading JSON from url[%s]. "
+                + "Error message: [%s]. Skipping tests.\n", jsonUrl, e.getMessage());
+            return null;
+          }
+        })
+        .filter(Objects::nonNull)
+        .collect(ImmutableList.toImmutableList());
     System.out.printf(Locale.ROOT, "Got valid JSONs from urls%s\n", jsonUrls);
     for (JsonSchemaInferrer inferrer : testInferrers) {
       final ObjectNode schemaJson = inferrer.inferForSamples(sampleJsons);
@@ -252,7 +254,8 @@ public class JsonSchemaInferrerExamplesTest {
               .addEnumExtractors(EnumExtractors.validEnum(Month.class),
                   EnumExtractors.validEnum(DayOfWeek.class), input -> {
                     final Set<? extends JsonNode> primitives = input.getSamples().stream()
-                        .filter(JsonNode::isValueNode).collect(Collectors.toSet());
+                        .filter(JsonNode::isValueNode)
+                        .collect(ImmutableSet.toImmutableSet());
                     if (primitives.size() <= 3 && primitives.size() > 0) {
                       return Collections.singleton(primitives);
                     }
