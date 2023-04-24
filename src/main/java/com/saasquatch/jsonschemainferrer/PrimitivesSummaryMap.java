@@ -27,7 +27,7 @@ final class PrimitivesSummaryMap extends HashMap<Map.Entry<String, String>, Prim
    * @param sample the new sample
    */
   public void addSample(@Nonnull String type, @Nullable String format, @Nonnull JsonNode sample) {
-    final Entry<String, String> key = newKey(type, format);
+    final Map.Entry<String, String> key = newKey(type, format);
     this.compute(key, (_key, primitivesSummary) -> {
       if (primitivesSummary == null) {
         primitivesSummary = new PrimitivesSummary();
@@ -46,7 +46,7 @@ final class PrimitivesSummaryMap extends HashMap<Map.Entry<String, String>, Prim
     return this.get(newKey(type, format));
   }
 
-  private static Entry<String, String> newKey(@Nonnull String type, @Nullable String format) {
+  private static Map.Entry<String, String> newKey(@Nonnull String type, @Nullable String format) {
     return entryOf(Objects.requireNonNull(type), format);
   }
 
