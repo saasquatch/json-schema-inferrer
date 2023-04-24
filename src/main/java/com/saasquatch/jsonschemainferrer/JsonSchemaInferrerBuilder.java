@@ -1,5 +1,6 @@
 package com.saasquatch.jsonschemainferrer;
 
+import com.saasquatch.jsonschemainferrer.annotations.Beta;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -8,7 +9,6 @@ import java.util.Objects;
 import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.NotThreadSafe;
-import com.saasquatch.jsonschemainferrer.annotations.Beta;
 
 /**
  * Builder for {@link JsonSchemaInferrer}. This class is mutable and not thread safe.

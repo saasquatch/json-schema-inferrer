@@ -1,8 +1,8 @@
 package com.saasquatch.jsonschemainferrer;
 
+import com.saasquatch.jsonschemainferrer.annotations.Beta;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import com.saasquatch.jsonschemainferrer.annotations.Beta;
 
 /**
  * The input for {@link TitleDescriptionGenerator}

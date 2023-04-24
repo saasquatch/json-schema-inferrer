@@ -1,13 +1,14 @@
 package com.saasquatch.jsonschemainferrer;
 
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.entryOf;
+
+import com.fasterxml.jackson.databind.JsonNode;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
-import com.fasterxml.jackson.databind.JsonNode;
 
 /**
  * {@link Map} type to keep track of {@link PrimitivesSummary}. The keys are combinations of
@@ -26,7 +27,7 @@ final class PrimitivesSummaryMap extends HashMap<Map.Entry<String, String>, Prim
    * @param sample the new sample
    */
   public void addSample(@Nonnull String type, @Nullable String format, @Nonnull JsonNode sample) {
-    final Map.Entry<String, String> key = newKey(type, format);
+    final Entry<String, String> key = newKey(type, format);
     this.compute(key, (_key, primitivesSummary) -> {
       if (primitivesSummary == null) {
         primitivesSummary = new PrimitivesSummary();
@@ -45,7 +46,7 @@ final class PrimitivesSummaryMap extends HashMap<Map.Entry<String, String>, Prim
     return this.get(newKey(type, format));
   }
 
-  private static Map.Entry<String, String> newKey(@Nonnull String type, @Nullable String format) {
+  private static Entry<String, String> newKey(@Nonnull String type, @Nullable String format) {
     return entryOf(Objects.requireNonNull(type), format);
   }
 

@@ -3,11 +3,12 @@ package com.saasquatch.jsonschemainferrer;
 import static com.saasquatch.jsonschemainferrer.TestJunkDrawer.jnf;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import com.fasterxml.jackson.databind.JsonNode;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.function.Predicate;
 import org.junit.jupiter.api.Test;
-import com.fasterxml.jackson.databind.JsonNode;
 
 public class IntegerTypeCriterionTest {
 

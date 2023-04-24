@@ -36,7 +36,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 import javax.annotation.Nonnull;
-import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
 
 public class JsonSchemaInferrerExamplesTest {
@@ -59,13 +58,13 @@ public class JsonSchemaInferrerExamplesTest {
 
   private static List<String> getTestExamplesResources() {
     try (
-        InputStream in = JsonSchemaInferrerExamplesTest.class.getResourceAsStream("examples");
+        InputStream in = JsonSchemaInferrerExamplesTest.class.getResourceAsStream("testExamples");
         BufferedReader br = new BufferedReader(
             new InputStreamReader(Objects.requireNonNull(in), UTF_8))
     ) {
       return br.lines()
-          .filter(n -> StringUtils.endsWithIgnoreCase(n, ".json"))
-          .map("examples/"::concat)
+          .filter(n -> n.toLowerCase(Locale.ROOT).endsWith(".json"))
+          .map("testExamples/"::concat)
           .collect(ImmutableList.toImmutableList());
     } catch (IOException e) {
       throw new UncheckedIOException(e);

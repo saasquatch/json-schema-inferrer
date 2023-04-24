@@ -1,6 +1,7 @@
 package com.saasquatch.jsonschemainferrer;
 
 import static org.junit.jupiter.api.Assertions.assertSame;
+
 import java.util.function.Supplier;
 import org.junit.jupiter.api.Test;
 

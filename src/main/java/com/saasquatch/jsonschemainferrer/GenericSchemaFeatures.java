@@ -1,9 +1,10 @@
 package com.saasquatch.jsonschemainferrer;
 
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.newObject;
+
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.Objects;
 import javax.annotation.Nonnull;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
  * Utilities for {@link GenericSchemaFeature}

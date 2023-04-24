@@ -38,3 +38,6 @@ buildNumber.properties
 .mvn/wrapper/maven-wrapper.jar
 .idea
 *.iml
+.gradle
+.gradletasknamecache
+.m2

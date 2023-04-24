@@ -1,10 +1,10 @@
 package com.saasquatch.jsonschemainferrer;
 
-import java.util.HashSet;
-import java.util.Set;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import java.util.HashSet;
+import java.util.Set;
 
 public final class TestJunkDrawer {
 

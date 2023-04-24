@@ -1,12 +1,13 @@
 package com.saasquatch.jsonschemainferrer;
 
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.newArray;
+
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.saasquatch.jsonschemainferrer.annotations.Beta;
 import java.util.Objects;
 import java.util.function.Predicate;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.saasquatch.jsonschemainferrer.annotations.Beta;
 
 /**
  * Utilities for {@link ExamplesPolicy}.
