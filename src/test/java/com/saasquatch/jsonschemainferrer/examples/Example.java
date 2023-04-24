@@ -1,6 +1,5 @@
 package com.saasquatch.jsonschemainferrer.examples;
 
-import java.util.Arrays;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.saasquatch.jsonschemainferrer.AdditionalPropertiesPolicies;
@@ -9,6 +8,7 @@ import com.saasquatch.jsonschemainferrer.FormatInferrers;
 import com.saasquatch.jsonschemainferrer.JsonSchemaInferrer;
 import com.saasquatch.jsonschemainferrer.RequiredPolicies;
 import com.saasquatch.jsonschemainferrer.SpecVersion;
+import java.util.Arrays;
 
 public class Example {
 

@@ -1,8 +1,8 @@
 package com.saasquatch.jsonschemainferrer;
 
+import com.saasquatch.jsonschemainferrer.annotations.Beta;
 import java.util.function.BooleanSupplier;
 import javax.annotation.Nonnull;
-import com.saasquatch.jsonschemainferrer.annotations.Beta;
 
 /**
  * Preference for whether the type {@code integer} should be used over {@code number} in the result
@@ -21,7 +21,7 @@ public enum IntegerTypePreference {
    */
   IF_ALL {
     @Override
-    boolean shouldUseInteger(BooleanSupplier currentNumberIsInteger,
+    boolean shouldUseInteger(@Nonnull BooleanSupplier currentNumberIsInteger,
         boolean allNumbersAreIntegers) {
       return allNumbersAreIntegers;
     }
@@ -33,7 +33,7 @@ public enum IntegerTypePreference {
    */
   IF_ANY {
     @Override
-    boolean shouldUseInteger(BooleanSupplier currentNumberIsInteger,
+    boolean shouldUseInteger(@Nonnull BooleanSupplier currentNumberIsInteger,
         boolean allNumbersAreIntegers) {
       return currentNumberIsInteger.getAsBoolean();
     }
@@ -44,11 +44,12 @@ public enum IntegerTypePreference {
    */
   NEVER {
     @Override
-    boolean shouldUseInteger(BooleanSupplier currentNumberIsInteger,
+    boolean shouldUseInteger(@Nonnull BooleanSupplier currentNumberIsInteger,
         boolean allNumbersAreIntegers) {
       return false;
     }
-  },;
+  },
+  ;
 
   abstract boolean shouldUseInteger(@Nonnull BooleanSupplier currentNumberIsInteger,
       boolean allNumbersAreIntegers);

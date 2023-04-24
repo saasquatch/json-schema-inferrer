@@ -1,6 +1,7 @@
 package com.saasquatch.jsonschemainferrer;
 
 import static org.junit.jupiter.api.Assertions.assertSame;
+
 import java.util.function.Supplier;
 import org.junit.jupiter.api.Test;
 
@@ -30,7 +31,7 @@ public class LambdaSingletonTest {
     doTest(EnumExtractors::noOp);
   }
 
-  private static void doTest(Supplier<? extends Object> supplier) {
+  private static void doTest(Supplier<?> supplier) {
     assertSame(supplier.get(), supplier.get());
   }
 

@@ -2,7 +2,6 @@
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![JavaCI](https://github.com/saasquatch/json-schema-inferrer/actions/workflows/JavaCI.yml/badge.svg?branch=master)](https://github.com/saasquatch/json-schema-inferrer/actions/workflows/JavaCI.yml)
-[![codecov](https://codecov.io/gh/saasquatch/json-schema-inferrer/branch/master/graph/badge.svg)](https://codecov.io/gh/saasquatch/json-schema-inferrer)
 [![](https://jitpack.io/v/saasquatch/json-schema-inferrer.svg)](https://jitpack.io/#saasquatch/json-schema-inferrer)
 
 Java library for inferring JSON schema based on sample JSONs.
@@ -176,19 +175,19 @@ Maven
 <dependency>
   <groupId>com.github.saasquatch</groupId>
   <artifactId>json-schema-inferrer</artifactId>
-  <version>0.1.5</version>
+  <version>0.2.0</version>
 </dependency>
 ```
 
 Gradle
 
 ```gradle
-implementation 'com.github.saasquatch:json-schema-inferrer:0.1.5'
+implementation 'com.github.saasquatch:json-schema-inferrer:0.2.0'
 ```
 
 ### Transitive Dependencies
 
-This project requires Java 8. The only required transitive dependencies are [Jackson](https://github.com/FasterXML/jackson) and [FindBugs (JSR305)](http://findbugs.sourceforge.net/). If you opt into using some of the built-in [`FormatInferrers`](https://github.com/saasquatch/json-schema-inferrer/blob/master/src/main/java/com/saasquatch/jsonschemainferrer/FormatInferrers.java), [Commons Validator](https://commons.apache.org/proper/commons-validator/) will also be needed.
+This project requires Java 8. The only required transitive dependencies are [Jackson](https://github.com/FasterXML/jackson) and [FindBugs (JSR305)](http://findbugs.sourceforge.net/). If you opt into using some of the built-in [`FormatInferrers`](https://github.com/saasquatch/json-schema-inferrer/blob/master/src/main/java/com/saasquatch/jsonschemainferrer/FormatInferrers.java), [Commons Validator](https://commons.apache.org/proper/commons-validator/) will also be needed. This is encapsulated with a [Gradle feature variant](https://docs.gradle.org/current/userguide/feature_variants.html) named `builtInFormatInferrerSupport`.
 
 ### Pre-release Versions
 

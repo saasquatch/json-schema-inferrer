@@ -1,10 +1,11 @@
 package com.saasquatch.jsonschemainferrer;
 
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.newObject;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Policy for {@code examples}. Implementations are expected to be stateless and thread safe. Note
@@ -23,7 +24,7 @@ public interface ExamplesPolicy extends GenericSchemaFeature {
   JsonNode getExamples(@Nonnull GenericSchemaFeatureInput input);
 
   @Override
-  default ObjectNode getFeatureResult(GenericSchemaFeatureInput input) {
+  default ObjectNode getFeatureResult(@Nonnull GenericSchemaFeatureInput input) {
     if (input.getType() == null || Consts.Types.CONTAINER_TYPES.contains(input.getType())) {
       return null;
     }

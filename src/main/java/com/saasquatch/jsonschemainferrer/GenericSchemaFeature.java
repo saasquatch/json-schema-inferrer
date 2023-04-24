@@ -1,8 +1,8 @@
 package com.saasquatch.jsonschemainferrer;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
  * For generating add-on fields (things like maxProperties) for a schema.

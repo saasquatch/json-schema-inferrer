@@ -1,5 +1,6 @@
 package com.saasquatch.jsonschemainferrer;
 
+import com.saasquatch.jsonschemainferrer.annotations.Beta;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -8,7 +9,6 @@ import java.util.Objects;
 import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.NotThreadSafe;
-import com.saasquatch.jsonschemainferrer.annotations.Beta;
 
 /**
  * Builder for {@link JsonSchemaInferrer}. This class is mutable and not thread safe.
@@ -90,7 +90,7 @@ public final class JsonSchemaInferrerBuilder {
   }
 
   /**
-   * Set the {@link TitleDescriptionGenerator} for this inferrer. By default it is
+   * Set the {@link TitleDescriptionGenerator} for this inferrer. By default, it is
    * {@link TitleDescriptionGenerators#noOp()}. You can provide your custom implementations and
    * transform the field names however you see fit.
    *
@@ -107,7 +107,7 @@ public final class JsonSchemaInferrerBuilder {
   /**
    * Add a {@link FormatInferrer} for inferring the <a href=
    * "https://json-schema.org/understanding-json-schema/reference/string.html#format">format</a> of
-   * strings. By default no {@link FormatInferrer} is enabled. An example of a possible custom
+   * strings. By default, no {@link FormatInferrer} is enabled. An example of a possible custom
    * implementation is available at {@link FormatInferrers#dateTime()}, which you can potentially
    * use or use it combined with your own implementations.
    *
@@ -125,7 +125,7 @@ public final class JsonSchemaInferrerBuilder {
   }
 
   /**
-   * Set the {@link AdditionalPropertiesPolicy}. By default it is
+   * Set the {@link AdditionalPropertiesPolicy}. By default, it is
    * {@link AdditionalPropertiesPolicies#noOp()}.
    *
    * @see AdditionalPropertiesPolicy
@@ -138,7 +138,7 @@ public final class JsonSchemaInferrerBuilder {
   }
 
   /**
-   * Set the {@link RequiredPolicy}. By default it is {@link RequiredPolicies#noOp()}.
+   * Set the {@link RequiredPolicy}. By default, it is {@link RequiredPolicies#noOp()}.
    *
    * @see RequiredPolicy
    * @see RequiredPolicies
@@ -149,7 +149,7 @@ public final class JsonSchemaInferrerBuilder {
   }
 
   /**
-   * Set the {@link DefaultPolicy}. By default it is {@link DefaultPolicies#noOp()}.
+   * Set the {@link DefaultPolicy}. By default, it is {@link DefaultPolicies#noOp()}.
    *
    * @see DefaultPolicy
    * @see DefaultPolicies
@@ -160,7 +160,7 @@ public final class JsonSchemaInferrerBuilder {
   }
 
   /**
-   * Set the {@link ExamplesPolicy}. By default is {@link ExamplesPolicies#noOp()}.
+   * Set the {@link ExamplesPolicy}. By default, is {@link ExamplesPolicies#noOp()}.
    *
    * @see ExamplesPolicy
    * @see ExamplesPolicies
@@ -171,7 +171,7 @@ public final class JsonSchemaInferrerBuilder {
   }
 
   /**
-   * Set the {@link MultipleOfPolicy}. By default it is {@link MultipleOfPolicies#noOp()}.
+   * Set the {@link MultipleOfPolicy}. By default, it is {@link MultipleOfPolicies#noOp()}.
    *
    * @see MultipleOfPolicy
    * @see MultipleOfPolicies

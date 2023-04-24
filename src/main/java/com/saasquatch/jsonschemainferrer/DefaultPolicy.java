@@ -1,10 +1,11 @@
 package com.saasquatch.jsonschemainferrer;
 
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.newObject;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Policy for {@code default}
@@ -21,7 +22,7 @@ public interface DefaultPolicy extends GenericSchemaFeature {
   JsonNode getDefault(@Nonnull GenericSchemaFeatureInput input);
 
   @Override
-  default ObjectNode getFeatureResult(GenericSchemaFeatureInput input) {
+  default ObjectNode getFeatureResult(@Nonnull GenericSchemaFeatureInput input) {
     if (input.getType() == null || Consts.Types.CONTAINER_TYPES.contains(input.getType())) {
       return null;
     }

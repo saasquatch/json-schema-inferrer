@@ -1,8 +1,10 @@
 package com.saasquatch.jsonschemainferrer;
 
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.newObject;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import javax.annotation.Nonnull;
 
 /**
  * Features for object size validation
@@ -16,7 +18,7 @@ public enum ObjectSizeFeature implements GenericSchemaFeature {
    */
   MIN_PROPERTIES {
     @Override
-    public ObjectNode getFeatureResult(GenericSchemaFeatureInput input) {
+    public ObjectNode getFeatureResult(@Nonnull GenericSchemaFeatureInput input) {
       if (!Consts.Types.OBJECT.equals(input.getType())) {
         return null;
       }
@@ -35,7 +37,7 @@ public enum ObjectSizeFeature implements GenericSchemaFeature {
    */
   MAX_PROPERTIES {
     @Override
-    public ObjectNode getFeatureResult(GenericSchemaFeatureInput input) {
+    public ObjectNode getFeatureResult(@Nonnull GenericSchemaFeatureInput input) {
       if (!Consts.Types.OBJECT.equals(input.getType())) {
         return null;
       }
@@ -47,6 +49,7 @@ public enum ObjectSizeFeature implements GenericSchemaFeature {
           .ifPresent(maxProps -> result.put(Consts.Fields.MAX_PROPERTIES, maxProps));
       return result;
     }
-  },;
+  },
+  ;
 
 }

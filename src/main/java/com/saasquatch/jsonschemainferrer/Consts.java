@@ -1,6 +1,7 @@
 package com.saasquatch.jsonschemainferrer;
 
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.unmodifiableSetOf;
+
 import java.util.Collections;
 import java.util.Set;
 

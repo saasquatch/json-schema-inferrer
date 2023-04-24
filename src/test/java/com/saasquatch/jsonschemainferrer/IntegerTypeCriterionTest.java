@@ -3,20 +3,19 @@ package com.saasquatch.jsonschemainferrer;
 import static com.saasquatch.jsonschemainferrer.TestJunkDrawer.jnf;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import com.fasterxml.jackson.databind.JsonNode;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.function.Predicate;
 import org.junit.jupiter.api.Test;
-import com.fasterxml.jackson.databind.JsonNode;
 
 public class IntegerTypeCriterionTest {
 
   @Test
   public void testNonFloatingPoint() {
-    final Predicate<JsonNode> cr = j -> {
-      return IntegerTypeCriteria.nonFloatingPoint()
-          .isInteger(new IntegerTypeCriterionInput(j, SpecVersion.DRAFT_06));
-    };
+    final Predicate<JsonNode> cr = j -> IntegerTypeCriteria.nonFloatingPoint()
+        .isInteger(new IntegerTypeCriterionInput(j, SpecVersion.DRAFT_06));
     assertFalse(cr.test(jnf.textNode("")));
     assertTrue(cr.test(jnf.numberNode(1)));
     assertTrue(cr.test(jnf.numberNode(1L)));
@@ -36,10 +35,8 @@ public class IntegerTypeCriterionTest {
 
   @Test
   public void testMathematicalInteger() {
-    final Predicate<JsonNode> cr = j -> {
-      return IntegerTypeCriteria.mathematicalInteger()
-          .isInteger(new IntegerTypeCriterionInput(j, SpecVersion.DRAFT_06));
-    };
+    final Predicate<JsonNode> cr = j -> IntegerTypeCriteria.mathematicalInteger()
+        .isInteger(new IntegerTypeCriterionInput(j, SpecVersion.DRAFT_06));
     assertFalse(cr.test(jnf.textNode("")));
     assertTrue(cr.test(jnf.numberNode(1)));
     assertTrue(cr.test(jnf.numberNode(1L)));

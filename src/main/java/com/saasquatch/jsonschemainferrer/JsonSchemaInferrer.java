@@ -9,6 +9,14 @@ import static com.saasquatch.jsonschemainferrer.JunkDrawer.newArray;
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.newObject;
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.stream;
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.stringColToArrayDistinct;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.JsonNodeType;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.ValueNode;
+import com.saasquatch.jsonschemainferrer.annotations.VisibleForTesting;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -20,13 +28,6 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.JsonNodeType;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.ValueNode;
-import com.saasquatch.jsonschemainferrer.annotations.VisibleForTesting;
 
 /**
  * Infer JSON schema based on sample JSONs. This class is immutable and thread safe.
@@ -97,9 +98,10 @@ public final class JsonSchemaInferrer {
     final ObjectNode schema = newObject();
     schema.put(Consts.Fields.DOLLAR_SCHEMA, specVersion.getMetaSchemaUrl());
     final Set<ObjectNode> anyOfs = getAnyOfsFromSamples(processedSamples);
-    // anyOfs cannot be empty here, since we force inputs to be non empty
-    assert !anyOfs.isEmpty() : "empty anyOfs encountered in inferForSamples";
     switch (anyOfs.size()) {
+      case 0:
+        // anyOfs cannot be empty here, since we force inputs to be non-empty
+        throw new AssertionError("empty anyOfs encountered in inferForSamples");
       case 1:
         schema.setAll(anyOfs.iterator().next());
         // No need to call processGenericSchemaFeature since this is an existing schema
@@ -127,7 +129,7 @@ public final class JsonSchemaInferrer {
       /*
        * Treat JsonNodes that are to be serialized as null as NullNode. Turn NullNode into the
        * singleton NullNode because NullNode is not a final class and may break equals further down
-       * the logic. Treat MissingNode as NullNode so we don't end up with duplicate nulls.
+       * the logic. Treat MissingNode as NullNode, so we don't end up with duplicate nulls.
        */
       return JsonNodeFactory.instance.nullNode();
     }
@@ -152,9 +154,10 @@ public final class JsonSchemaInferrer {
       final ObjectNode newProperty = newObject();
       handleDescriptionGeneration(newProperty, fieldName);
       final Set<ObjectNode> anyOfs = getAnyOfsFromSamples(processedSamples);
-      // anyOfs cannot be empty here, since we should have at least one match of the fieldName
-      assert !anyOfs.isEmpty() : "empty anyOfs encountered";
       switch (anyOfs.size()) {
+        case 0:
+          // anyOfs cannot be empty here, since we should have at least one match of the fieldName
+          throw new AssertionError("empty anyOfs encountered");
         case 1:
           newProperty.setAll(anyOfs.iterator().next());
           // No need to call processGenericSchemaFeature since this is an existing schema
@@ -185,8 +188,10 @@ public final class JsonSchemaInferrer {
       return null;
     }
     // Note that samples can be empty here if the sample arrays are empty
-    final Collection<JsonNode> processedSamples = arrayNodes.stream().flatMap(j -> stream(j))
-        .map(this::preProcessSample).collect(Collectors.toList());
+    final Collection<JsonNode> processedSamples = arrayNodes.stream()
+        .flatMap(JunkDrawer::stream)
+        .map(this::preProcessSample)
+        .collect(Collectors.toList());
     final ObjectNode items;
     final Set<ObjectNode> anyOfs = getAnyOfsFromSamples(processedSamples);
     switch (anyOfs.size()) {

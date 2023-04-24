@@ -1,13 +1,14 @@
 package com.saasquatch.jsonschemainferrer;
 
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.entryOf;
+
+import com.fasterxml.jackson.databind.JsonNode;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
-import com.fasterxml.jackson.databind.JsonNode;
 
 /**
  * {@link Map} type to keep track of {@link PrimitivesSummary}. The keys are combinations of
@@ -15,7 +16,6 @@ import com.fasterxml.jackson.databind.JsonNode;
  *
  * @author sli
  */
-@SuppressWarnings("serial") // We never serialize it
 @NotThreadSafe
 final class PrimitivesSummaryMap extends HashMap<Map.Entry<String, String>, PrimitivesSummary> {
 

@@ -1,14 +1,15 @@
 package com.saasquatch.jsonschemainferrer;
 
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.isValidEnum;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.saasquatch.jsonschemainferrer.annotations.Beta;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.saasquatch.jsonschemainferrer.annotations.Beta;
 
 /**
  * Utilities for {@link EnumExtractor}
@@ -57,11 +58,9 @@ public final class EnumExtractors {
         break;
     }
     // Defensive copy
-    return input -> {
-      return Arrays.stream(enumExtractors)
-          .flatMap(enumExtrator -> enumExtrator.extractEnums(input).stream())
-          .collect(Collectors.toSet());
-    };
+    return input -> Arrays.stream(enumExtractors)
+        .flatMap(enumExtrator -> enumExtrator.extractEnums(input).stream())
+        .collect(Collectors.toSet());
   }
 
 }

@@ -1,14 +1,5 @@
 package com.saasquatch.jsonschemainferrer.examples;
 
-import java.net.URI;
-import java.net.URL;
-import java.time.DayOfWeek;
-import java.time.Month;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.Set;
-import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -27,6 +18,15 @@ import com.saasquatch.jsonschemainferrer.RequiredPolicies;
 import com.saasquatch.jsonschemainferrer.SpecVersion;
 import com.saasquatch.jsonschemainferrer.StringLengthFeature;
 import com.saasquatch.jsonschemainferrer.TitleDescriptionGenerators;
+import java.net.URI;
+import java.net.URL;
+import java.time.DayOfWeek;
+import java.time.Month;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.Set;
+import java.util.stream.Collectors;
+import javax.annotation.Nonnull;
 
 public class Example2 {
 
