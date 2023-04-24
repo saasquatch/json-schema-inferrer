@@ -2,7 +2,6 @@ plugins {
     id 'java-library'
 }
 
-
 group = 'com.saasquatch'
 version = '1.0-SNAPSHOT'
 
