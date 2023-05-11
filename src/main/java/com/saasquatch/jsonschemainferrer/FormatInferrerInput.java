@@ -12,10 +12,12 @@ public final class FormatInferrerInput {
 
   private final JsonNode sample;
   private final SpecVersion specVersion;
+  private final String path;
 
-  FormatInferrerInput(@Nonnull JsonNode sample, @Nonnull SpecVersion specVersion) {
+  FormatInferrerInput(@Nonnull JsonNode sample, @Nonnull SpecVersion specVersion, @Nonnull String path) {
     this.sample = sample;
     this.specVersion = specVersion;
+    this.path = path;
   }
 
   /**
@@ -29,6 +31,14 @@ public final class FormatInferrerInput {
   @Nonnull
   public SpecVersion getSpecVersion() {
     return specVersion;
+  }
+
+  /**
+   * @return The json path of the current traversal.
+   */
+  @Nonnull
+  public String getPath() {
+    return path;
   }
 
 }
