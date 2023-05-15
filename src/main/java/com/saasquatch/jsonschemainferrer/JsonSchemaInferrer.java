@@ -307,8 +307,8 @@ public final class JsonSchemaInferrer {
     final Set<ObjectNode> anyOfs = new HashSet<>();
     // Enums
     enumExtractionResults.stream()
-        .map((Collection<? extends JsonNode> enumExtractionResult) -> enumExtractionResultToSchema(
-            enumExtractionResult, path)).forEach(anyOfs::add);
+        .map(enumExtractionResult -> enumExtractionResultToSchema(enumExtractionResult, path))
+        .forEach(anyOfs::add);
     // Objects
     Optional.ofNullable(processObjects(objectNodes, path)).ifPresent(anyOfs::add);
     // Arrays
