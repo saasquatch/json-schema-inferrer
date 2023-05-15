@@ -1,33 +1,16 @@
 package com.saasquatch.jsonschemainferrer;
 
-import static com.saasquatch.jsonschemainferrer.JunkDrawer.format;
-import static com.saasquatch.jsonschemainferrer.JunkDrawer.getAllFieldNames;
-import static com.saasquatch.jsonschemainferrer.JunkDrawer.getAllValuesForFieldName;
-import static com.saasquatch.jsonschemainferrer.JunkDrawer.isNull;
-import static com.saasquatch.jsonschemainferrer.JunkDrawer.isTextualFloat;
-import static com.saasquatch.jsonschemainferrer.JunkDrawer.newArray;
-import static com.saasquatch.jsonschemainferrer.JunkDrawer.newObject;
-import static com.saasquatch.jsonschemainferrer.JunkDrawer.stream;
-import static com.saasquatch.jsonschemainferrer.JunkDrawer.stringColToArrayDistinct;
-
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.JsonNodeType;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.ValueNode;
+import com.fasterxml.jackson.databind.node.*;
 import com.saasquatch.jsonschemainferrer.annotations.VisibleForTesting;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static com.saasquatch.jsonschemainferrer.JunkDrawer.*;
 
 /**
  * Infer JSON schema based on sample JSONs. This class is immutable and thread safe.
@@ -97,7 +80,7 @@ public final class JsonSchemaInferrer {
         samples.stream().map(this::preProcessSample).collect(Collectors.toList());
     final ObjectNode schema = newObject();
     schema.put(Consts.Fields.DOLLAR_SCHEMA, specVersion.getMetaSchemaUrl());
-    final Set<ObjectNode> anyOfs = getAnyOfsFromSamples(processedSamples);
+    final Set<ObjectNode> anyOfs = getAnyOfsFromSamples(processedSamples, "$");
     switch (anyOfs.size()) {
       case 0:
         // anyOfs cannot be empty here, since we force inputs to be non-empty
@@ -109,7 +92,7 @@ public final class JsonSchemaInferrer {
       default: {
         schema.set(Consts.Fields.ANY_OF, newArray(anyOfs));
         // This is an anyOf schema. No type available.
-        processGenericSchemaFeature(schema, processedSamples, null);
+        processGenericSchemaFeature(schema, processedSamples, null, "$");
         break;
       }
     }
@@ -140,7 +123,7 @@ public final class JsonSchemaInferrer {
    * Handle object samples
    */
   @Nullable
-  private ObjectNode processObjects(@Nonnull Collection<ObjectNode> objectNodes) {
+  private ObjectNode processObjects(@Nonnull Collection<ObjectNode> objectNodes, @Nonnull String path) {
     if (objectNodes.isEmpty()) {
       return null;
     }
@@ -153,7 +136,11 @@ public final class JsonSchemaInferrer {
           .map(this::preProcessSample).collect(Collectors.toList());
       final ObjectNode newProperty = newObject();
       handleDescriptionGeneration(newProperty, fieldName);
-      final Set<ObjectNode> anyOfs = getAnyOfsFromSamples(processedSamples);
+
+      // Add Field to Path
+      final String objectPath = "%s[%s]".formatted(path, JsonNodeFactory.instance.textNode(fieldName));
+
+      final Set<ObjectNode> anyOfs = getAnyOfsFromSamples(processedSamples, objectPath);
       switch (anyOfs.size()) {
         case 0:
           // anyOfs cannot be empty here, since we should have at least one match of the fieldName
@@ -165,7 +152,7 @@ public final class JsonSchemaInferrer {
         default: {
           newProperty.set(Consts.Fields.ANY_OF, newArray(anyOfs));
           // This is an anyOf schema. No type available.
-          processGenericSchemaFeature(newProperty, processedSamples, null);
+          processGenericSchemaFeature(newProperty, processedSamples, null, objectPath);
           break;
         }
       }
@@ -175,7 +162,7 @@ public final class JsonSchemaInferrer {
     if (properties.size() > 0) {
       schema.set(Consts.Fields.PROPERTIES, properties);
     }
-    processGenericSchemaFeature(schema, objectNodes, Consts.Types.OBJECT);
+    processGenericSchemaFeature(schema, objectNodes, Consts.Types.OBJECT, path);
     return schema;
   }
 
@@ -183,7 +170,7 @@ public final class JsonSchemaInferrer {
    * Handle array samples
    */
   @Nullable
-  private ObjectNode processArrays(@Nonnull Collection<ArrayNode> arrayNodes) {
+  private ObjectNode processArrays(@Nonnull Collection<ArrayNode> arrayNodes, @Nonnull String path) {
     if (arrayNodes.isEmpty()) {
       return null;
     }
@@ -193,7 +180,8 @@ public final class JsonSchemaInferrer {
         .map(this::preProcessSample)
         .collect(Collectors.toList());
     final ObjectNode items;
-    final Set<ObjectNode> anyOfs = getAnyOfsFromSamples(processedSamples);
+    final String arrayPath = "%s[*]".formatted(path);
+    final Set<ObjectNode> anyOfs = getAnyOfsFromSamples(processedSamples, arrayPath);
     switch (anyOfs.size()) {
       case 0:
         // anyOfs can be empty here, since the original array can be empty
@@ -211,7 +199,7 @@ public final class JsonSchemaInferrer {
     if (items.size() > 0) {
       schema.set(Consts.Fields.ITEMS, items);
     }
-    processGenericSchemaFeature(schema, arrayNodes, Consts.Types.ARRAY);
+    processGenericSchemaFeature(schema, arrayNodes, Consts.Types.ARRAY, path);
     return schema;
   }
 
@@ -219,7 +207,7 @@ public final class JsonSchemaInferrer {
    * Handle primitive samples
    */
   @Nonnull
-  private Set<ObjectNode> processPrimitives(@Nonnull Collection<ValueNode> valueNodes) {
+  private Set<ObjectNode> processPrimitives(@Nonnull Collection<ValueNode> valueNodes, @Nonnull String path) {
     if (valueNodes.isEmpty()) {
       return Collections.emptySet();
     }
@@ -236,7 +224,7 @@ public final class JsonSchemaInferrer {
       final ObjectNode newAnyOf = newObject();
       final String type = inferPrimitiveType(valueNode, allNumbersAreIntegers);
       newAnyOf.put(Consts.Fields.TYPE, type);
-      final String format = inferFormat(valueNode);
+      final String format = inferFormat(valueNode, path);
       if (format != null) {
         newAnyOf.put(Consts.Fields.FORMAT, format);
       }
@@ -250,14 +238,14 @@ public final class JsonSchemaInferrer {
       @Nonnull
       final PrimitivesSummary primitivesSummary =
           Objects.requireNonNull(primitivesSummaryMap.getPrimitivesSummary(type, format));
-      processGenericSchemaFeature(anyOf, primitivesSummary.getSamples(), type);
+      processGenericSchemaFeature(anyOf, primitivesSummary.getSamples(), type, path);
     }
     return anyOfs;
   }
 
   @Nonnull
   private ObjectNode enumExtractionResultToSchema(
-      @Nonnull Collection<? extends JsonNode> enumExtractionResult) {
+      @Nonnull Collection<? extends JsonNode> enumExtractionResult, @Nonnull String path) {
     Objects.requireNonNull(enumExtractionResult);
     if (enumExtractionResult.isEmpty()) {
       throw new IllegalStateException("Empty enum group encountered");
@@ -266,7 +254,7 @@ public final class JsonSchemaInferrer {
     enumExtractionResult.stream().distinct().forEach(enumArray::add);
     final ObjectNode schema = newObject();
     schema.set(Consts.Fields.ENUM, enumArray);
-    processGenericSchemaFeature(schema, enumExtractionResult, null);
+    processGenericSchemaFeature(schema, enumExtractionResult, null, path);
     return schema;
   }
 
@@ -278,9 +266,9 @@ public final class JsonSchemaInferrer {
    */
   @Nonnull
   private Set<ObjectNode> getAnyOfsFromSamples(
-      @Nonnull Collection<? extends JsonNode> processedSamples) {
+      @Nonnull Collection<? extends JsonNode> processedSamples, @Nonnull String path) {
     final Collection<Collection<? extends JsonNode>> enumExtractionResults =
-        getEnumExtractionResults(processedSamples);
+        getEnumExtractionResults(processedSamples, path);
     final Collection<ObjectNode> objectNodes = new ArrayList<>();
     final Collection<ArrayNode> arrayNodes = new ArrayList<>();
     final Collection<ValueNode> valueNodes = new ArrayList<>();
@@ -299,13 +287,14 @@ public final class JsonSchemaInferrer {
     }
     final Set<ObjectNode> anyOfs = new HashSet<>();
     // Enums
-    enumExtractionResults.stream().map(this::enumExtractionResultToSchema).forEach(anyOfs::add);
+    enumExtractionResults.stream().map((Collection<? extends JsonNode> enumExtractionResult) -> enumExtractionResultToSchema(
+            enumExtractionResult, path)).forEach(anyOfs::add);
     // Objects
-    Optional.ofNullable(processObjects(objectNodes)).ifPresent(anyOfs::add);
+    Optional.ofNullable(processObjects(objectNodes, path)).ifPresent(anyOfs::add);
     // Arrays
-    Optional.ofNullable(processArrays(arrayNodes)).ifPresent(anyOfs::add);
+    Optional.ofNullable(processArrays(arrayNodes, path)).ifPresent(anyOfs::add);
     // Primitives
-    anyOfs.addAll(processPrimitives(valueNodes));
+    anyOfs.addAll(processPrimitives(valueNodes, path));
     postProcessAnyOfs(anyOfs);
     return Collections.unmodifiableSet(anyOfs);
   }
@@ -368,8 +357,8 @@ public final class JsonSchemaInferrer {
   }
 
   private Collection<Collection<? extends JsonNode>> getEnumExtractionResults(
-      @Nonnull Collection<? extends JsonNode> samples) {
-    final EnumExtractorInput input = new EnumExtractorInput(samples, specVersion);
+      @Nonnull Collection<? extends JsonNode> samples, @Nonnull String path) {
+    final EnumExtractorInput input = new EnumExtractorInput(samples, specVersion, path);
     final Collection<Collection<? extends JsonNode>> enumExtractionResults =
         enumExtractor.extractEnums(input);
     return Objects.requireNonNull(enumExtractionResults);
@@ -393,15 +382,15 @@ public final class JsonSchemaInferrer {
   }
 
   @Nullable
-  private String inferFormat(@Nonnull JsonNode sample) {
-    final FormatInferrerInput input = new FormatInferrerInput(sample, specVersion);
+  private String inferFormat(@Nonnull JsonNode sample, @Nonnull String path) {
+    final FormatInferrerInput input = new FormatInferrerInput(sample, specVersion, path);
     return formatInferrer.inferFormat(input);
   }
 
   private void processGenericSchemaFeature(@Nonnull ObjectNode schema,
-      @Nonnull Collection<? extends JsonNode> samples, @Nullable String type) {
+      @Nonnull Collection<? extends JsonNode> samples, @Nullable String type, @Nonnull String path) {
     final GenericSchemaFeatureInput input =
-        new GenericSchemaFeatureInput(schema, samples, type, specVersion);
+        new GenericSchemaFeatureInput(schema, samples, type, specVersion, path);
     final ObjectNode featureResult = genericSchemaFeature.getFeatureResult(input);
     if (featureResult != null) {
       schema.setAll(featureResult);

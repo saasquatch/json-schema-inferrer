@@ -17,14 +17,16 @@ public final class GenericSchemaFeatureInput {
   private final Collection<? extends JsonNode> samples;
   private final String type;
   private final SpecVersion specVersion;
+  private final String path;
 
   GenericSchemaFeatureInput(@Nonnull ObjectNode schema,
       @Nonnull Collection<? extends JsonNode> samples, @Nullable String type,
-      @Nonnull SpecVersion specVersion) {
+      @Nonnull SpecVersion specVersion, @Nonnull String path) {
     this.schema = schema;
     this.samples = samples;
     this.type = type;
     this.specVersion = specVersion;
+    this.path = path;
   }
 
   /**
@@ -58,6 +60,14 @@ public final class GenericSchemaFeatureInput {
   @Nonnull
   public SpecVersion getSpecVersion() {
     return specVersion;
+  }
+
+  /**
+   * @return The json path of the current traversal.
+   */
+  @Nonnull
+  public String getPath() {
+    return path;
   }
 
 }
