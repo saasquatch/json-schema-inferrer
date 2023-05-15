@@ -176,7 +176,8 @@ public class JsonSchemaInferrerExamplesTest {
                   return input.getFieldName();
                 }
 
-              }).setAdditionalPropertiesPolicy(additionalPropPolicyIter.next())
+              })
+              .setAdditionalPropertiesPolicy(additionalPropPolicyIter.next())
               .setRequiredPolicy(requiredPolicyIter.next());
         }
         try {
