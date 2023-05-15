@@ -69,4 +69,8 @@ interface Consts {
     String TIME = "time";
   }
 
+  interface JsonPath {
+    String ROOT = "$";
+  }
+
 }

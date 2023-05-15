@@ -97,7 +97,7 @@ public final class JsonSchemaInferrer {
         samples.stream().map(this::preProcessSample).collect(Collectors.toList());
     final ObjectNode schema = newObject();
     schema.put(Consts.Fields.DOLLAR_SCHEMA, specVersion.getMetaSchemaUrl());
-    final Set<ObjectNode> anyOfs = getAnyOfsFromSamples(processedSamples, "$");
+    final Set<ObjectNode> anyOfs = getAnyOfsFromSamples(processedSamples, Consts.JsonPath.ROOT);
     switch (anyOfs.size()) {
       case 0:
         // anyOfs cannot be empty here, since we force inputs to be non-empty
@@ -109,7 +109,7 @@ public final class JsonSchemaInferrer {
       default: {
         schema.set(Consts.Fields.ANY_OF, newArray(anyOfs));
         // This is an anyOf schema. No type available.
-        processGenericSchemaFeature(schema, processedSamples, null, "$");
+        processGenericSchemaFeature(schema, processedSamples, null, Consts.JsonPath.ROOT);
         break;
       }
     }
