@@ -32,3 +32,4 @@ buildNumber.properties
 .gradle
 .gradletasknamecache
 .m2
+build/
