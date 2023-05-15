@@ -287,11 +287,11 @@ final class JunkDrawer {
     return !isNull(j);
   }
 
-  static String appendObjectJsonPath(String path, String fieldName) {
+  static String appendObjectJsonPath(@Nonnull String path, @Nonnull String fieldName) {
     return path + '[' + JsonNodeFactory.instance.textNode(fieldName) + ']';
   }
 
-  static String appendArrayStarJsonPath(String path) {
+  static String appendArrayStarJsonPath(@Nonnull String path) {
     return path + "[*]";
   }
 
