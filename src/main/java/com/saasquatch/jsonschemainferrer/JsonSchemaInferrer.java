@@ -138,7 +138,7 @@ public final class JsonSchemaInferrer {
       handleDescriptionGeneration(newProperty, fieldName);
 
       // Add Field to Path
-      final String objectPath = "%s[%s]".formatted(path, JsonNodeFactory.instance.textNode(fieldName));
+      final String objectPath = path + '[' + JsonNodeFactory.instance.textNode(fieldName) + ']';
 
       final Set<ObjectNode> anyOfs = getAnyOfsFromSamples(processedSamples, objectPath);
       switch (anyOfs.size()) {
@@ -180,7 +180,7 @@ public final class JsonSchemaInferrer {
         .map(this::preProcessSample)
         .collect(Collectors.toList());
     final ObjectNode items;
-    final String arrayPath = "%s[*]".formatted(path);
+    final String arrayPath = path + "[*]";
     final Set<ObjectNode> anyOfs = getAnyOfsFromSamples(processedSamples, arrayPath);
     switch (anyOfs.size()) {
       case 0:
