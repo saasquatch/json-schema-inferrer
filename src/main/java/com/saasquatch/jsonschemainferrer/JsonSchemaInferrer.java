@@ -1,5 +1,7 @@
 package com.saasquatch.jsonschemainferrer;
 
+import static com.saasquatch.jsonschemainferrer.JunkDrawer.appendArrayStarJsonPath;
+import static com.saasquatch.jsonschemainferrer.JunkDrawer.appendObjectJsonPath;
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.format;
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.getAllFieldNames;
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.getAllValuesForFieldName;
@@ -154,10 +156,7 @@ public final class JsonSchemaInferrer {
           .map(this::preProcessSample).collect(Collectors.toList());
       final ObjectNode newProperty = newObject();
       handleDescriptionGeneration(newProperty, fieldName);
-
-      // Add Field to Path
-      final String objectPath = path + '[' + JsonNodeFactory.instance.textNode(fieldName) + ']';
-
+      final String objectPath = appendObjectJsonPath(path, fieldName);
       final Set<ObjectNode> anyOfs = getAnyOfsFromSamples(processedSamples, objectPath);
       switch (anyOfs.size()) {
         case 0:
@@ -199,7 +198,7 @@ public final class JsonSchemaInferrer {
         .map(this::preProcessSample)
         .collect(Collectors.toList());
     final ObjectNode items;
-    final String arrayPath = path + "[*]";
+    final String arrayPath = appendArrayStarJsonPath(path);
     final Set<ObjectNode> anyOfs = getAnyOfsFromSamples(processedSamples, arrayPath);
     switch (anyOfs.size()) {
       case 0:
