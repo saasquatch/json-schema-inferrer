@@ -48,15 +48,19 @@ public class JsonSchemaInferrerTest {
       assertTrue(schema.hasNonNull("type"));
     }
     {
-      final ObjectNode schema = JsonSchemaInferrer.newBuilder().setSpecVersion(SpecVersion.DRAFT_06)
-          .build().inferForSample(simple);
+      final ObjectNode schema = JsonSchemaInferrer.newBuilder()
+          .setSpecVersion(SpecVersion.DRAFT_06)
+          .build()
+          .inferForSample(simple);
       assertTrue(schema.hasNonNull("$schema"));
       assertTrue(schema.path("$schema").textValue().contains("-06"));
       assertTrue(schema.hasNonNull("type"));
     }
     {
       final ObjectNode schema = JsonSchemaInferrer.newBuilder()
-          .addFormatInferrers(FormatInferrers.dateTime()).build().inferForSample(simple);
+          .addFormatInferrers(FormatInferrers.dateTime())
+          .build()
+          .inferForSample(simple);
       assertTrue(schema.hasNonNull("properties"));
       assertTrue(schema.path("properties").isObject());
       assertEquals("integer", schema.path("properties").path("id").path("type").textValue());
