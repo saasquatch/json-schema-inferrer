@@ -41,7 +41,7 @@ public final class EnumExtractorInput {
   }
 
   /**
-   * @return The json path of the current traversal.
+   * @return The JSON path of the current traversal.
    */
   @Nonnull
   public String getPath() {
