@@ -1,14 +1,11 @@
 package com.saasquatch.jsonschemainferrer;
 
-import static com.saasquatch.jsonschemainferrer.TestJunkDrawer.mapper;
+import static com.saasquatch.jsonschemainferrer.TestJunkDrawer.loadJson;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.google.common.collect.ImmutableList;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UncheckedIOException;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -18,15 +15,6 @@ import org.junit.jupiter.api.Test;
  * @author sbroekhuis
  */
 public class PathProvidedTest {
-
-  @SuppressWarnings("SameParameterValue")
-  private JsonNode loadJson(String fileName) {
-    try (InputStream in = this.getClass().getResourceAsStream(fileName)) {
-      return mapper.readTree(in);
-    } catch (IOException e) {
-      throw new UncheckedIOException(e);
-    }
-  }
 
   @Test
   public void genericFeatureTest() {
@@ -60,12 +48,15 @@ public class PathProvidedTest {
 
   @Test
   public void testSpecialCharacters() {
+    final Queue<String> expected = new LinkedList<>(ImmutableList.of(
+        "$[\"foo[\\\"bar\\\"]\"]",
+        "$"));
     final String fieldName = "foo[\"bar\"]";
     final JsonNode root = JsonNodeFactory.instance.objectNode()
         .put(fieldName, 42);
     final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
         .addGenericSchemaFeatures(input -> {
-          assertEquals("$[\"foo[\\\"bar\\\"]\"]", "$", input.getPath());
+          assertEquals(expected.poll(), input.getPath());
           return null;
         })
         .build();

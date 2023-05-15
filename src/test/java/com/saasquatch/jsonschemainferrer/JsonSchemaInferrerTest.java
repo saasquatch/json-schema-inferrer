@@ -1,7 +1,7 @@
 package com.saasquatch.jsonschemainferrer;
 
 import static com.saasquatch.jsonschemainferrer.TestJunkDrawer.jnf;
-import static com.saasquatch.jsonschemainferrer.TestJunkDrawer.mapper;
+import static com.saasquatch.jsonschemainferrer.TestJunkDrawer.loadJson;
 import static com.saasquatch.jsonschemainferrer.TestJunkDrawer.toStringSet;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -12,21 +12,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.POJONode;
 import com.google.common.collect.ImmutableSet;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UncheckedIOException;
 import java.util.Collections;
 import org.junit.jupiter.api.Test;
 
 public class JsonSchemaInferrerTest {
-
-  private JsonNode loadJson(String fileName) {
-    try (InputStream in = this.getClass().getResourceAsStream(fileName)) {
-      return mapper.readTree(in);
-    } catch (IOException e) {
-      throw new UncheckedIOException(e);
-    }
-  }
 
   @Test
   public void testBasic() {
