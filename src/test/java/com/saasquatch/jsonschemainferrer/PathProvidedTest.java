@@ -1,6 +1,7 @@
 package com.saasquatch.jsonschemainferrer;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -30,22 +31,22 @@ public class PathProvidedTest {
 
     @Test
     public void genericFeatureTest() {
-        Queue<String> expected = new LinkedList<>(List.of("$.id",
-                                                          "$.slug",
-                                                          "$.admin",
-                                                          "$.avatar",
-                                                          "$.date",
-                                                          "$.article.title",
-                                                          "$.article.description",
-                                                          "$.article.body",
-                                                          "$.article",
-                                                          "$.comments[*].body",
-                                                          "$.comments[*].body",
-                                                          "$.comments[*].tags[*]",
-                                                          "$.comments[*].tags[*]",
-                                                          "$.comments[*].tags",
-                                                          "$.comments[*]",
-                                                          "$.comments",
+        Queue<String> expected = new LinkedList<>(List.of("$[\"id\"]",
+                                                          "$[\"slug\"]",
+                                                          "$[\"admin\"]",
+                                                          "$[\"avatar\"]",
+                                                          "$[\"date\"]",
+                                                          "$[\"article\"][\"title\"]",
+                                                          "$[\"article\"][\"description\"]",
+                                                          "$[\"article\"][\"body\"]",
+                                                          "$[\"article\"]",
+                                                          "$[\"comments\"][*][\"body\"]",
+                                                          "$[\"comments\"][*][\"body\"]",
+                                                          "$[\"comments\"][*][\"tags\"][*]",
+                                                          "$[\"comments\"][*][\"tags\"][*]",
+                                                          "$[\"comments\"][*][\"tags\"]",
+                                                          "$[\"comments\"][*]",
+                                                          "$[\"comments\"]",
                                                           "$"));
         final JsonNode jsonNode = loadJson("simple.json");
         final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder().addGenericSchemaFeatures(input -> {
@@ -56,8 +57,35 @@ public class PathProvidedTest {
     }
 
     @Test
+    public void testSpecialCharacters(){
+        Queue<String> expected = new LinkedList<>(List.of("$[\"foo[\\\"bar\\\"]\"]", "$"));
+        final String fieldName = "foo[\"bar\"]";
+        final JsonNode root = JsonNodeFactory.instance.objectNode()
+                                                      .put(fieldName, 42);
+        final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder().addGenericSchemaFeatures(input -> {
+            assertEquals(expected.poll(), input.getPath());
+            return null;
+        }).build();
+        inferrer.inferForSample(root);
+    }
+
+    @Test
     public void enumExtractorTest() {
-        Queue<String> expected = new LinkedList<>(List.of("$"));
+        Queue<String> expected = new LinkedList<>(List.of("$",
+                                                          "$[\"id\"]",
+                                                          "$[\"slug\"]",
+                                                          "$[\"admin\"]",
+                                                          "$[\"avatar\"]",
+                                                          "$[\"date\"]",
+                                                          "$[\"article\"]",
+                                                          "$[\"article\"][\"title\"]",
+                                                          "$[\"article\"][\"description\"]",
+                                                          "$[\"article\"][\"body\"]",
+                                                          "$[\"comments\"]",
+                                                          "$[\"comments\"][*]",
+                                                          "$[\"comments\"][*][\"body\"]",
+                                                          "$[\"comments\"][*][\"tags\"]",
+                                                          "$[\"comments\"][*][\"tags\"][*]"));
         final JsonNode jsonNode = loadJson("simple.json");
         final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder().addEnumExtractors(input -> {
             assertEquals(expected.poll(), input.getPath());
@@ -68,20 +96,22 @@ public class PathProvidedTest {
 
     @Test
     public void formatInferTest() {
-        Queue<String> expected = new LinkedList<>(List.of("$.id",
-                                                          "$.slug",
-                                                          "$.admin",
-                                                          "$.avatar",
-                                                          "$.date",
-                                                          "$.article.title",
-                                                          "$.article.description",
-                                                          "$.article.body",
-                                                          "$.comments[*].body",
-                                                          "$.comments[*].body",
-                                                          "$.comments[*].body",
-                                                          "$.comments[*].tags[*]",
-                                                          "$.comments[*].tags[*]",
-                                                          "$.comments[*].tags[*]",
+        Queue<String> expected = new LinkedList<>(List.of("$[\"id\"]",
+                                                          "$[\"slug\"]",
+                                                          "$[\"admin\"]",
+                                                          "$[\"avatar\"]",
+                                                          "$[\"date\"]",
+                                                          "$[\"article\"][\"title\"]",
+                                                          "$[\"article\"][\"description\"]",
+                                                          "$[\"article\"][\"body\"]",
+                                                          "$[\"comments\"][*][\"body\"]",
+                                                          "$[\"comments\"][*][\"body\"]",
+                                                          "$[\"comments\"][*][\"body\"]",
+                                                          "$[\"comments\"][*][\"tags\"][*]",
+                                                          "$[\"comments\"][*][\"tags\"][*]",
+                                                          "$[\"comments\"][*][\"tags\"][*]",
+                                                          "$[\"comments\"][*]",
+                                                          "$[\"comments\"]",
                                                           "$"));
         final JsonNode jsonNode = loadJson("simple.json");
         final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder().addFormatInferrers(input -> {
