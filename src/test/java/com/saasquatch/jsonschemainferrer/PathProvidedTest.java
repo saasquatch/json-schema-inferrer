@@ -30,7 +30,8 @@ public class PathProvidedTest {
 
   @Test
   public void genericFeatureTest() {
-    final Queue<String> expected = new LinkedList<>(ImmutableList.of("$[\"id\"]",
+    final Queue<String> expected = new LinkedList<>(ImmutableList.of(
+        "$[\"id\"]",
         "$[\"slug\"]",
         "$[\"admin\"]",
         "$[\"avatar\"]",
@@ -59,14 +60,12 @@ public class PathProvidedTest {
 
   @Test
   public void testSpecialCharacters() {
-    final Queue<String> expected = new LinkedList<>(
-        ImmutableList.of("$[\"foo[\\\"bar\\\"]\"]", "$"));
     final String fieldName = "foo[\"bar\"]";
     final JsonNode root = JsonNodeFactory.instance.objectNode()
         .put(fieldName, 42);
     final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
         .addGenericSchemaFeatures(input -> {
-          assertEquals(expected.poll(), input.getPath());
+          assertEquals("$[\"foo[\\\"bar\\\"]\"]", "$", input.getPath());
           return null;
         })
         .build();
@@ -75,7 +74,8 @@ public class PathProvidedTest {
 
   @Test
   public void enumExtractorTest() {
-    final Queue<String> expected = new LinkedList<>(ImmutableList.of("$",
+    final Queue<String> expected = new LinkedList<>(ImmutableList.of(
+        "$",
         "$[\"id\"]",
         "$[\"slug\"]",
         "$[\"admin\"]",
@@ -102,7 +102,8 @@ public class PathProvidedTest {
 
   @Test
   public void formatInferTest() {
-    final Queue<String> expected = new LinkedList<>(ImmutableList.of("$[\"id\"]",
+    final Queue<String> expected = new LinkedList<>(ImmutableList.of(
+        "$[\"id\"]",
         "$[\"slug\"]",
         "$[\"admin\"]",
         "$[\"avatar\"]",
