@@ -1,28 +1,38 @@
 package com.saasquatch.jsonschemainferrer;
 
+import static com.saasquatch.jsonschemainferrer.JunkDrawer.stream;
+import static com.saasquatch.jsonschemainferrer.TestJunkDrawer.jnf;
+import static com.saasquatch.jsonschemainferrer.TestJunkDrawer.toStringSet;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import org.junit.jupiter.api.Test;
-
-import javax.annotation.Nonnull;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.DayOfWeek;
 import java.time.Instant;
 import java.time.Month;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
-
-import static com.saasquatch.jsonschemainferrer.JunkDrawer.stream;
-import static com.saasquatch.jsonschemainferrer.TestJunkDrawer.jnf;
-import static com.saasquatch.jsonschemainferrer.TestJunkDrawer.toStringSet;
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.junit.jupiter.api.Assertions.*;
+import javax.annotation.Nonnull;
+import org.junit.jupiter.api.Test;
 
 public class JsonSchemaInferrerOptionsTest {
 
@@ -93,7 +103,8 @@ public class JsonSchemaInferrerOptionsTest {
         .path("format").textValue());
     assertEquals("time",
         JsonSchemaInferrer.newBuilder().addFormatInferrers(FormatInferrers.dateTime())
-            .setSpecVersion(SpecVersion.DRAFT_07).build().inferForSample(jnf.textNode("20:20:39+01:23"))
+            .setSpecVersion(SpecVersion.DRAFT_07).build()
+            .inferForSample(jnf.textNode("20:20:39+01:23"))
             .path("format").textValue());
     assertEquals("time",
         JsonSchemaInferrer.newBuilder().addFormatInferrers(FormatInferrers.dateTime())

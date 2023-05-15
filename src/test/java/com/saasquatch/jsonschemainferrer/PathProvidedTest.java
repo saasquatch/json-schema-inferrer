@@ -11,7 +11,6 @@ import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.util.Collections;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Queue;
 import org.junit.jupiter.api.Test;
 
@@ -59,7 +58,8 @@ public class PathProvidedTest {
 
   @Test
   public void testSpecialCharacters() {
-    final Queue<String> expected = new LinkedList<>(ImmutableList.of("$[\"foo[\\\"bar\\\"]\"]", "$"));
+    final Queue<String> expected = new LinkedList<>(
+        ImmutableList.of("$[\"foo[\\\"bar\\\"]\"]", "$"));
     final String fieldName = "foo[\"bar\"]";
     final JsonNode root = JsonNodeFactory.instance.objectNode()
         .put(fieldName, 42);
@@ -98,7 +98,7 @@ public class PathProvidedTest {
 
   @Test
   public void formatInferTest() {
-    final Queue<String> expected = new LinkedList<>(List.of("$[\"id\"]",
+    final Queue<String> expected = new LinkedList<>(ImmutableList.of("$[\"id\"]",
         "$[\"slug\"]",
         "$[\"admin\"]",
         "$[\"avatar\"]",
