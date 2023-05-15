@@ -52,7 +52,8 @@ public class PathProvidedTest {
         .addGenericSchemaFeatures(input -> {
           assertEquals(expected.poll(), input.getPath());
           return null;
-        }).build();
+        })
+        .build();
     inferrer.inferForSample(jsonNode);
   }
 
@@ -67,7 +68,8 @@ public class PathProvidedTest {
         .addGenericSchemaFeatures(input -> {
           assertEquals(expected.poll(), input.getPath());
           return null;
-        }).build();
+        })
+        .build();
     inferrer.inferForSample(root);
   }
 
@@ -89,10 +91,12 @@ public class PathProvidedTest {
         "$[\"comments\"][*][\"tags\"]",
         "$[\"comments\"][*][\"tags\"][*]"));
     final JsonNode jsonNode = loadJson("simple.json");
-    final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder().addEnumExtractors(input -> {
-      assertEquals(expected.poll(), input.getPath());
-      return Collections.emptySet();
-    }).build();
+    final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
+        .addEnumExtractors(input -> {
+          assertEquals(expected.poll(), input.getPath());
+          return Collections.emptySet();
+        })
+        .build();
     inferrer.inferForSample(jsonNode);
   }
 
@@ -120,7 +124,8 @@ public class PathProvidedTest {
         .addFormatInferrers(input -> {
           assertEquals(expected.poll(), input.getPath());
           return null;
-        }).build();
+        })
+        .build();
     inferrer.inferForSample(jsonNode);
   }
 
