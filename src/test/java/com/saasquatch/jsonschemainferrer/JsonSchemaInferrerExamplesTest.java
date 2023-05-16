@@ -87,7 +87,7 @@ public class JsonSchemaInferrerExamplesTest {
         System.out.println(schemaJson.toPrettyString());
         System.out.println("Error messages:");
         schemaErrors.forEach(System.out::println);
-        fail(format("Inferred schema for resource[%s] failed to validate with errors{}",
+        fail(format("Inferred schema for resource[%s] failed to validate with errors%s",
             resourceName, schemaErrors));
       }
     }
@@ -116,7 +116,7 @@ public class JsonSchemaInferrerExamplesTest {
           System.out.println(schemaJson.toPrettyString());
           System.out.println("Error messages:");
           schemaErrors.forEach(System.out::println);
-          fail(format("Inferred schema for resourceNames%s failed to validate with errors{}",
+          fail(format("Inferred schema for resourceNames%s failed to validate with errors%s",
               resourceNames, schemaErrors));
         }
       }
