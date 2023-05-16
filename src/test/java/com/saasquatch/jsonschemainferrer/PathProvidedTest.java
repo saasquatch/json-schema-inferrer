@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.google.common.collect.ImmutableList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -18,7 +18,7 @@ public class PathProvidedTest {
 
   @Test
   public void genericFeatureTest() {
-    final Queue<String> expected = new LinkedList<>(ImmutableList.of(
+    final Queue<String> expected = new LinkedList<>(Arrays.asList(
         "$[\"id\"]",
         "$[\"slug\"]",
         "$[\"admin\"]",
@@ -48,7 +48,7 @@ public class PathProvidedTest {
 
   @Test
   public void testSpecialCharacters() {
-    final Queue<String> expected = new LinkedList<>(ImmutableList.of(
+    final Queue<String> expected = new LinkedList<>(Arrays.asList(
         "$[\"foo[\\\"bar\\\"]\"]",
         "$"));
     final String fieldName = "foo[\"bar\"]";
@@ -65,7 +65,7 @@ public class PathProvidedTest {
 
   @Test
   public void enumExtractorTest() {
-    final Queue<String> expected = new LinkedList<>(ImmutableList.of(
+    final Queue<String> expected = new LinkedList<>(Arrays.asList(
         "$",
         "$[\"id\"]",
         "$[\"slug\"]",
@@ -93,7 +93,7 @@ public class PathProvidedTest {
 
   @Test
   public void formatInferTest() {
-    final Queue<String> expected = new LinkedList<>(ImmutableList.of(
+    final Queue<String> expected = new LinkedList<>(Arrays.asList(
         "$[\"id\"]",
         "$[\"slug\"]",
         "$[\"admin\"]",
