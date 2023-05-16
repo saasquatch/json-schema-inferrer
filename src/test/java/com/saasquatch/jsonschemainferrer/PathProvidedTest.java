@@ -19,22 +19,22 @@ public class PathProvidedTest {
   @Test
   public void genericFeatureTest() {
     final Queue<String> expected = new LinkedList<>(Arrays.asList(
-        "$[\"id\"]",
-        "$[\"slug\"]",
-        "$[\"admin\"]",
-        "$[\"avatar\"]",
-        "$[\"date\"]",
-        "$[\"article\"][\"title\"]",
-        "$[\"article\"][\"description\"]",
-        "$[\"article\"][\"body\"]",
-        "$[\"article\"]",
-        "$[\"comments\"][*][\"body\"]",
-        "$[\"comments\"][*][\"body\"]",
-        "$[\"comments\"][*][\"tags\"][*]",
-        "$[\"comments\"][*][\"tags\"][*]",
-        "$[\"comments\"][*][\"tags\"]",
-        "$[\"comments\"][*]",
-        "$[\"comments\"]",
+        "$['id']",
+        "$['slug']",
+        "$['admin']",
+        "$['avatar']",
+        "$['date']",
+        "$['article']['title']",
+        "$['article']['description']",
+        "$['article']['body']",
+        "$['article']",
+        "$['comments'][*]['body']",
+        "$['comments'][*]['body']",
+        "$['comments'][*]['tags'][*]",
+        "$['comments'][*]['tags'][*]",
+        "$['comments'][*]['tags']",
+        "$['comments'][*]",
+        "$['comments']",
         "$"));
     final JsonNode jsonNode = loadJson("simple.json");
     final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
@@ -49,7 +49,24 @@ public class PathProvidedTest {
   @Test
   public void testSpecialCharacters() {
     final Queue<String> expected = new LinkedList<>(Arrays.asList(
-        "$[\"foo[\\\"bar\\\"]\"]",
+        "$['foo[\\'bar\\']']",
+        "$"));
+    final String fieldName = "foo['bar']";
+    final JsonNode root = JsonNodeFactory.instance.objectNode()
+        .put(fieldName, 42);
+    final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
+        .addGenericSchemaFeatures(input -> {
+          assertEquals(expected.poll(), input.getPath());
+          return null;
+        })
+        .build();
+    inferrer.inferForSample(root);
+  }
+
+  @Test
+  public void testNonSpecialCharacters() {
+    final Queue<String> expected = new LinkedList<>(Arrays.asList(
+        "$['foo[\"bar\"]']",
         "$"));
     final String fieldName = "foo[\"bar\"]";
     final JsonNode root = JsonNodeFactory.instance.objectNode()
@@ -67,20 +84,20 @@ public class PathProvidedTest {
   public void enumExtractorTest() {
     final Queue<String> expected = new LinkedList<>(Arrays.asList(
         "$",
-        "$[\"id\"]",
-        "$[\"slug\"]",
-        "$[\"admin\"]",
-        "$[\"avatar\"]",
-        "$[\"date\"]",
-        "$[\"article\"]",
-        "$[\"article\"][\"title\"]",
-        "$[\"article\"][\"description\"]",
-        "$[\"article\"][\"body\"]",
-        "$[\"comments\"]",
-        "$[\"comments\"][*]",
-        "$[\"comments\"][*][\"body\"]",
-        "$[\"comments\"][*][\"tags\"]",
-        "$[\"comments\"][*][\"tags\"][*]"));
+        "$['id']",
+        "$['slug']",
+        "$['admin']",
+        "$['avatar']",
+        "$['date']",
+        "$['article']",
+        "$['article']['title']",
+        "$['article']['description']",
+        "$['article']['body']",
+        "$['comments']",
+        "$['comments'][*]",
+        "$['comments'][*]['body']",
+        "$['comments'][*]['tags']",
+        "$['comments'][*]['tags'][*]"));
     final JsonNode jsonNode = loadJson("simple.json");
     final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
         .addEnumExtractors(input -> {
@@ -94,22 +111,22 @@ public class PathProvidedTest {
   @Test
   public void formatInferTest() {
     final Queue<String> expected = new LinkedList<>(Arrays.asList(
-        "$[\"id\"]",
-        "$[\"slug\"]",
-        "$[\"admin\"]",
-        "$[\"avatar\"]",
-        "$[\"date\"]",
-        "$[\"article\"][\"title\"]",
-        "$[\"article\"][\"description\"]",
-        "$[\"article\"][\"body\"]",
-        "$[\"comments\"][*][\"body\"]",
-        "$[\"comments\"][*][\"body\"]",
-        "$[\"comments\"][*][\"body\"]",
-        "$[\"comments\"][*][\"tags\"][*]",
-        "$[\"comments\"][*][\"tags\"][*]",
-        "$[\"comments\"][*][\"tags\"][*]",
-        "$[\"comments\"][*]",
-        "$[\"comments\"]",
+        "$['id']",
+        "$['slug']",
+        "$['admin']",
+        "$['avatar']",
+        "$['date']",
+        "$['article']['title']",
+        "$['article']['description']",
+        "$['article']['body']",
+        "$['comments'][*]['body']",
+        "$['comments'][*]['body']",
+        "$['comments'][*]['body']",
+        "$['comments'][*]['tags'][*]",
+        "$['comments'][*]['tags'][*]",
+        "$['comments'][*]['tags'][*]",
+        "$['comments'][*]",
+        "$['comments']",
         "$"));
     final JsonNode jsonNode = loadJson("simple.json");
     final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()

@@ -1,5 +1,6 @@
 package com.saasquatch.jsonschemainferrer;
 
+import static com.saasquatch.jsonschemainferrer.JunkDrawer.escapeSingleQuoteString;
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.getBase64Length;
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.getCommonFieldNames;
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.getSerializedTextLength;
@@ -11,6 +12,7 @@ import static com.saasquatch.jsonschemainferrer.JunkDrawer.stringColToArrayDisti
 import static com.saasquatch.jsonschemainferrer.TestJunkDrawer.jnf;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -133,6 +135,14 @@ public class JunkDrawerTest {
     assertFalse(isNull(new DecimalNode(BigDecimal.ZERO)));
     assertTrue(isNull(new POJONode(null)));
     assertFalse(isNull(new POJONode(0)));
+  }
+
+  @Test
+  public void testEscapeSingleQuoteString() {
+    assertEquals("", escapeSingleQuoteString(""));
+    // a\bb\fc\nd\re\tf\'"\\\r\n\n\rg
+    assertEquals(" a\\bb\\fc\\nd\\re\\tf\\'\"\\\\\\r\\n\\n\\rg",
+        escapeSingleQuoteString(" a\bb\fc\nd\re\tf'\"\\\r\n\n\rg"));
   }
 
 }
