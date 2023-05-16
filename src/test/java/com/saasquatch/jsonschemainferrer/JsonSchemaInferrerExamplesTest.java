@@ -147,7 +147,8 @@ public class JsonSchemaInferrerExamplesTest {
               .setExamplesPolicy(ExamplesPolicies.useFirstSamples(10))
               .setDefaultPolicy(defaultPolicyIter.next())
               .addEnumExtractors(EnumExtractors.validEnum(Month.class),
-                  EnumExtractors.validEnum(DayOfWeek.class), input -> {
+                  EnumExtractors.validEnum(DayOfWeek.class),
+                  input -> {
                     final Set<? extends JsonNode> primitives = input.getSamples().stream()
                         .filter(JsonNode::isValueNode)
                         .collect(ImmutableSet.toImmutableSet());
