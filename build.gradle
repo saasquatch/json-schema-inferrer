@@ -20,15 +20,21 @@ repositories {
 }
 
 dependencies {
-    testImplementation platform('org.junit:junit-bom:5.9.2')
-    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.10.1'
     implementation 'com.google.code.findbugs:jsr305:3.0.2'
-    api 'com.fasterxml.jackson.core:jackson-databind:2.15.0'
-    builtInFormatInferrerSupportImplementation 'commons-validator:commons-validator:1.7'
-    testImplementation 'com.networknt:json-schema-validator:1.0.80'
-    testImplementation 'com.google.guava:guava:31.1-jre'
+    api 'com.fasterxml.jackson.core:jackson-databind:2.16.1'
+    builtInFormatInferrerSupportImplementation 'commons-validator:commons-validator:1.8.0'
+    testImplementation 'com.networknt:json-schema-validator:1.1.0'
+    testImplementation 'com.google.guava:guava:33.0.0-jre'
 }
 
 tasks.test {
     useJUnitPlatform()
+}
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(8))
+    }
 }

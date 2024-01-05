@@ -22,7 +22,7 @@ public enum StringLengthFeature implements GenericSchemaFeature {
         return null;
       }
       final ObjectNode result = newObject();
-     input.getSamples().stream()
+      input.getSamples().stream()
           .mapToInt(JunkDrawer::getSerializedTextLength)
           .min()
           .ifPresent(minLength -> result.put(Consts.Fields.MIN_LENGTH, minLength));

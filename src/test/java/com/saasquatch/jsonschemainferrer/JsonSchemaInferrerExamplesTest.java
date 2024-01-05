@@ -1,8 +1,8 @@
 package com.saasquatch.jsonschemainferrer;
 
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.format;
-import static com.saasquatch.jsonschemainferrer.TestJunkDrawer.mapper;
-import static java.nio.charset.StandardCharsets.UTF_8;
+import static com.saasquatch.jsonschemainferrer.TestJunkDrawer.getResourceNamesUnderDir;
+import static com.saasquatch.jsonschemainferrer.TestJunkDrawer.loadJson;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -17,11 +17,6 @@ import com.networknt.schema.PathType;
 import com.networknt.schema.SchemaValidatorsConfig;
 import com.networknt.schema.SpecVersionDetector;
 import com.networknt.schema.ValidationMessage;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.UncheckedIOException;
 import java.time.DayOfWeek;
 import java.time.Month;
 import java.util.ArrayList;
@@ -57,28 +52,10 @@ public class JsonSchemaInferrerExamplesTest {
   }
 
   private static List<String> getTestExamplesResources() {
-    try (
-        InputStream in = JsonSchemaInferrerExamplesTest.class.getResourceAsStream("testExamples");
-        BufferedReader br = new BufferedReader(
-            new InputStreamReader(Objects.requireNonNull(in), UTF_8))
-    ) {
-      return br.lines()
-          .filter(n -> n.toLowerCase(Locale.ROOT).endsWith(".json"))
-          .map("testExamples/"::concat)
-          .collect(ImmutableList.toImmutableList());
-    } catch (IOException e) {
-      throw new UncheckedIOException(e);
-    }
-  }
-
-  private static JsonNode loadJsonFromResource(String resourceName) {
-    try (InputStream in = JsonSchemaInferrerTest.class.getResourceAsStream(resourceName)) {
-      return mapper.readTree(in);
-    } catch (IOException e) {
-      System.out.printf(Locale.ROOT, "Exception encountered loading JSON from resource[%s]. "
-          + "Error message: [%s].%n", resourceName, e.getMessage());
-      throw new UncheckedIOException(e);
-    }
+    return getResourceNamesUnderDir("testExamples").stream()
+        .filter(n -> n.toLowerCase(Locale.ROOT).endsWith(".json"))
+        .map("testExamples/"::concat)
+        .collect(ImmutableList.toImmutableList());
   }
 
   private static List<String> validateJsonSchema(JsonNode schemaJson, JsonNode instance) {
@@ -93,7 +70,7 @@ public class JsonSchemaInferrerExamplesTest {
   }
 
   private static void doTestForResourceName(String resourceName) {
-    final JsonNode sampleJson = loadJsonFromResource(resourceName);
+    final JsonNode sampleJson = loadJson(resourceName);
     System.out.printf(Locale.ROOT, "Got valid JSON from resource[%s]%n", resourceName);
     for (JsonSchemaInferrer inferrer : testInferrers) {
       final ObjectNode schemaJson = inferrer.inferForSample(sampleJson);
@@ -110,7 +87,7 @@ public class JsonSchemaInferrerExamplesTest {
         System.out.println(schemaJson.toPrettyString());
         System.out.println("Error messages:");
         schemaErrors.forEach(System.out::println);
-        fail(format("Inferred schema for resource[%s] failed to validate with errors{}",
+        fail(format("Inferred schema for resource[%s] failed to validate with errors%s",
             resourceName, schemaErrors));
       }
     }
@@ -118,7 +95,7 @@ public class JsonSchemaInferrerExamplesTest {
 
   private static void doTestForResourceNames(Collection<String> resourceNames) {
     final List<JsonNode> sampleJsons = resourceNames.stream()
-        .map(JsonSchemaInferrerExamplesTest::loadJsonFromResource)
+        .map(TestJunkDrawer::loadJson)
         .filter(Objects::nonNull)
         .collect(ImmutableList.toImmutableList());
     System.out.printf(Locale.ROOT, "Got valid JSONs from resourceNames%s%n", resourceNames);
@@ -139,7 +116,7 @@ public class JsonSchemaInferrerExamplesTest {
           System.out.println(schemaJson.toPrettyString());
           System.out.println("Error messages:");
           schemaErrors.forEach(System.out::println);
-          fail(format("Inferred schema for resourceNames%s failed to validate with errors{}",
+          fail(format("Inferred schema for resourceNames%s failed to validate with errors%s",
               resourceNames, schemaErrors));
         }
       }
@@ -170,11 +147,12 @@ public class JsonSchemaInferrerExamplesTest {
               .setExamplesPolicy(ExamplesPolicies.useFirstSamples(10))
               .setDefaultPolicy(defaultPolicyIter.next())
               .addEnumExtractors(EnumExtractors.validEnum(Month.class),
-                  EnumExtractors.validEnum(DayOfWeek.class), input -> {
+                  EnumExtractors.validEnum(DayOfWeek.class),
+                  input -> {
                     final Set<? extends JsonNode> primitives = input.getSamples().stream()
                         .filter(JsonNode::isValueNode)
                         .collect(ImmutableSet.toImmutableSet());
-                    if (primitives.size() <= 3 && primitives.size() > 0) {
+                    if (primitives.size() <= 3 && !primitives.isEmpty()) {
                       return Collections.singleton(primitives);
                     }
                     return Collections.emptySet();
@@ -199,7 +177,8 @@ public class JsonSchemaInferrerExamplesTest {
                   return input.getFieldName();
                 }
 
-              }).setAdditionalPropertiesPolicy(additionalPropPolicyIter.next())
+              })
+              .setAdditionalPropertiesPolicy(additionalPropPolicyIter.next())
               .setRequiredPolicy(requiredPolicyIter.next());
         }
         try {

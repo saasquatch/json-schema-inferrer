@@ -2,6 +2,7 @@ package com.saasquatch.jsonschemainferrer;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.saasquatch.jsonschemainferrer.annotations.Beta;
 import java.util.Collection;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -17,19 +18,21 @@ public final class GenericSchemaFeatureInput {
   private final Collection<? extends JsonNode> samples;
   private final String type;
   private final SpecVersion specVersion;
+  private final String path;
 
   GenericSchemaFeatureInput(@Nonnull ObjectNode schema,
       @Nonnull Collection<? extends JsonNode> samples, @Nullable String type,
-      @Nonnull SpecVersion specVersion) {
+      @Nonnull SpecVersion specVersion, @Nonnull String path) {
     this.schema = schema;
     this.samples = samples;
     this.type = type;
     this.specVersion = specVersion;
+    this.path = path;
   }
 
   /**
    * @return The current schema. Note that {@link GenericSchemaFeature}s are not supposed to mutate
-   *         the schema.
+   * the schema.
    */
   @Nonnull
   public ObjectNode getSchema() {
@@ -58,6 +61,18 @@ public final class GenericSchemaFeatureInput {
   @Nonnull
   public SpecVersion getSpecVersion() {
     return specVersion;
+  }
+
+  /**
+   * This method is marked as {@link Beta @Beta} because it may not be perfect. The algorithm for
+   * generating JSON path can be found at {@link JunkDrawer#escapeSingleQuoteString}.
+   *
+   * @return The JSON path of the current traversal.
+   */
+  @Nonnull
+  @Beta
+  public String getPath() {
+    return path;
   }
 
 }

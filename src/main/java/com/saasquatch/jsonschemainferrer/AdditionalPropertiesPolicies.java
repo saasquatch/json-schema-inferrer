@@ -31,7 +31,7 @@ public final class AdditionalPropertiesPolicies {
 
   /**
    * @return A singleton {@link AdditionalPropertiesPolicy} that always sets
-   *         {@code additionalProperties} to true
+   * {@code additionalProperties} to true
    */
   public static AdditionalPropertiesPolicy allowed() {
     return input -> JsonNodeFactory.instance.booleanNode(true);
@@ -39,7 +39,7 @@ public final class AdditionalPropertiesPolicies {
 
   /**
    * @return A singleton {@link AdditionalPropertiesPolicy} that always sets
-   *         {@code additionalProperties} to false
+   * {@code additionalProperties} to false
    */
   public static AdditionalPropertiesPolicy notAllowed() {
     return input -> JsonNodeFactory.instance.booleanNode(false);
@@ -47,7 +47,7 @@ public final class AdditionalPropertiesPolicies {
 
   /**
    * @return A singleton {@link AdditionalPropertiesPolicy} that sets {@code additionalProperties}
-   *         to existing types on the schema
+   * to existing types on the schema
    */
   @Beta
   public static AdditionalPropertiesPolicy existingTypes() {

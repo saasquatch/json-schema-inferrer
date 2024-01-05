@@ -223,7 +223,7 @@ final class JunkDrawer {
 
   /**
    * @return Whether the input is a floating point node that is to be serialized as text, i.e. NaN
-   *         and infinity
+   * and infinity
    */
   static boolean isTextualFloat(@Nonnull JsonNode jsonNode) {
     if (jsonNode.isFloat() || jsonNode.isDouble()) {
@@ -264,7 +264,7 @@ final class JunkDrawer {
 
   /**
    * @return Whether the input {@link JsonNode} is null or is to be serialized as null, like a
-   *         {@link TextNode} with a null String.
+   * {@link TextNode} with a null String.
    */
   static boolean isNull(@Nullable JsonNode j) {
     if (j == null || j.isNull() || j.isMissingNode()) {
@@ -285,6 +285,28 @@ final class JunkDrawer {
 
   static boolean nonNull(@Nullable JsonNode j) {
     return !isNull(j);
+  }
+
+  /**
+   * The list of characters that need to be escaped are found <a
+   * href="https://www.freeformatter.com/json-escape.html">here</a>.
+   */
+  static String escapeSingleQuoteString(@Nonnull String s) {
+    return s.replace("\\", "\\\\")
+        .replace("\b", "\\b")
+        .replace("\f", "\\f")
+        .replace("\n", "\\n")
+        .replace("\r", "\\r")
+        .replace("\t", "\\t")
+        .replace("'", "\\'");
+  }
+
+  static String appendObjectJsonPath(@Nonnull String path, @Nonnull String fieldName) {
+    return path + "['" + escapeSingleQuoteString(fieldName) + "']";
+  }
+
+  static String appendArrayStarJsonPath(@Nonnull String path) {
+    return path + "[*]";
   }
 
 }

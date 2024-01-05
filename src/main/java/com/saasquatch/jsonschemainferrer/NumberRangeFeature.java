@@ -54,7 +54,8 @@ public enum NumberRangeFeature implements GenericSchemaFeature {
           })
           .orElse(null);
     }
-  },;
+  },
+  ;
 
   private static final Comparator<JsonNode> NUM_VALUE_COMPARATOR =
       Comparator.comparing(JsonNode::decimalValue);

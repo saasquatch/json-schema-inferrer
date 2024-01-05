@@ -30,7 +30,7 @@ public final class EnumExtractors {
 
   /**
    * @return an {@link EnumExtractor} that extracts all the textual {@link JsonNode}s that are valid
-   *         names of a Java {@link Enum}.
+   * names of a Java {@link Enum}.
    */
   public static <E extends Enum<E>> EnumExtractor validEnum(@Nonnull Class<E> enumClass) {
     Objects.requireNonNull(enumClass);

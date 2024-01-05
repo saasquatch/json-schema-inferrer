@@ -1,7 +1,7 @@
 package com.saasquatch.jsonschemainferrer;
 
 import static com.saasquatch.jsonschemainferrer.TestJunkDrawer.jnf;
-import static com.saasquatch.jsonschemainferrer.TestJunkDrawer.mapper;
+import static com.saasquatch.jsonschemainferrer.TestJunkDrawer.loadJson;
 import static com.saasquatch.jsonschemainferrer.TestJunkDrawer.toStringSet;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -12,21 +12,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.POJONode;
 import com.google.common.collect.ImmutableSet;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UncheckedIOException;
 import java.util.Collections;
 import org.junit.jupiter.api.Test;
 
 public class JsonSchemaInferrerTest {
-
-  private JsonNode loadJson(String fileName) {
-    try (InputStream in = this.getClass().getResourceAsStream(fileName)) {
-      return mapper.readTree(in);
-    } catch (IOException e) {
-      throw new UncheckedIOException(e);
-    }
-  }
 
   @Test
   public void testBasic() {
@@ -59,15 +48,19 @@ public class JsonSchemaInferrerTest {
       assertTrue(schema.hasNonNull("type"));
     }
     {
-      final ObjectNode schema = JsonSchemaInferrer.newBuilder().setSpecVersion(SpecVersion.DRAFT_06)
-          .build().inferForSample(simple);
+      final ObjectNode schema = JsonSchemaInferrer.newBuilder()
+          .setSpecVersion(SpecVersion.DRAFT_06)
+          .build()
+          .inferForSample(simple);
       assertTrue(schema.hasNonNull("$schema"));
       assertTrue(schema.path("$schema").textValue().contains("-06"));
       assertTrue(schema.hasNonNull("type"));
     }
     {
       final ObjectNode schema = JsonSchemaInferrer.newBuilder()
-          .addFormatInferrers(FormatInferrers.dateTime()).build().inferForSample(simple);
+          .addFormatInferrers(FormatInferrers.dateTime())
+          .build()
+          .inferForSample(simple);
       assertTrue(schema.hasNonNull("properties"));
       assertTrue(schema.path("properties").isObject());
       assertEquals("integer", schema.path("properties").path("id").path("type").textValue());
