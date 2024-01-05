@@ -58,7 +58,7 @@ public final class ExamplesPolicies {
       }
       final ArrayNode result = newArray();
       input.getSamples().stream().distinct().limit(limit).forEach(result::add);
-      return result.size() == 0 ? null : result;
+      return result.isEmpty() ? null : result;
     };
   }
 

@@ -176,7 +176,7 @@ public final class JsonSchemaInferrer {
       properties.set(fieldName, newProperty);
     }
     final ObjectNode schema = newObject().put(Consts.Fields.TYPE, Consts.Types.OBJECT);
-    if (properties.size() > 0) {
+    if (!properties.isEmpty()) {
       schema.set(Consts.Fields.PROPERTIES, properties);
     }
     processGenericSchemaFeature(schema, objectNodes, Consts.Types.OBJECT, path);
@@ -214,7 +214,7 @@ public final class JsonSchemaInferrer {
         break;
     }
     final ObjectNode schema = newObject().put(Consts.Fields.TYPE, Consts.Types.ARRAY);
-    if (items.size() > 0) {
+    if (!items.isEmpty()) {
       schema.set(Consts.Fields.ITEMS, items);
     }
     processGenericSchemaFeature(schema, arrayNodes, Consts.Types.ARRAY, path);

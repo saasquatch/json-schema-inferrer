@@ -37,6 +37,7 @@ public final class TestJunkDrawer {
     } catch (IOException e) {
       System.out.printf(Locale.ROOT, "Exception encountered loading JSON from resource[%s]. "
           + "Error message: [%s].%n", resourceName, e.getMessage());
+      //noinspection CallToPrintStackTrace
       e.printStackTrace();
       throw new UncheckedIOException(e);
     }

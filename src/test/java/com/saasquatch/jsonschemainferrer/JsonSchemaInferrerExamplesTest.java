@@ -152,7 +152,7 @@ public class JsonSchemaInferrerExamplesTest {
                     final Set<? extends JsonNode> primitives = input.getSamples().stream()
                         .filter(JsonNode::isValueNode)
                         .collect(ImmutableSet.toImmutableSet());
-                    if (primitives.size() <= 3 && primitives.size() > 0) {
+                    if (primitives.size() <= 3 && !primitives.isEmpty()) {
                       return Collections.singleton(primitives);
                     }
                     return Collections.emptySet();
