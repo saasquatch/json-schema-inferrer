@@ -740,14 +740,7 @@ public class JsonSchemaInferrerOptionsTest {
   @Test
   public void testFakeGenericFeature() {
     // Fake feature that always attaches {"foo":"bar"}
-    final GenericSchemaFeature fakeFeature = new GenericSchemaFeature() {
-      @Override
-      public ObjectNode getFeatureResult(@Nonnull GenericSchemaFeatureInput input) {
-        final ObjectNode result = jnf.objectNode();
-        result.put("foo", "bar");
-        return result;
-      }
-    };
+    final GenericSchemaFeature fakeFeature = input -> jnf.objectNode().put("foo", "bar");
     assertSame(GenericSchemaFeatures.noOp(), GenericSchemaFeatures.chained());
     assertThrows(NullPointerException.class,
         () -> GenericSchemaFeatures.chained(GenericSchemaFeatures.noOp(), null));
