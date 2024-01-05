@@ -6,7 +6,7 @@
 
 ### Added
 
-- (Beta) Added support for JSON Path
+- (Beta) Added support for JSON Path.
 
 ### Changed
 
