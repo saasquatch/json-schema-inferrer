@@ -52,7 +52,9 @@
 
 ## [0.1.1] - 2020-02-27
 
-[Unreleased]: https://github.com/saasquatch/json-schema-inferrer/compare/0.2.0...HEAD
+[Unreleased]: https://github.com/saasquatch/json-schema-inferrer/compare/0.2.1...HEAD
+
+[0.2.1]: https://github.com/saasquatch/json-schema-inferrer/compare/0.2.0...0.2.1
 
 [0.2.0]: https://github.com/saasquatch/json-schema-inferrer/compare/0.1.5...0.2.0
 
