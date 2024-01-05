@@ -2,6 +2,7 @@ package com.saasquatch.jsonschemainferrer;
 
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
+import java.util.regex.Pattern;
 import javax.annotation.Nonnull;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.apache.commons.validator.routines.InetAddressValidator;
@@ -23,6 +24,10 @@ enum BuiltInFormatInferrer implements FormatInferrer {
   },
 
   DATE_TIME {
+
+    private final Pattern timePattern = Pattern.compile(
+        "^(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.\\d+)?(?:Z|[+-](?:0[0-9]|2[0-3]):[0-5][0-9])$");
+
     @Override
     public String inferFormat(@Nonnull FormatInferrerInput input) {
       final String textValue = input.getSample().textValue();
@@ -45,8 +50,7 @@ enum BuiltInFormatInferrer implements FormatInferrer {
           // Ignore
         }
         // The time format is not the same as Java's LocalTime and OffsetTime
-        if (textValue.matches(
-            "^(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.\\d+)?(?:Z|[+-](?:0[0-9]|2[0-3]):[0-5][0-9])$")) {
+        if (timePattern.matcher(textValue).matches()) {
           return Consts.Formats.TIME;
         }
       }
