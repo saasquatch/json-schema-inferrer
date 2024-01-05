@@ -34,9 +34,9 @@ public final class ExamplesPolicies {
 
   /**
    * @param typePredicate The predicate for types. Note that the input of this predicate can be
-   *        null.
+   *                      null.
    * @return An {@link ExamplesPolicy} that takes the first samples with a limit and a
-   *         {@link Predicate} for types.
+   * {@link Predicate} for types.
    */
   @Beta
   public static ExamplesPolicy useFirstSamples(@Nonnegative int limit,

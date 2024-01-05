@@ -14,7 +14,8 @@ public final class FormatInferrerInput {
   private final SpecVersion specVersion;
   private final String path;
 
-  FormatInferrerInput(@Nonnull JsonNode sample, @Nonnull SpecVersion specVersion, @Nonnull String path) {
+  FormatInferrerInput(@Nonnull JsonNode sample, @Nonnull SpecVersion specVersion,
+      @Nonnull String path) {
     this.sample = sample;
     this.specVersion = specVersion;
     this.path = path;

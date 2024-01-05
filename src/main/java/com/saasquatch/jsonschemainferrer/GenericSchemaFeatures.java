@@ -24,8 +24,7 @@ public final class GenericSchemaFeatures {
 
   /**
    * @return An {@link GenericSchemaFeature} that uses the given {@link GenericSchemaFeature}s in
-   *         the given order, overwriting previous results if add-ons with the same field names
-   *         exist.
+   * the given order, overwriting previous results if add-ons with the same field names exist.
    * @throws NullPointerException if the input has null elements
    */
   public static GenericSchemaFeature chained(@Nonnull GenericSchemaFeature... features) {

@@ -16,6 +16,7 @@ interface Consts {
    * Field names
    */
   interface Fields {
+
     String TYPE = "type";
     String ITEMS = "items";
     String ANY_OF = "anyOf";
@@ -46,6 +47,7 @@ interface Consts {
    * Type names
    */
   interface Types {
+
     String OBJECT = "object";
     String ARRAY = "array";
     String STRING = "string";
@@ -61,6 +63,7 @@ interface Consts {
    * Format names
    */
   interface Formats {
+
     String EMAIL = "email";
     String IPV4 = "ipv4";
     String IPV6 = "ipv6";
@@ -70,6 +73,7 @@ interface Consts {
   }
 
   interface JsonPath {
+
     String ROOT = "$";
   }
 

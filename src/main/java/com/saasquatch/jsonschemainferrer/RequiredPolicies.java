@@ -26,7 +26,7 @@ public final class RequiredPolicies {
 
   /**
    * @return A singleton {@link RequiredPolicy} that sets {@code required} to field names common to
-   *         the given samples.
+   * the given samples.
    */
   public static RequiredPolicy commonFields() {
     return input -> handleCommonFields(input, false);
@@ -34,7 +34,7 @@ public final class RequiredPolicies {
 
   /**
    * @return A singleton {@link RequiredPolicy} that sets {@code required} to field names common to
-   *         the given samples that are not null.
+   * the given samples that are not null.
    */
   public static RequiredPolicy nonNullCommonFields() {
     return input -> handleCommonFields(input, true);

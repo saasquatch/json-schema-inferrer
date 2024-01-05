@@ -10,7 +10,8 @@ import java.math.BigInteger;
  */
 public final class MultipleOfPolicies {
 
-  private MultipleOfPolicies() {}
+  private MultipleOfPolicies() {
+  }
 
   /**
    * @return a singleton {@link MultipleOfPolicy} that does nothing.
@@ -21,7 +22,7 @@ public final class MultipleOfPolicies {
 
   /**
    * @return a singleton {@link MultipleOfPolicy} that uses the GCD of number samples as
-   *         {@code multipleOf}.
+   * {@code multipleOf}.
    */
   public static MultipleOfPolicy gcd() {
     return input -> {

@@ -46,7 +46,7 @@ public final class FormatInferrers {
 
   /**
    * @return A {@link FormatInferrer} that uses the given {@link FormatInferrer}s in the original
-   *         order, and uses the first non-null result available.
+   * order, and uses the first non-null result available.
    * @throws NullPointerException if the input has null elements
    */
   public static FormatInferrer chained(@Nonnull FormatInferrer... formatInferrers) {
