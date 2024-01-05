@@ -2,6 +2,16 @@
 
 ## [Unreleased]
 
+## [0.2.1] - 2024-01-05
+
+### Added
+
+- (Beta) Added support for JSON Path
+
+### Changed
+
+- Internal dependency version bumps.
+
 ## [0.2.0] - 2023-04-24
 
 ### Changed
