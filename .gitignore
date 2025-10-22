@@ -33,3 +33,5 @@ buildNumber.properties
 .gradletasknamecache
 .m2
 build/
+
+.DS_Store
