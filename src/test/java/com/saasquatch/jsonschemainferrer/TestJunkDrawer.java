@@ -4,7 +4,6 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Streams;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,7 +28,7 @@ public final class TestJunkDrawer {
       new com.fasterxml.jackson.databind.ObjectMapper();
 
   public static Set<String> toStringSet(JsonNode arrayNode) {
-    return Streams.stream(arrayNode)
+    return arrayNode.valueStream()
         .filter(Objects::nonNull)
         .map(JsonNode::stringValueOpt)
         .flatMap(Optional::stream)
