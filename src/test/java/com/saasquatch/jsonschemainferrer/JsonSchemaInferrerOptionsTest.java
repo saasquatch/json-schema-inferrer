@@ -408,7 +408,7 @@ public class JsonSchemaInferrerOptionsTest {
           .setExamplesPolicy(ExamplesPolicies.useFirstSamples(3))
           .build();
       final ObjectNode schema = inferrer.inferForSamples(IntStream.range(0, 5)
-          .mapToObj(Integer::toString).map(jnf::textNode).collect(Collectors.toList()));
+          .mapToObj(Integer::toString).map(jnf::stringNode).collect(Collectors.toList()));
       assertNull(schema.get("examples"));
     }
     {
@@ -417,7 +417,7 @@ public class JsonSchemaInferrerOptionsTest {
           .setExamplesPolicy(ExamplesPolicies.useFirstSamples(3))
           .build();
       final ObjectNode schema = inferrer.inferForSamples(IntStream.range(0, 5)
-          .mapToObj(Integer::toString).map(jnf::textNode).collect(Collectors.toList()));
+          .mapToObj(Integer::toString).map(jnf::stringNode).collect(Collectors.toList()));
       assertEquals(ImmutableSet.of("0", "1", "2"), toStringSet(schema.path("examples")));
     }
     {
@@ -426,7 +426,7 @@ public class JsonSchemaInferrerOptionsTest {
           .setExamplesPolicy(ExamplesPolicies.useFirstSamples(3, "boolean"::equals))
           .build();
       final ObjectNode schema = inferrer.inferForSamples(IntStream.range(0, 5)
-          .mapToObj(Integer::toString).map(jnf::textNode).collect(Collectors.toList()));
+          .mapToObj(Integer::toString).map(jnf::stringNode).collect(Collectors.toList()));
       assertNull(schema.get("examples"));
     }
     {
@@ -441,7 +441,7 @@ public class JsonSchemaInferrerOptionsTest {
           .setExamplesPolicy(ExamplesPolicies.useFirstSamples(3, "string"::equals))
           .build();
       final ObjectNode schema = inferrer.inferForSamples(IntStream.range(0, 5)
-          .mapToObj(Integer::toString).map(jnf::textNode).collect(Collectors.toList()));
+          .mapToObj(Integer::toString).map(jnf::stringNode).collect(Collectors.toList()));
       assertEquals(ImmutableSet.of("0", "1", "2"), toStringSet(schema.path("examples")));
     }
     {
@@ -452,7 +452,7 @@ public class JsonSchemaInferrerOptionsTest {
             return null;
           })
           .build();
-      inferrer.inferForSamples(IntStream.range(0, 5).mapToObj(Integer::toString).map(jnf::textNode)
+      inferrer.inferForSamples(IntStream.range(0, 5).mapToObj(Integer::toString).map(jnf::stringNode)
           .collect(Collectors.toList()));
     }
     {
