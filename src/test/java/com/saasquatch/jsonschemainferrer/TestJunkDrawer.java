@@ -13,6 +13,7 @@ import java.io.UncheckedIOException;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
@@ -29,7 +30,9 @@ public final class TestJunkDrawer {
 
   public static Set<String> toStringSet(JsonNode arrayNode) {
     return Streams.stream(arrayNode)
-        .map(JsonNode::textValue)
+        .filter(Objects::nonNull)
+        .map(JsonNode::stringValueOpt)
+        .flatMap(Optional::stream)
         .collect(ImmutableSet.toImmutableSet());
   }
 

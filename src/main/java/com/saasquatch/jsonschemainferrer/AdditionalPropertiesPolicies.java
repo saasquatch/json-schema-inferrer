@@ -4,14 +4,14 @@ import static com.saasquatch.jsonschemainferrer.JunkDrawer.newObject;
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.stream;
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.stringColToArrayDistinct;
 
-import tools.jackson.databind.JsonNode;
-import tools.jackson.databind.node.JsonNodeFactory;
-import tools.jackson.databind.node.ObjectNode;
 import com.saasquatch.jsonschemainferrer.annotations.Beta;
-import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 
 /**
  * Utilities for {@link AdditionalPropertiesPolicy}
@@ -60,8 +60,8 @@ public final class AdditionalPropertiesPolicies {
               return Stream.of(typeNode.stringValue(null));
             } else if (typeNode.isArray()) {
               return stream(typeNode)
-                  .map(JsonNode::textValue)
-                  .filter(Objects::nonNull);
+                  .map(JsonNode::stringValueOpt)
+                  .flatMap(Optional::stream);
             }
             return Stream.empty();
           })
