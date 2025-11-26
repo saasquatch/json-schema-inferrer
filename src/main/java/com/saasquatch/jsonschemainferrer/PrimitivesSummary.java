@@ -1,11 +1,11 @@
 package com.saasquatch.jsonschemainferrer;
 
-import tools.jackson.databind.JsonNode;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.NotThreadSafe;
+import tools.jackson.databind.JsonNode;
 
 /**
  * Helper class for keeping track of primitive samples

@@ -1,11 +1,11 @@
 package com.saasquatch.jsonschemainferrer;
 
-import tools.jackson.databind.JsonNode;
-import tools.jackson.databind.node.ObjectNode;
 import com.saasquatch.jsonschemainferrer.annotations.Beta;
 import java.util.Collection;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ObjectNode;
 
 /**
  * Input for {@link GenericSchemaFeature}

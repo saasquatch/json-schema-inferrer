@@ -2,9 +2,9 @@ package com.saasquatch.jsonschemainferrer;
 
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.newObject;
 
-import tools.jackson.databind.node.ObjectNode;
 import java.util.Objects;
 import javax.annotation.Nonnull;
+import tools.jackson.databind.node.ObjectNode;
 
 /**
  * Utilities for {@link GenericSchemaFeature}
