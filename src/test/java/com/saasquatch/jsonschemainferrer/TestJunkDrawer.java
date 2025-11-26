@@ -2,9 +2,6 @@ package com.saasquatch.jsonschemainferrer;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Streams;
@@ -17,6 +14,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.JsonNodeFactory;
 
 public final class TestJunkDrawer {
 
@@ -24,6 +24,8 @@ public final class TestJunkDrawer {
 
   public static final JsonNodeFactory jnf = JsonNodeFactory.instance;
   public static final ObjectMapper mapper = new ObjectMapper();
+  public static final com.fasterxml.jackson.databind.ObjectMapper mapper2 =
+      new com.fasterxml.jackson.databind.ObjectMapper();
 
   public static Set<String> toStringSet(JsonNode arrayNode) {
     return Streams.stream(arrayNode)
@@ -50,6 +52,17 @@ public final class TestJunkDrawer {
             new InputStreamReader(Objects.requireNonNull(in), UTF_8))
     ) {
       return br.lines().collect(ImmutableList.toImmutableList());
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
+  }
+
+  public static com.fasterxml.jackson.databind.JsonNode jackson3To2(JsonNode j) {
+    if (j == null) {
+      return null;
+    }
+    try {
+      return mapper2.readTree(mapper.writeValueAsString(j));
     } catch (IOException e) {
       throw new UncheckedIOException(e);
     }

@@ -2,12 +2,13 @@ package com.saasquatch.jsonschemainferrer;
 
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.format;
 import static com.saasquatch.jsonschemainferrer.TestJunkDrawer.getResourceNamesUnderDir;
+import static com.saasquatch.jsonschemainferrer.TestJunkDrawer.jackson3To2;
 import static com.saasquatch.jsonschemainferrer.TestJunkDrawer.loadJson;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ObjectNode;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
@@ -59,11 +60,13 @@ public class JsonSchemaInferrerExamplesTest {
   }
 
   private static List<String> validateJsonSchema(JsonNode schemaJson, JsonNode instance) {
-    final SchemaValidatorsConfig schemaValidatorsConfig = new SchemaValidatorsConfig();
-    schemaValidatorsConfig.setPathType(PathType.JSON_POINTER);
-    return JsonSchemaFactory.getInstance(SpecVersionDetector.detect(schemaJson))
-        .getSchema(schemaJson, schemaValidatorsConfig)
-        .validate(instance)
+    final com.fasterxml.jackson.databind.JsonNode schemaJson2 = jackson3To2(schemaJson);
+    final SchemaValidatorsConfig schemaValidatorsConfig = SchemaValidatorsConfig.builder()
+        .pathType(PathType.JSON_POINTER)
+        .build();
+    return JsonSchemaFactory.getInstance(SpecVersionDetector.detect(schemaJson2))
+        .getSchema(schemaJson2, schemaValidatorsConfig)
+        .validate(jackson3To2(instance))
         .stream()
         .map(ValidationMessage::getMessage)
         .collect(ImmutableList.toImmutableList());

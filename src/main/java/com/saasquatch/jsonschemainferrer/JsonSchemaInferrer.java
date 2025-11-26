@@ -9,15 +9,8 @@ import static com.saasquatch.jsonschemainferrer.JunkDrawer.isNull;
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.isTextualFloat;
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.newArray;
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.newObject;
-import static com.saasquatch.jsonschemainferrer.JunkDrawer.stream;
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.stringColToArrayDistinct;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.JsonNodeType;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.ValueNode;
 import com.saasquatch.jsonschemainferrer.annotations.VisibleForTesting;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -30,6 +23,12 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.JsonNodeType;
+import tools.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.node.ValueNode;
 
 /**
  * Infer JSON schema based on sample JSONs. This class is immutable and thread safe.
@@ -252,8 +251,8 @@ public final class JsonSchemaInferrer {
     }
     // Put the combined examples and default back into the result schema
     for (ObjectNode anyOf : anyOfs) {
-      final String type = anyOf.path(Consts.Fields.TYPE).textValue();
-      final String format = anyOf.path(Consts.Fields.FORMAT).textValue();
+      final String type = anyOf.path(Consts.Fields.TYPE).stringValue(null);
+      final String format = anyOf.path(Consts.Fields.FORMAT).stringValue(null);
       @Nonnull final PrimitivesSummary primitivesSummary =
           Objects.requireNonNull(primitivesSummaryMap.getPrimitivesSummary(type, format));
       processGenericSchemaFeature(anyOf, primitivesSummary.getSamples(), type, path);
@@ -323,11 +322,10 @@ public final class JsonSchemaInferrer {
     final Set<String> simpleTypes = new HashSet<>();
     final Collection<ObjectNode> simpleAnyOfs = new ArrayList<>();
     for (ObjectNode anyOf : anyOfs) {
-      final Set<String> anyOfSchemaFieldNames =
-          stream(anyOf.fieldNames()).collect(Collectors.toSet());
+      final Set<String> anyOfSchemaFieldNames = new HashSet<>(anyOf.propertyNames());
       if (anyOfSchemaFieldNames.equals(Consts.Fields.SINGLETON_TYPE)) {
         simpleAnyOfs.add(anyOf);
-        simpleTypes.add(anyOf.path(Consts.Fields.TYPE).textValue());
+        simpleTypes.add(anyOf.path(Consts.Fields.TYPE).stringValue(null));
       }
     }
     // Combine all the simple types into an array

@@ -30,7 +30,7 @@ enum BuiltInFormatInferrer implements FormatInferrer {
 
     @Override
     public String inferFormat(@Nonnull FormatInferrerInput input) {
-      final String textValue = input.getSample().textValue();
+      final String textValue = input.getSample().stringValue(null);
       if (textValue == null) {
         return null;
       }
@@ -61,7 +61,7 @@ enum BuiltInFormatInferrer implements FormatInferrer {
   EMAIL {
     @Override
     public String inferFormat(@Nonnull FormatInferrerInput input) {
-      final String textValue = input.getSample().textValue();
+      final String textValue = input.getSample().stringValue(null);
       if (textValue == null) {
         return null;
       }
@@ -75,7 +75,7 @@ enum BuiltInFormatInferrer implements FormatInferrer {
   IP {
     @Override
     public String inferFormat(@Nonnull FormatInferrerInput input) {
-      final String textValue = input.getSample().textValue();
+      final String textValue = input.getSample().stringValue(null);
       if (textValue == null) {
         return null;
       }

@@ -13,10 +13,10 @@ Java library for inferring JSON schema based on sample JSONs.
 ## Sample usage
 
 ```java
-import java.util.Arrays;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.saasquatch.jsonschemainferrer.*;
+import java.util.Arrays;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 public class Example {
 

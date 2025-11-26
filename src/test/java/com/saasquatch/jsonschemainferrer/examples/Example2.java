@@ -1,8 +1,5 @@
 package com.saasquatch.jsonschemainferrer.examples;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.saasquatch.jsonschemainferrer.AdditionalPropertiesPolicies;
 import com.saasquatch.jsonschemainferrer.ArrayLengthFeature;
 import com.saasquatch.jsonschemainferrer.EnumExtractors;
@@ -18,6 +15,7 @@ import com.saasquatch.jsonschemainferrer.RequiredPolicies;
 import com.saasquatch.jsonschemainferrer.SpecVersion;
 import com.saasquatch.jsonschemainferrer.StringLengthFeature;
 import com.saasquatch.jsonschemainferrer.TitleDescriptionGenerators;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
 import java.time.DayOfWeek;
@@ -27,6 +25,9 @@ import java.util.EnumSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.ObjectNode;
 
 public class Example2 {
 
@@ -59,12 +60,12 @@ public class Example2 {
       .build();
 
   private static String absoluteUriFormatInferrer(@Nonnull FormatInferrerInput input) {
-    final String textValue = input.getSample().textValue();
+    final String textValue = input.getSample().stringValue(null);
     if (textValue == null) {
       return null;
     }
     try {
-      final URI uri = new URI(input.getSample().textValue());
+      final URI uri = new URI(input.getSample().stringValue(null));
       if (uri.isAbsolute()) {
         return "uri";
       }
@@ -75,10 +76,13 @@ public class Example2 {
   }
 
   public static void main(String[] args) throws Exception {
-    final JsonNode sample = mapper.readTree(new URL(
-        "https://cdn.jsdelivr.net/gh/quicktype/quicktype@3ea476df5c1c4a6821d3cca7c1de359724a90a92/test/inputs/json/samples/reddit.json"));
-    final ObjectNode schema = inferrer.inferForSample(sample);
-    System.out.println(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(schema));
+    try (InputStream inputStream = new URL(
+        "https://cdn.jsdelivr.net/gh/quicktype/quicktype@3ea476df5c1c4a6821d3cca7c1de359724a90a92/test/inputs/json/samples/reddit.json")
+        .openStream()) {
+      final JsonNode sample = mapper.readTree(inputStream);
+      final ObjectNode schema = inferrer.inferForSample(sample);
+      System.out.println(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(schema));
+    }
   }
 
 }

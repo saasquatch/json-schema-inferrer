@@ -4,7 +4,7 @@ import static com.saasquatch.jsonschemainferrer.TestJunkDrawer.jnf;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.function.Predicate;
@@ -16,7 +16,7 @@ public class IntegerTypeCriterionTest {
   public void testNonFloatingPoint() {
     final Predicate<JsonNode> cr = j -> IntegerTypeCriteria.nonFloatingPoint()
         .isInteger(new IntegerTypeCriterionInput(j, SpecVersion.DRAFT_06));
-    assertFalse(cr.test(jnf.textNode("")));
+    assertFalse(cr.test(jnf.stringNode("")));
     assertTrue(cr.test(jnf.numberNode(1)));
     assertTrue(cr.test(jnf.numberNode(1L)));
     assertFalse(cr.test(jnf.numberNode(BigDecimal.valueOf(0L))));
@@ -37,7 +37,7 @@ public class IntegerTypeCriterionTest {
   public void testMathematicalInteger() {
     final Predicate<JsonNode> cr = j -> IntegerTypeCriteria.mathematicalInteger()
         .isInteger(new IntegerTypeCriterionInput(j, SpecVersion.DRAFT_06));
-    assertFalse(cr.test(jnf.textNode("")));
+    assertFalse(cr.test(jnf.stringNode("")));
     assertTrue(cr.test(jnf.numberNode(1)));
     assertTrue(cr.test(jnf.numberNode(1L)));
     assertTrue(cr.test(jnf.numberNode(BigDecimal.valueOf(0L))));

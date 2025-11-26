@@ -2,7 +2,7 @@ package com.saasquatch.jsonschemainferrer;
 
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.isValidEnum;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import com.saasquatch.jsonschemainferrer.annotations.Beta;
 import java.util.Arrays;
 import java.util.Collections;
@@ -36,7 +36,7 @@ public final class EnumExtractors {
     Objects.requireNonNull(enumClass);
     return input -> {
       final Set<? extends JsonNode> enumNodes = input.getSamples().stream()
-          .filter(j -> isValidEnum(enumClass, j.textValue()))
+          .filter(j -> isValidEnum(enumClass, j.stringValue(null)))
           .collect(Collectors.toSet());
       return enumNodes.isEmpty() ? Collections.emptySet() : Collections.singleton(enumNodes);
     };

@@ -1,16 +1,5 @@
 package com.saasquatch.jsonschemainferrer;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.BigIntegerNode;
-import com.fasterxml.jackson.databind.node.BinaryNode;
-import com.fasterxml.jackson.databind.node.DecimalNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.NumericNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.POJONode;
-import com.fasterxml.jackson.databind.node.TextNode;
-import com.fasterxml.jackson.databind.node.ValueNode;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.AbstractMap;
@@ -29,6 +18,15 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.BinaryNode;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.NumericNode;
+import tools.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.node.POJONode;
+import tools.jackson.databind.node.StringNode;
+import tools.jackson.databind.node.ValueNode;
 
 /**
  * Exactly what it sounds like. NOT PUBLIC!!!
@@ -155,7 +153,8 @@ final class JunkDrawer {
    */
   static Set<String> getAllFieldNames(@Nonnull Iterable<? extends JsonNode> objectNodes) {
     return stream(objectNodes)
-        .flatMap(j -> stream(j.fieldNames()))
+        .map(JsonNode::propertyNames)
+        .flatMap(Collection::stream)
         .filter(Objects::nonNull)
         .collect(Collectors.toCollection(LinkedHashSet::new));
   }
@@ -179,7 +178,7 @@ final class JunkDrawer {
       boolean requireNonNull) {
     Set<String> commonFieldNames = null;
     for (JsonNode sample : samples) {
-      final Set<String> fieldNames = stream(sample.fieldNames())
+      final Set<String> fieldNames = sample.propertyNames().stream()
           .filter(Objects::nonNull)
           .filter(requireNonNull
               ? fieldName -> nonNull(sample.get(fieldName))
@@ -207,13 +206,13 @@ final class JunkDrawer {
    */
   static int getSerializedTextLength(@Nonnull JsonNode jsonNode) {
     if (jsonNode instanceof BinaryNode) {
-      final byte[] binaryValue = ((BinaryNode) jsonNode).binaryValue();
+      final byte[] binaryValue = jsonNode.binaryValue();
       return getBase64Length(binaryValue.length);
     } else if (isTextualFloat(jsonNode)) {
       // Handle NaN and infinity
-      return jsonNode.asText().length();
+      return jsonNode.asString().length();
     }
-    final String textValue = jsonNode.textValue();
+    final String textValue = jsonNode.stringValue(null);
     if (textValue == null) {
       return -1;
     }
@@ -264,19 +263,11 @@ final class JunkDrawer {
 
   /**
    * @return Whether the input {@link JsonNode} is null or is to be serialized as null, like a
-   * {@link TextNode} with a null String.
+   * {@link StringNode} with a null String.
    */
   static boolean isNull(@Nullable JsonNode j) {
     if (j == null || j.isNull() || j.isMissingNode()) {
       return true;
-    } else if (j instanceof TextNode) {
-      return j.textValue() == null;
-    } else if (j instanceof BinaryNode) {
-      return ((BinaryNode) j).binaryValue() == null;
-    } else if (j instanceof BigIntegerNode) {
-      return j.bigIntegerValue() == null;
-    } else if (j instanceof DecimalNode) {
-      return j.decimalValue() == null;
     } else if (j instanceof POJONode) {
       return ((POJONode) j).getPojo() == null;
     }

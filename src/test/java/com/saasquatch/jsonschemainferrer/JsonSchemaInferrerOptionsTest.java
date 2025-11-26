@@ -11,8 +11,8 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ObjectNode;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import java.math.BigDecimal;
@@ -72,7 +72,7 @@ public class JsonSchemaInferrerOptionsTest {
   public void testFormatInferrers() {
     // Fake format inferrer that always uses the string length as the format
     final FormatInferrer testStrLenFormatInferrer = input -> {
-      final String textValue = input.getSample().textValue();
+      final String textValue = input.getSample().stringValue(null);
       assertNotNull(input.getSpecVersion());
       if (textValue == null) {
         return null;
@@ -89,62 +89,62 @@ public class JsonSchemaInferrerOptionsTest {
         .addFormatInferrers(FormatInferrers.dateTime())
         .setSpecVersion(SpecVersion.DRAFT_07)
         .build()
-        .inferForSample(jnf.textNode("aaaaaaaaa"))
-        .path("format").textValue());
+        .inferForSample(jnf.stringNode("aaaaaaaaa"))
+        .path("format").stringValue(null));
     assertEquals("date-time", JsonSchemaInferrer.newBuilder()
         .addFormatInferrers(FormatInferrers.dateTime())
         .build()
-        .inferForSample(jnf.textNode(Instant.now().toString()))
-        .path("format").textValue());
+        .inferForSample(jnf.stringNode(Instant.now().toString()))
+        .path("format").stringValue(null));
     assertNull(JsonSchemaInferrer.newBuilder()
         .addFormatInferrers(FormatInferrers.dateTime())
         .setSpecVersion(SpecVersion.DRAFT_06)
         .build()
-        .inferForSample(jnf.textNode("1900-01-01"))
-        .path("format").textValue());
+        .inferForSample(jnf.stringNode("1900-01-01"))
+        .path("format").stringValue(null));
     assertEquals("date", JsonSchemaInferrer.newBuilder()
         .addFormatInferrers(FormatInferrers.dateTime())
         .setSpecVersion(SpecVersion.DRAFT_07)
         .build()
-        .inferForSample(jnf.textNode("1900-01-01"))
-        .path("format").textValue());
+        .inferForSample(jnf.stringNode("1900-01-01"))
+        .path("format").stringValue(null));
     assertNull(JsonSchemaInferrer.newBuilder()
         .addFormatInferrers(FormatInferrers.dateTime())
         .setSpecVersion(SpecVersion.DRAFT_06)
         .build()
-        .inferForSample(jnf.textNode("20:20:39"))
-        .path("format").textValue());
+        .inferForSample(jnf.stringNode("20:20:39"))
+        .path("format").stringValue(null));
     assertEquals("time", JsonSchemaInferrer.newBuilder()
         .addFormatInferrers(FormatInferrers.dateTime())
         .setSpecVersion(SpecVersion.DRAFT_07).build()
-        .inferForSample(jnf.textNode("20:20:39+01:23"))
-        .path("format").textValue());
+        .inferForSample(jnf.stringNode("20:20:39+01:23"))
+        .path("format").stringValue(null));
     assertEquals("time", JsonSchemaInferrer.newBuilder()
         .addFormatInferrers(FormatInferrers.dateTime())
         .setSpecVersion(SpecVersion.DRAFT_07).build()
-        .inferForSample(jnf.textNode("20:20:39+00:00"))
-        .path("format").textValue());
+        .inferForSample(jnf.stringNode("20:20:39+00:00"))
+        .path("format").stringValue(null));
     {
       final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
           .addFormatInferrers(FormatInferrers.chained(
               FormatInferrers.dateTime(), testStrLenFormatInferrer))
           .build();
-      assertEquals("date-time", inferrer.inferForSample(jnf.textNode(Instant.now().toString()))
-          .path("format").textValue());
-      assertEquals("0", inferrer.inferForSample(jnf.textNode("")).path("format").textValue());
+      assertEquals("date-time", inferrer.inferForSample(jnf.stringNode(Instant.now().toString()))
+          .path("format").stringValue(null));
+      assertEquals("0", inferrer.inferForSample(jnf.stringNode("")).path("format").stringValue(null));
     }
     {
       final JsonSchemaInferrer inferrer =
           JsonSchemaInferrer.newBuilder().addFormatInferrers(FormatInferrers.ip()).build();
       assertEquals("ipv4",
-          inferrer.inferForSample(jnf.textNode("12.34.56.78")).path("format").textValue());
+          inferrer.inferForSample(jnf.stringNode("12.34.56.78")).path("format").stringValue(null));
       assertEquals("ipv6",
-          inferrer.inferForSample(jnf.textNode("2001:0db8:85a3:0000:0000:8a2e:0370:7334"))
-              .path("format").textValue());
+          inferrer.inferForSample(jnf.stringNode("2001:0db8:85a3:0000:0000:8a2e:0370:7334"))
+              .path("format").stringValue(null));
       assertEquals("ipv6",
-          inferrer.inferForSample(jnf.textNode("a::F")).path("format").textValue());
-      assertEquals("ipv6", inferrer.inferForSample(jnf.textNode("5::")).path("format").textValue());
-      assertEquals("ipv6", inferrer.inferForSample(jnf.textNode("::")).path("format").textValue());
+          inferrer.inferForSample(jnf.stringNode("a::F")).path("format").stringValue(null));
+      assertEquals("ipv6", inferrer.inferForSample(jnf.stringNode("5::")).path("format").stringValue(null));
+      assertEquals("ipv6", inferrer.inferForSample(jnf.stringNode("::")).path("format").stringValue(null));
     }
     {
       final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
@@ -152,7 +152,7 @@ public class JsonSchemaInferrerOptionsTest {
               FormatInferrers.noOp(), FormatInferrers.noOp(), FormatInferrers.noOp(),
               FormatInferrers.ip(), FormatInferrers.email()))
           .build();
-      assertNull(inferrer.inferForSample(jnf.textNode(Instant.now().toString())).get("format"));
+      assertNull(inferrer.inferForSample(jnf.stringNode(Instant.now().toString())).get("format"));
     }
     {
       final String dateTimeString = Instant.now().toString();
@@ -161,8 +161,8 @@ public class JsonSchemaInferrerOptionsTest {
               testStrLenFormatInferrer, FormatInferrers.dateTime()))
           .build();
       assertEquals(String.valueOf(dateTimeString.length()),
-          inferrer.inferForSample(jnf.textNode(dateTimeString)).path("format").textValue());
-      assertEquals("0", inferrer.inferForSample(jnf.textNode("")).path("format").textValue());
+          inferrer.inferForSample(jnf.stringNode(dateTimeString)).path("format").stringValue(null));
+      assertEquals("0", inferrer.inferForSample(jnf.stringNode("")).path("format").stringValue(null));
     }
   }
 
@@ -219,8 +219,8 @@ public class JsonSchemaInferrerOptionsTest {
       final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
           .setIntegerTypePreference(IntegerTypePreference.IF_ALL)
           .build();
-      assertEquals("number", inferrer.inferForSamples(intAndFloats).path("type").textValue());
-      assertEquals("integer", inferrer.inferForSamples(intsOnly).path("type").textValue());
+      assertEquals("number", inferrer.inferForSamples(intAndFloats).path("type").stringValue(null));
+      assertEquals("integer", inferrer.inferForSamples(intsOnly).path("type").stringValue(null));
     }
     {
       final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
@@ -228,14 +228,14 @@ public class JsonSchemaInferrerOptionsTest {
           .build();
       assertEquals(ImmutableSet.of("integer", "number"),
           toStringSet(inferrer.inferForSamples(intAndFloats).path("type")));
-      assertEquals("integer", inferrer.inferForSamples(intsOnly).path("type").textValue());
+      assertEquals("integer", inferrer.inferForSamples(intsOnly).path("type").stringValue(null));
     }
     {
       final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
           .setIntegerTypePreference(IntegerTypePreference.NEVER)
           .build();
-      assertEquals("number", inferrer.inferForSamples(intAndFloats).path("type").textValue());
-      assertEquals("number", inferrer.inferForSamples(intsOnly).path("type").textValue());
+      assertEquals("number", inferrer.inferForSamples(intAndFloats).path("type").stringValue(null));
+      assertEquals("number", inferrer.inferForSamples(intsOnly).path("type").stringValue(null));
     }
   }
 
@@ -251,7 +251,7 @@ public class JsonSchemaInferrerOptionsTest {
           .setIntegerTypePreference(IntegerTypePreference.IF_ANY)
           .build();
       assertEquals("integer",
-          inferrer.inferForSample(jnf.numberNode(1.0)).path("type").textValue());
+          inferrer.inferForSample(jnf.numberNode(1.0)).path("type").stringValue(null));
     }
   }
 
@@ -307,7 +307,7 @@ public class JsonSchemaInferrerOptionsTest {
           .setTitleDescriptionGenerator(TitleDescriptionGenerators.useFieldNamesAsTitles())
           .build();
       assertEquals("fieldName", inferrer.inferForSample(sample).path("properties").path("fieldName")
-          .get("title").textValue());
+          .get("title").stringValue(null));
     }
     {
       final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
@@ -341,7 +341,7 @@ public class JsonSchemaInferrerOptionsTest {
           })
           .build();
       assertEquals("FIELDNAME", inferrer.inferForSample(sample).path("properties").path("fieldName")
-          .get("title").textValue());
+          .get("title").stringValue(null));
     }
     {
       final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
@@ -361,14 +361,14 @@ public class JsonSchemaInferrerOptionsTest {
 
           }).build();
       assertEquals("FIELDNAME", inferrer.inferForSample(sample).path("properties").path("fieldName")
-          .get("description").textValue());
+          .get("description").stringValue(null));
     }
   }
 
   @Test
   public void testDefault() {
     final List<JsonNode> samples =
-        ImmutableList.of(jnf.textNode("a"), jnf.textNode("b"), jnf.textNode("c"));
+        ImmutableList.of(jnf.stringNode("a"), jnf.stringNode("b"), jnf.stringNode("c"));
     {
       final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
           .setDefaultPolicy(DefaultPolicies.noOp())
@@ -388,13 +388,13 @@ public class JsonSchemaInferrerOptionsTest {
       final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
           .setDefaultPolicy(DefaultPolicies.useFirstSamples())
           .build();
-      assertEquals("a", inferrer.inferForSamples(samples).path("default").textValue());
+      assertEquals("a", inferrer.inferForSamples(samples).path("default").stringValue(null));
     }
     {
       final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
           .setDefaultPolicy(DefaultPolicies.useLastSamples())
           .build();
-      assertEquals("c", inferrer.inferForSamples(samples).path("default").textValue());
+      assertEquals("c", inferrer.inferForSamples(samples).path("default").stringValue(null));
     }
   }
 
@@ -477,7 +477,7 @@ public class JsonSchemaInferrerOptionsTest {
         ImmutableList.of(jnf.numberNode(0), jnf.numberNode(0), jnf.numberNode(0));
     final List<JsonNode> samples4 =
         ImmutableList.of(jnf.numberNode(2), jnf.numberNode(4), jnf.numberNode(6.5));
-    final List<JsonNode> samples5 = ImmutableList.of(jnf.textNode("foo"), jnf.textNode("bar"));
+    final List<JsonNode> samples5 = ImmutableList.of(jnf.stringNode("foo"), jnf.stringNode("bar"));
     {
       final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
           .setMultipleOfPolicy(input -> {
@@ -547,7 +547,7 @@ public class JsonSchemaInferrerOptionsTest {
     assertSame(EnumExtractors.noOp(), EnumExtractors.chained());
     assertSame(EnumExtractors.noOp(), EnumExtractors.chained(EnumExtractors.noOp()));
     final List<JsonNode> timeUnitSamples = Stream.of(TimeUnit.DAYS, TimeUnit.HOURS)
-        .map(tu -> jnf.textNode(tu.name())).collect(ImmutableList.toImmutableList());
+        .map(tu -> jnf.stringNode(tu.name())).collect(ImmutableList.toImmutableList());
     {
       final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder().build();
       final ObjectNode schema = inferrer.inferForSamples(timeUnitSamples);
@@ -591,8 +591,8 @@ public class JsonSchemaInferrerOptionsTest {
               }))
           .build();
       final ObjectNode schema =
-          inferrer.inferForSamples(Arrays.asList(jnf.textNode("foo"), jnf.numberNode(123)));
-      assertEquals(ImmutableSet.of(jnf.textNode("foo"), jnf.numberNode(123)),
+          inferrer.inferForSamples(Arrays.asList(jnf.stringNode("foo"), jnf.numberNode(123)));
+      assertEquals(ImmutableSet.of(jnf.stringNode("foo"), jnf.numberNode(123)),
           stream(schema.get("enum")).collect(Collectors.toSet()));
     }
     {
@@ -601,13 +601,13 @@ public class JsonSchemaInferrerOptionsTest {
               EnumExtractors.validEnum(DayOfWeek.class)))
           .build();
       final ObjectNode schema =
-          inferrer.inferForSamples(Arrays.asList(jnf.textNode("TUESDAY"), jnf.textNode("MARCH")));
+          inferrer.inferForSamples(Arrays.asList(jnf.stringNode("TUESDAY"), jnf.stringNode("MARCH")));
       final JsonNode anyOf = schema.get("anyOf");
       assertTrue(anyOf.isArray());
       assertTrue(
-          stream(anyOf).anyMatch(_anyOf -> _anyOf.path("enum").get(0).textValue().equals("MARCH")));
+          stream(anyOf).anyMatch(_anyOf -> _anyOf.path("enum").get(0).stringValue(null).equals("MARCH")));
       assertTrue(stream(anyOf)
-          .anyMatch(_anyOf -> _anyOf.path("enum").get(0).textValue().equals("TUESDAY")));
+          .anyMatch(_anyOf -> _anyOf.path("enum").get(0).stringValue(null).equals("TUESDAY")));
     }
     {
       final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
@@ -669,7 +669,7 @@ public class JsonSchemaInferrerOptionsTest {
   @Test
   public void testStringLengthFeatures() {
     final List<JsonNode> samples =
-        ImmutableList.of(jnf.textNode(""), jnf.textNode("a"), jnf.textNode("foobar"));
+        ImmutableList.of(jnf.stringNode(""), jnf.stringNode("a"), jnf.stringNode("foobar"));
     {
       final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
           .setStringLengthFeatures(EnumSet.of(StringLengthFeature.MIN_LENGTH))
@@ -694,15 +694,15 @@ public class JsonSchemaInferrerOptionsTest {
           .setStringLengthFeatures(EnumSet.allOf(StringLengthFeature.class))
           .build();
       final ObjectNode schema = inferrer.inferForSample(shouldBeText);
-      assertEquals(shouldBeText.asText().length(), schema.path("minLength").intValue());
-      assertEquals(shouldBeText.asText().length(), schema.path("maxLength").intValue());
+      assertEquals(shouldBeText.asString("").length(), schema.path("minLength").intValue());
+      assertEquals(shouldBeText.asString("").length(), schema.path("maxLength").intValue());
     }
   }
 
   @Test
   public void testStringLengthAndFormat() {
     final String dateTimeString = Instant.now().toString();
-    final List<JsonNode> samples = ImmutableList.of(jnf.textNode(dateTimeString));
+    final List<JsonNode> samples = ImmutableList.of(jnf.stringNode(dateTimeString));
     final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
         .setStringLengthFeatures(EnumSet.allOf(StringLengthFeature.class))
         .addFormatInferrers(FormatInferrers.dateTime())
@@ -710,7 +710,7 @@ public class JsonSchemaInferrerOptionsTest {
     final ObjectNode schema = inferrer.inferForSamples(samples);
     assertEquals(dateTimeString.length(), schema.path("minLength").intValue());
     assertEquals(dateTimeString.length(), schema.path("maxLength").intValue());
-    assertEquals("date-time", schema.path("format").textValue());
+    assertEquals("date-time", schema.path("format").stringValue(null));
   }
 
   @Test
@@ -750,7 +750,7 @@ public class JsonSchemaInferrerOptionsTest {
         .addGenericSchemaFeatures(GenericSchemaFeatures.noOp())
         .build();
     final ObjectNode schema = inferrer.inferForSample(null);
-    assertEquals("bar", schema.path("foo").textValue());
+    assertEquals("bar", schema.path("foo").stringValue(null));
   }
 
 }

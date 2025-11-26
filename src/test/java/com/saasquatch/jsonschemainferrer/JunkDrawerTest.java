@@ -14,15 +14,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.BigIntegerNode;
-import com.fasterxml.jackson.databind.node.BinaryNode;
-import com.fasterxml.jackson.databind.node.DecimalNode;
-import com.fasterxml.jackson.databind.node.NumericNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.POJONode;
-import com.fasterxml.jackson.databind.node.TextNode;
-import com.fasterxml.jackson.databind.node.ValueNode;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Arrays;
@@ -32,6 +23,14 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.BigIntegerNode;
+import tools.jackson.databind.node.BinaryNode;
+import tools.jackson.databind.node.DecimalNode;
+import tools.jackson.databind.node.NumericNode;
+import tools.jackson.databind.node.POJONode;
+import tools.jackson.databind.node.StringNode;
+import tools.jackson.databind.node.ValueNode;
 
 public class JunkDrawerTest {
 
@@ -52,13 +51,6 @@ public class JunkDrawerTest {
     assertEquals(Collections.singleton("a"),
         getCommonFieldNames(Arrays.asList(jnf.objectNode().put("a", 1).put("b", 2),
             jnf.objectNode().put("a", 1).put("b", (String) null)), true));
-    {
-      final TextNode nullTextNode = new TextNode(null);
-      final ObjectNode j1 = jnf.objectNode();
-      j1.set("a", nullTextNode);
-      assertEquals(Collections.emptySet(),
-          getCommonFieldNames(Arrays.asList(j1, jnf.objectNode().put("a", "a")), true));
-    }
   }
 
   @Test
@@ -96,7 +88,7 @@ public class JunkDrawerTest {
       final byte[] bytes = new byte[i];
       ThreadLocalRandom.current().nextBytes(bytes);
       assertEquals(getBase64Length(i), Base64.getEncoder().encodeToString(bytes).length());
-      assertEquals(getBase64Length(i), jnf.binaryNode(bytes).asText().length());
+      assertEquals(getBase64Length(i), jnf.binaryNode(bytes).asString("").length());
     }
   }
 
@@ -115,8 +107,8 @@ public class JunkDrawerTest {
     assertEquals("-infinity".length(),
         getSerializedTextLength(jnf.numberNode(Double.NEGATIVE_INFINITY)));
     assertEquals(-1, getSerializedTextLength(jnf.objectNode().put("1", "1")));
-    assertEquals(0, getSerializedTextLength(jnf.textNode("")));
-    assertEquals(1, getSerializedTextLength(jnf.textNode("😂")));
+    assertEquals(0, getSerializedTextLength(jnf.stringNode("")));
+    assertEquals(1, getSerializedTextLength(jnf.stringNode("😂")));
   }
 
   @Test
@@ -124,13 +116,9 @@ public class JunkDrawerTest {
     assertTrue(isNull(null));
     assertTrue(isNull(jnf.nullNode()));
     assertTrue(isNull(jnf.missingNode()));
-    assertTrue(isNull(new TextNode(null)));
-    assertFalse(isNull(new TextNode("")));
-    assertTrue(isNull(new BinaryNode(null)));
+    assertFalse(isNull(new StringNode("")));
     assertFalse(isNull(new BinaryNode(new byte[0])));
-    assertTrue(isNull(new BigIntegerNode(null)));
     assertFalse(isNull(new BigIntegerNode(BigInteger.ZERO)));
-    assertTrue(isNull(new DecimalNode(null)));
     assertFalse(isNull(new DecimalNode(BigDecimal.ZERO)));
     assertTrue(isNull(new POJONode(null)));
     assertFalse(isNull(new POJONode(0)));

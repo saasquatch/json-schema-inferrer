@@ -4,9 +4,9 @@ import static com.saasquatch.jsonschemainferrer.JunkDrawer.newObject;
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.stream;
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.stringColToArrayDistinct;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 import com.saasquatch.jsonschemainferrer.annotations.Beta;
 import java.util.Objects;
 import java.util.Set;
@@ -57,7 +57,7 @@ public final class AdditionalPropertiesPolicies {
           .map(j -> j.path(Consts.Fields.TYPE))
           .flatMap(typeNode -> {
             if (typeNode.isTextual()) {
-              return Stream.of(typeNode.textValue());
+              return Stream.of(typeNode.stringValue(null));
             } else if (typeNode.isArray()) {
               return stream(typeNode)
                   .map(JsonNode::textValue)

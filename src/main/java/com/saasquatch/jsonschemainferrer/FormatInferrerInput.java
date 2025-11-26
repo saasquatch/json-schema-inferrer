@@ -1,6 +1,6 @@
 package com.saasquatch.jsonschemainferrer;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import com.saasquatch.jsonschemainferrer.annotations.Beta;
 import javax.annotation.Nonnull;
 

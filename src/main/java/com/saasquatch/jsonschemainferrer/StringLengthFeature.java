@@ -2,7 +2,7 @@ package com.saasquatch.jsonschemainferrer;
 
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.newObject;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.node.ObjectNode;
 import javax.annotation.Nonnull;
 
 /**
