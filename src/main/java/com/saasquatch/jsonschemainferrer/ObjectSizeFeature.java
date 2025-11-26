@@ -2,9 +2,9 @@ package com.saasquatch.jsonschemainferrer;
 
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.newObject;
 
+import javax.annotation.Nonnull;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.ObjectNode;
-import javax.annotation.Nonnull;
 
 /**
  * Features for object size validation

@@ -2,7 +2,6 @@ package com.saasquatch.jsonschemainferrer;
 
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.isValidEnum;
 
-import tools.jackson.databind.JsonNode;
 import com.saasquatch.jsonschemainferrer.annotations.Beta;
 import java.util.Arrays;
 import java.util.Collections;
@@ -10,6 +9,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
+import tools.jackson.databind.JsonNode;
 
 /**
  * Utilities for {@link EnumExtractor}

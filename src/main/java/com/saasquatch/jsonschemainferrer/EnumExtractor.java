@@ -1,9 +1,9 @@
 package com.saasquatch.jsonschemainferrer;
 
-import tools.jackson.databind.JsonNode;
 import com.saasquatch.jsonschemainferrer.annotations.Beta;
 import java.util.Collection;
 import javax.annotation.Nonnull;
+import tools.jackson.databind.JsonNode;
 
 /**
  * Interface for extracting {@code enum} groups from samples.

@@ -1,7 +1,7 @@
 package com.saasquatch.jsonschemainferrer;
 
-import tools.jackson.databind.JsonNode;
 import javax.annotation.Nonnull;
+import tools.jackson.databind.JsonNode;
 
 /**
  * Input for {@link IntegerTypeCriterion}

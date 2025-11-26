@@ -1,8 +1,8 @@
 package com.saasquatch.jsonschemainferrer;
 
-import tools.jackson.databind.JsonNode;
 import com.saasquatch.jsonschemainferrer.annotations.Beta;
 import java.util.Collection;
+import tools.jackson.databind.JsonNode;
 
 /**
  * Utilities for {@link DefaultPolicy}

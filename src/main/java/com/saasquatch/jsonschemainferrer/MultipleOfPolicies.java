@@ -1,7 +1,7 @@
 package com.saasquatch.jsonschemainferrer;
 
-import tools.jackson.databind.JsonNode;
 import java.math.BigInteger;
+import tools.jackson.databind.JsonNode;
 
 /**
  * Utilities for {@link MultipleOfPolicy}

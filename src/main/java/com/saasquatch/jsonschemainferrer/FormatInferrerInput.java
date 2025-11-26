@@ -1,8 +1,8 @@
 package com.saasquatch.jsonschemainferrer;
 
-import tools.jackson.databind.JsonNode;
 import com.saasquatch.jsonschemainferrer.annotations.Beta;
 import javax.annotation.Nonnull;
+import tools.jackson.databind.JsonNode;
 
 /**
  * The input for {@link FormatInferrer}

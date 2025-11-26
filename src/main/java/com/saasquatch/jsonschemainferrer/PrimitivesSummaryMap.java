@@ -2,13 +2,13 @@ package com.saasquatch.jsonschemainferrer;
 
 import static com.saasquatch.jsonschemainferrer.JunkDrawer.entryOf;
 
-import tools.jackson.databind.JsonNode;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
+import tools.jackson.databind.JsonNode;
 
 /**
  * {@link Map} type to keep track of {@link PrimitivesSummary}. The keys are combinations of

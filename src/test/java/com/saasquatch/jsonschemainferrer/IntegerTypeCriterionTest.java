@@ -4,11 +4,11 @@ import static com.saasquatch.jsonschemainferrer.TestJunkDrawer.jnf;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import tools.jackson.databind.JsonNode;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.function.Predicate;
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.JsonNode;
 
 public class IntegerTypeCriterionTest {
 
